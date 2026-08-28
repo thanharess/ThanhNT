@@ -208,23 +208,23 @@ Namespace ThanhN
             m_drawingButtons.Add(drawingBtn15)
 
             ' Create Assembly buttons explicitly (no loop) so each button can have distinct implementation
-            Dim assemblyBtna1 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 1", "ThanhN_Assembly_Btna1", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            Dim assemblyBtna1 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi tên theo chuỗi Top lever Partnumber", "ThanhN_Assembly_Btna1", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
             AddHandler assemblyBtna1.OnExecute, AddressOf Assembly2.Buttons.Button1.OnExecute
             m_assembly2Buttons.Add(assemblyBtna1)
 
-            Dim assemblyBtna2 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 2", "ThanhN_Assembly_Btna2", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            Dim assemblyBtna2 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi tên theo chuỗi Top lever Stocknumber", "ThanhN_Assembly_Btna2", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
             AddHandler assemblyBtna2.OnExecute, AddressOf Assembly2.Buttons.Button2.OnExecute
             m_assembly2Buttons.Add(assemblyBtna2)
 
-            Dim assemblyBtna3 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 3", "ThanhN_Assembly_Btna3", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            Dim assemblyBtna3 As ButtonDefinition = controlDefs.AddButtonDefinition("Đánh STT cho item1 Top lever", "ThanhN_Assembly_Btna3", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
             AddHandler assemblyBtna3.OnExecute, AddressOf Assembly2.Buttons.Button3.OnExecute
             m_assembly2Buttons.Add(assemblyBtna3)
 
-            Dim assemblyBtna4 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 4", "ThanhN_Assembly_Btna4", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            Dim assemblyBtna4 As ButtonDefinition = controlDefs.AddButtonDefinition("Đánh STT cho cụm xếp VT partnumber Top lever", "ThanhN_Assembly_Btna4", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
             AddHandler assemblyBtna4.OnExecute, AddressOf Assembly2.Buttons.Button4.OnExecute
             m_assembly2Buttons.Add(assemblyBtna4)
 
-            Dim assemblyBtna5 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 5", "ThanhN_Assembly_Btna5", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            Dim assemblyBtna5 As ButtonDefinition = controlDefs.AddButtonDefinition("Đánh STT, item1 VT Buy Top lever về cuối", "ThanhN_Assembly_Btna5", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
             AddHandler assemblyBtna5.OnExecute, AddressOf Assembly2.Buttons.Button5.OnExecute
             m_assembly2Buttons.Add(assemblyBtna5)
 
@@ -364,7 +364,7 @@ Namespace ThanhN
             AddTabPanelButtons("Part", "ThanhN", "ThanhN_PartTab", "Main", "ThanhN_PartPanel", m_partButtons)
 
             ' Add to Assembly ribbon as a separate tab.
-            AddTabPanelButtons("Assembly", "ThanhNTN", "ThanhN_AssemblyTab2", "Main2", "ThanhN_AssemblyPanel2", m_assembly2Buttons)
+            AddTabPanelButtons("Assembly", "BOM ADDIN", "ThanhN_AssemblyTab2", "Main2", "ThanhN_AssemblyPanel2", m_assembly2Buttons)
         End Sub
 
         Private Sub m_uiEvents_OnResetRibbonInterface(Context As NameValueMap) Handles m_uiEvents.OnResetRibbonInterface
