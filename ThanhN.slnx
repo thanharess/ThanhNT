@@ -1,18 +1,6 @@
 <Solution>
   <Folder Name="/Solution Items/">
-    <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/Copy Cday + tên part number BOM sang Custom Bomchieuday Part cho cac part trong structure ASS.iLogicVb" />
-    <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/Copy Cday + tên stock  number BOM sang Custom Bomchieuday Part cho cac part trong structure ASS .iLogicVb" />
-    <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/Copy Cday number BOM sang Custom Bomchieuday Part cho cac part trong structure ASS .iLogicVb" />
-    <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/Copy item number BOM sang Custom Bom item1 cho cac part trong structure ASS .iLogicVb" />
-    <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/Copy item number BOM sang Custom Bom row().iLogicVb" />
-    <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/Copy item,QTY number BOM sang Custom Bom item1,SL Part cho cac part trong structure ASS .iLogicVb" />
-    <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/Copy item,QTY,Cday number BOM sang Custom Bom item1,SL,chieuday Part cho cac part trong structure ASS .iLogicVb" />
-    <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/Copy QTY BOM sang Custom Bom QTY cho cac sub-part trong structure ASS .iLogicVb" />
-    <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/Copy STT BOM sang Custom Bom STT cho cac sub-part trong structure ASS .iLogicVb" />
-    <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/Danh lại stt bang bom theo cum va part.txt" />
-    <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/sap xep BOM theo sub asembly roi toi part tao iproperty r coppy lever top.txt" />
-    <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/STT ().iLogicVb" />
-    <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/sắp sếp lại stt theo cây thư mục của bảng BOM.iLogicVb" />
+    <File Path="Auto tao tam.txt" />
   </Folder>
   <Project Path="ThanhN.vbproj" Id="e3133b87-5830-4eca-a611-be8cabd0d3ef" />
 </Solution>
