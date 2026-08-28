@@ -1,3 +1,5 @@
+Imports System.Runtime.InteropServices
+Imports System.Windows.Forms
 Imports Inventor
 
 Namespace ThanhN.Part.Buttons
