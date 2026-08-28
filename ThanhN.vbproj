@@ -33,7 +33,7 @@
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\..\..\..\ProgramData\Autodesk\Inventor 2020\Addins\ThanhN\</OutputPath>
+    <OutputPath>..\..\..\..\..\..\ProgramData\Autodesk\Inventor 2020\Addins\ThanhN\</OutputPath>
     <DocumentationFile>.xml</DocumentationFile>
     <DebugSymbols>true</DebugSymbols>
     <DefineDebug>true</DefineDebug>
@@ -137,6 +137,21 @@
     <Compile Include="Part\Buttons\Button7.vb" />
     <Compile Include="Part\Buttons\Button8.vb" />
     <Compile Include="Part\Buttons\Button9.vb" />
+    <Compile Include="Assembly2\Buttons\Button1.vb" />
+    <Compile Include="Assembly2\Buttons\Button10.vb" />
+    <Compile Include="Assembly2\Buttons\Button11.vb" />
+    <Compile Include="Assembly2\Buttons\Button12.vb" />
+    <Compile Include="Assembly2\Buttons\Button13.vb" />
+    <Compile Include="Assembly2\Buttons\Button14.vb" />
+    <Compile Include="Assembly2\Buttons\Button15.vb" />
+    <Compile Include="Assembly2\Buttons\Button2.vb" />
+    <Compile Include="Assembly2\Buttons\Button3.vb" />
+    <Compile Include="Assembly2\Buttons\Button4.vb" />
+    <Compile Include="Assembly2\Buttons\Button5.vb" />
+    <Compile Include="Assembly2\Buttons\Button6.vb" />
+    <Compile Include="Assembly2\Buttons\Button7.vb" />
+    <Compile Include="Assembly2\Buttons\Button8.vb" />
+    <Compile Include="Assembly2\Buttons\Button9.vb" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThanhN.X.manifest" />

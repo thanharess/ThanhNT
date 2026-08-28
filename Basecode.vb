@@ -16,6 +16,7 @@ Namespace ThanhN
         Private m_partButtons As New System.Collections.Generic.List(Of ButtonDefinition)
         Private m_assemblyButtons As New System.Collections.Generic.List(Of ButtonDefinition)
         Private m_drawingButtons As New System.Collections.Generic.List(Of ButtonDefinition)
+        Private m_assembly2Buttons As New System.Collections.Generic.List(Of ButtonDefinition)
 
 #Region "ApplicationAddInServer Members"
 
@@ -42,7 +43,7 @@ Namespace ThanhN
             m_partButtons.Add(partBtn1)
 
             Dim partBtn2 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa fix all sketch", "ThanhN_Part_Btn2", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
-            AddHandler partBtn2.OnExecute, AddressOf Part.Buttons.Button2.OnExecute
+            AddHandler partBtn2.OnExecute, AddressOf Part.Buttons.Button1.OnExecute
             m_partButtons.Add(partBtn2)
 
             Dim partBtn3 As ButtonDefinition = controlDefs.AddButtonDefinition("Tạo coil line 3d", "ThanhN_Part_Btn3", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
@@ -206,10 +207,71 @@ Namespace ThanhN
             AddHandler drawingBtn15.OnExecute, Sub(Context As NameValueMap) DrawingButton_OnExecute(15, Context)
             m_drawingButtons.Add(drawingBtn15)
 
-            ' Add to the user interface, if it's the first time.
-            If firstTime Then
-                AddToUserInterface()
-            End If
+            ' Create Assembly buttons explicitly (no loop) so each button can have distinct implementation
+            Dim assemblyBtna1 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 1", "ThanhN_Assembly_Btna1", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            AddHandler assemblyBtna1.OnExecute, AddressOf Assembly2.Buttons.Button1.OnExecute
+            m_assembly2Buttons.Add(assemblyBtna1)
+
+            Dim assemblyBtna2 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 2", "ThanhN_Assembly_Btna2", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            AddHandler assemblyBtna2.OnExecute, AddressOf Assembly2.Buttons.Button2.OnExecute
+            m_assembly2Buttons.Add(assemblyBtna2)
+
+            Dim assemblyBtna3 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 3", "ThanhN_Assembly_Btna3", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            AddHandler assemblyBtna3.OnExecute, AddressOf Assembly2.Buttons.Button3.OnExecute
+            m_assembly2Buttons.Add(assemblyBtna3)
+
+            Dim assemblyBtna4 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 4", "ThanhN_Assembly_Btna4", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            AddHandler assemblyBtna4.OnExecute, AddressOf Assembly2.Buttons.Button4.OnExecute
+            m_assembly2Buttons.Add(assemblyBtna4)
+
+            Dim assemblyBtna5 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 5", "ThanhN_Assembly_Btna5", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            AddHandler assemblyBtna5.OnExecute, AddressOf Assembly2.Buttons.Button5.OnExecute
+            m_assembly2Buttons.Add(assemblyBtna5)
+
+            Dim assemblyBtna6 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 6", "ThanhN_Assembly_Btna6", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            AddHandler assemblyBtna6.OnExecute, AddressOf Assembly2.Buttons.Button6.OnExecute
+            m_assembly2Buttons.Add(assemblyBtna6)
+
+            Dim assemblyBtna7 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 7", "ThanhN_Assembly_Btna7", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            AddHandler assemblyBtna7.OnExecute, AddressOf Assembly2.Buttons.Button7.OnExecute
+            m_assembly2Buttons.Add(assemblyBtna7)
+
+            Dim assemblyBtna8 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 8", "ThanhN_Assembly_Btna8", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            AddHandler assemblyBtna8.OnExecute, AddressOf Assembly2.Buttons.Button8.OnExecute
+            m_assembly2Buttons.Add(assemblyBtna8)
+
+            Dim assemblyBtna9 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 9", "ThanhN_Assembly_Btna9", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            AddHandler assemblyBtna9.OnExecute, AddressOf Assembly2.Buttons.Button9.OnExecute
+            m_assembly2Buttons.Add(assemblyBtna9)
+
+            Dim assemblyBtna10 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 10", "ThanhN_Assembly_Btna10", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            AddHandler assemblyBtna10.OnExecute, AddressOf Assembly2.Buttons.Button10.OnExecute
+            m_assembly2Buttons.Add(assemblyBtna10)
+
+            Dim assemblyBtna11 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 11", "ThanhN_Assembly_Btna11", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            AddHandler assemblyBtna11.OnExecute, AddressOf Assembly2.Buttons.Button11.OnExecute
+            m_assembly2Buttons.Add(assemblyBtna11)
+
+            Dim assemblyBtna12 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 12", "ThanhN_Assembly_Btna12", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            AddHandler assemblyBtna12.OnExecute, AddressOf Assembly2.Buttons.Button12.OnExecute
+            m_assembly2Buttons.Add(assemblyBtna12)
+
+            Dim assemblyBtna13 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 13", "ThanhN_Assembly_Btna13", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            AddHandler assemblyBtna13.OnExecute, AddressOf Assembly2.Buttons.Button13.OnExecute
+            m_assembly2Buttons.Add(assemblyBtna13)
+
+            Dim assemblyBtna14 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 14", "ThanhN_Assembly_Btna14", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            AddHandler assemblyBtna14.OnExecute, AddressOf Assembly2.Buttons.Button14.OnExecute
+            m_assembly2Buttons.Add(assemblyBtna14)
+
+            Dim assemblyBtna15 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 15", "ThanhN_Assembly_Btna15", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            AddHandler assemblyBtna15.OnExecute, AddressOf Assembly2.Buttons.Button15.OnExecute
+            m_assembly2Buttons.Add(assemblyBtna15)
+
+            ' Ensure the user interface is created when the add-in activates.
+            ' Call AddToUserInterface unconditionally so the Assembly tab/panel is created
+            ' even when firstTime is False (the ribbon can be reset at other times).
+            AddToUserInterface()
         End Sub
 
         ' This method is called by Inventor when the AddIn is unloaded. The AddIn will be
@@ -300,6 +362,9 @@ Namespace ThanhN
 
             ' Add to Part ribbon as a separate tab.
             AddTabPanelButtons("Part", "ThanhN", "ThanhN_PartTab", "Main", "ThanhN_PartPanel", m_partButtons)
+
+            ' Add to Assembly ribbon as a separate tab.
+            AddTabPanelButtons("Assembly", "ThanhNTN", "ThanhN_AssemblyTab2", "Main2", "ThanhN_AssemblyPanel2", m_assembly2Buttons)
         End Sub
 
         Private Sub m_uiEvents_OnResetRibbonInterface(Context As NameValueMap) Handles m_uiEvents.OnResetRibbonInterface
@@ -314,7 +379,7 @@ Namespace ThanhN
                     Case 1
                         Part.Buttons.Button1.OnExecute(Context)
                     Case 2
-                        Part.Buttons.Button2.OnExecute(Context)
+                        Part.Buttons.Button1.OnExecute(Context)
                     Case 3
                         Part.Buttons.Button3.OnExecute(Context)
                     Case 4
@@ -424,6 +489,46 @@ Namespace ThanhN
                 MsgBox(ex.Message)
             End Try
         End Sub
+
+        Private Sub AssemblyButton2_OnExecute(actionIndex As Integer, Context As NameValueMap)
+            Try
+                Select Case actionIndex
+                    Case 1
+                        Assembly2.Buttons.Button1.OnExecute(Context)
+                    Case 2
+                        Assembly2.Buttons.Button2.OnExecute(Context)
+                    Case 3
+                        Assembly2.Buttons.Button3.OnExecute(Context)
+                    Case 4
+                        Assembly2.Buttons.Button4.OnExecute(Context)
+                    Case 5
+                        Assembly2.Buttons.Button5.OnExecute(Context)
+                    Case 6
+                        Assembly2.Buttons.Button6.OnExecute(Context)
+                    Case 7
+                        Assembly2.Buttons.Button7.OnExecute(Context)
+                    Case 8
+                        Assembly2.Buttons.Button8.OnExecute(Context)
+                    Case 9
+                        Assembly2.Buttons.Button9.OnExecute(Context)
+                    Case 10
+                        Assembly2.Buttons.Button10.OnExecute(Context)
+                    Case 11
+                        Assembly2.Buttons.Button11.OnExecute(Context)
+                    Case 12
+                        Assembly2.Buttons.Button12.OnExecute(Context)
+                    Case 13
+                        Assembly2.Buttons.Button13.OnExecute(Context)
+                    Case 14
+                        Assembly2.Buttons.Button14.OnExecute(Context)
+                    Case 15
+                        Assembly2.Buttons.Button15.OnExecute(Context)
+                End Select
+            Catch ex As Exception
+                MsgBox(ex.Message)
+            End Try
+        End Sub
+
 #End Region
 
     End Class
@@ -483,10 +588,10 @@ Public Module Globals
     ' Dim smallIcon As stdole.IPictureDisp = PictureDispConverter.ToIPictureDisp(My.Resources.MyIcon)
 
     Public NotInheritable Class PictureDispConverter
-        <DllImport("OleAut32.dll", EntryPoint:="OleCreatePictureIndirect", ExactSpelling:=True, PreserveSig:=False)> _
-        Private Shared Function OleCreatePictureIndirect( _
-            <MarshalAs(UnmanagedType.AsAny)> ByVal picdesc As Object, _
-            ByRef iid As Guid, _
+        <DllImport("OleAut32.dll", EntryPoint:="OleCreatePictureIndirect", ExactSpelling:=True, PreserveSig:=False)>
+        Private Shared Function OleCreatePictureIndirect(
+            <MarshalAs(UnmanagedType.AsAny)> ByVal picdesc As Object,
+            ByRef iid As Guid,
             <MarshalAs(UnmanagedType.Bool)> ByVal fOwn As Boolean) As stdole.IPictureDisp
         End Function
 
@@ -500,7 +605,7 @@ Public Module Globals
             Public Const PICTYPE_BITMAP As Short = 1
             Public Const PICTYPE_ICON As Short = 3
 
-            <StructLayout(LayoutKind.Sequential)> _
+            <StructLayout(LayoutKind.Sequential)>
             Public Class Icon
                 Friend cbSizeOfStruct As Integer = Marshal.SizeOf(GetType(PICTDESC.Icon))
                 Friend picType As Integer = PICTDESC.PICTYPE_ICON
@@ -513,7 +618,7 @@ Public Module Globals
                 End Sub
             End Class
 
-            <StructLayout(LayoutKind.Sequential)> _
+            <StructLayout(LayoutKind.Sequential)>
             Public Class Bitmap
                 Friend cbSizeOfStruct As Integer = Marshal.SizeOf(GetType(PICTDESC.Bitmap))
                 Friend picType As Integer = PICTDESC.PICTYPE_BITMAP

@@ -1,3 +1,6 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Auto tao tam.txt" />
+  </Folder>
   <Project Path="ThanhN.vbproj" Id="e3133b87-5830-4eca-a611-be8cabd0d3ef" />
 </Solution>
