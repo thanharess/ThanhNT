@@ -228,35 +228,40 @@ Namespace ThanhN
             AddHandler assemblyBtna5.OnExecute, AddressOf Assembly2.Buttons.Button5.OnExecute
             m_assembly2Buttons.Add(assemblyBtna5)
 
-            Dim assemblyBtna6 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 6", "ThanhN_Assembly_Btna6", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            Dim assemblyBtna6 As ButtonDefinition = controlDefs.AddButtonDefinition("Đánh STT top lever", "ThanhN_Assembly_Btna6", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
             AddHandler assemblyBtna6.OnExecute, AddressOf Assembly2.Buttons.Button6.OnExecute
             m_assembly2Buttons.Add(assemblyBtna6)
 
-            Dim assemblyBtna7 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 7", "ThanhN_Assembly_Btna7", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            Dim assemblyBtna7 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi tên PLxx sheetmetal vào trong PartNB", "ThanhN_Assembly_Btna7", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
             AddHandler assemblyBtna7.OnExecute, AddressOf Assembly2.Buttons.Button7.OnExecute
             m_assembly2Buttons.Add(assemblyBtna7)
 
-            Dim assemblyBtna8 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 8", "ThanhN_Assembly_Btna8", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            Dim assemblyBtna8 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi tên PLxx sheetmetal vào trong StockNB", "ThanhN_Assembly_Btna8", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, "Code này sẽ thay tên stocknumber 
+theo kích thước bao sau khi trải ")
             AddHandler assemblyBtna8.OnExecute, AddressOf Assembly2.Buttons.Button8.OnExecute
             m_assembly2Buttons.Add(assemblyBtna8)
 
-            Dim assemblyBtna9 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 9", "ThanhN_Assembly_Btna9", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            Dim assemblyBtna9 As ButtonDefinition = controlDefs.AddButtonDefinition("Điền thông tin chiều dày tấm vào PL BOM", "ThanhN_Assembly_Btna9", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, "
+Điền thông tin chiều dày theo thickness. chỉ áp dụng với cá sheetmetal! = t1,t2,t3,t4,...")
             AddHandler assemblyBtna9.OnExecute, AddressOf Assembly2.Buttons.Button9.OnExecute
             m_assembly2Buttons.Add(assemblyBtna9)
 
-            Dim assemblyBtna10 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 10", "ThanhN_Assembly_Btna10", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            Dim assemblyBtna10 As ButtonDefinition = controlDefs.AddButtonDefinition("STT từ Item sang item1 chỉ dánh part top lever", "ThanhN_Assembly_Btna10", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, "Code này chỉ coppy SST sang item1 cho part
+toplever")
             AddHandler assemblyBtna10.OnExecute, AddressOf Assembly2.Buttons.Button10.OnExecute
             m_assembly2Buttons.Add(assemblyBtna10)
 
-            Dim assemblyBtna11 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 11", "ThanhN_Assembly_Btna11", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            Dim assemblyBtna11 As ButtonDefinition = controlDefs.AddButtonDefinition("Item, Item Qty part sang Item1, SL Part all lever", "ThanhN_Assembly_Btna11", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, "Coppy Item, Item Qty part all leveer sang Item1, SL Part all lever
+tối đa 3 lever & không copy vào cụm lắp. chỉ copy part")
             AddHandler assemblyBtna11.OnExecute, AddressOf Assembly2.Buttons.Button11.OnExecute
             m_assembly2Buttons.Add(assemblyBtna11)
 
-            Dim assemblyBtna12 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 12", "ThanhN_Assembly_Btna12", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            Dim assemblyBtna12 As ButtonDefinition = controlDefs.AddButtonDefinition("Item, Item Qty part sang Item1, SL Part, PL all lever", "ThanhN_Assembly_Btna12", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, "Coppy Item, Item Qty part all leveer sang Item1, SL Part, thickness PL sheetmetal all lever
+tối đa 3 lever & không copy vào cụm lắp. chỉ copy part")
             AddHandler assemblyBtna12.OnExecute, AddressOf Assembly2.Buttons.Button12.OnExecute
             m_assembly2Buttons.Add(assemblyBtna12)
 
-            Dim assemblyBtna13 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 13", "ThanhN_Assembly_Btna13", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
+            Dim assemblyBtna13 As ButtonDefinition = controlDefs.AddButtonDefinition("Item, Item Qty part sang Item1, SL Part, PL all lever", "ThanhN_Assembly_Btna13", CommandTypesEnum.kShapeEditCmdType, AddInClientID, Nothing, Nothing)
             AddHandler assemblyBtna13.OnExecute, AddressOf Assembly2.Buttons.Button13.OnExecute
             m_assembly2Buttons.Add(assemblyBtna13)
 
