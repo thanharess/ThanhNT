@@ -108,10 +108,10 @@
     <Compile Include="Code addin inventor\Assembly2Buttons -Pulldown.vb" />
     <Compile Include="Code addin inventor\Assembly2Buttons.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_1.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Button10.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Button11.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Button12.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Button13.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_6.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_7.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_8.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Import_step_to_part.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Button14.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Button15.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_2.vb" />
