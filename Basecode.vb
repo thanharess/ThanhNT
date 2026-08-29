@@ -17,6 +17,7 @@ Namespace ThanhN
         Private m_assemblyButtons As New System.Collections.Generic.List(Of ButtonDefinition)
         Private m_drawingButtons As New System.Collections.Generic.List(Of ButtonDefinition)
         Private m_assembly2Buttons As New System.Collections.Generic.List(Of ButtonDefinition)
+        Private m_assembly3Buttons As New System.Collections.Generic.List(Of ButtonDefinition)
 
 #Region "ApplicationAddInServer Members"
 
@@ -48,7 +49,8 @@ Namespace ThanhN
 
             ' Create Assembly buttons via helper class
             Assembly2Buttons.Register(controlDefs, AddInClientID, m_assembly2Buttons)
-
+            ' Create Assembly buttons via helper class
+            Assembly3Buttons.Register(controlDefs, AddInClientID, m_assembly3Buttons)
 
             ' Ensure the user interface is created when the add-in activates.
             ' Call AddToUserInterface unconditionally so the Assembly tab/panel is created
@@ -125,11 +127,19 @@ Namespace ThanhN
 
                                                  If customPanel IsNot Nothing Then
                                                      If buttons IsNot Nothing Then
+                                                         ' 1. Thêm trực tiếp từng button vào panel
                                                          For Each bd As ButtonDefinition In buttons
                                                              customPanel.CommandControls.AddButton(bd)
                                                          Next
+
+                                                         ' 2. Tạo pulldown menu và thêm các button vào đó
+                                                         Dim pulldown As CommandControl = customPanel.CommandControls.AddPulldown(panelDisplayName, panelInternalName, AddInClientID)
+                                                         For Each bd As ButtonDefinition In buttons
+                                                             pulldown.Controls.AddButton(bd)
+                                                         Next
                                                      End If
                                                  End If
+
                                              End If
                                          Catch
                                              ' Ignore failures for missing ribbons or other issues
@@ -147,6 +157,8 @@ Namespace ThanhN
 
             ' Add to Assembly ribbon as a separate tab.
             AddTabPanelButtons("Assembly", "BOM ADDIN", "ThanhN_AssemblyTab2", "Main2", "ThanhN_AssemblyPanel2", m_assembly2Buttons)
+            AddTabPanelButtons("Assembly", "BOM ADDIN2", "ThanhN_Assembly3_Pulldown", "Main3", "Assembly3 Actions", m_assembly3Buttons)
+
         End Sub
 
         Private Sub muievents_onresetribbonInterface(Context As NameValueMap) Handles m_uievents.OnResetRibbonInterface
@@ -154,45 +166,7 @@ Namespace ThanhN
             AddToUserInterface()
         End Sub
 
-        ' Handlers for per-environment buttons (route to new modules)
-        Private Sub PartButton_OnExecute(actionIndex As Integer, Context As NameValueMap)
-            Try
-                Select Case actionIndex
-                    Case 1
-                        Part.Buttons.Button1.OnExecute(Context)
-                    Case 2
-                        Part.Buttons.Button1.OnExecute(Context)
-                    Case 3
-                        Part.Buttons.Button3.OnExecute(Context)
-                    Case 4
-                        Part.Buttons.Button4.OnExecute(Context)
-                    Case 5
-                        Part.Buttons.Button5.OnExecute(Context)
-                    Case 6
-                        Part.Buttons.Button6.OnExecute(Context)
-                    Case 7
-                        Part.Buttons.Button7.OnExecute(Context)
-                    Case 8
-                        Part.Buttons.Button8.OnExecute(Context)
-                    Case 9
-                        Part.Buttons.Button9.OnExecute(Context)
-                    Case 10
-                        Part.Buttons.Button10.OnExecute(Context)
-                    Case 11
-                        Part.Buttons.Button11.OnExecute(Context)
-                    Case 12
-                        Part.Buttons.Button12.OnExecute(Context)
-                    Case 13
-                        Part.Buttons.Button13.OnExecute(Context)
-                    Case 14
-                        Part.Buttons.Button14.OnExecute(Context)
-                    Case 15
-                        Part.Buttons.Button15.OnExecute(Context)
-                End Select
-            Catch ex As Exception
-                MsgBox(ex.Message)
-            End Try
-        End Sub
+
 
         ' Button dispatcher methods removed: handlers wired directly to specific Button classes
 

@@ -90,22 +90,38 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.vb" />
+    <Compile Include="Code addin inventor\Assembly3\Buttons\Button1.vb" />
+    <Compile Include="Code addin inventor\Assembly3\Buttons\Button10.vb" />
+    <Compile Include="Code addin inventor\Assembly3\Buttons\Button11.vb" />
+    <Compile Include="Code addin inventor\Assembly3\Buttons\Button12.vb" />
+    <Compile Include="Code addin inventor\Assembly3\Buttons\Button13.vb" />
+    <Compile Include="Code addin inventor\Assembly3\Buttons\Button14.vb" />
+    <Compile Include="Code addin inventor\Assembly3\Buttons\Button15.vb" />
+    <Compile Include="Code addin inventor\Assembly3\Buttons\Button2.vb" />
+    <Compile Include="Code addin inventor\Assembly3\Buttons\Button3.vb" />
+    <Compile Include="Code addin inventor\Assembly3\Buttons\Button4.vb" />
+    <Compile Include="Code addin inventor\Assembly3\Buttons\Button5.vb" />
+    <Compile Include="Code addin inventor\Assembly3\Buttons\Button6.vb" />
+    <Compile Include="Code addin inventor\Assembly3\Buttons\Button7.vb" />
+    <Compile Include="Code addin inventor\Assembly3\Buttons\Button8.vb" />
+    <Compile Include="Code addin inventor\Assembly3\Buttons\Button9.vb" />
+    <Compile Include="Code addin inventor\Assembly2Buttons -Pulldown.vb" />
     <Compile Include="Code addin inventor\Assembly2Buttons.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Button1.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_1.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Button10.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Button11.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Button12.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Button13.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Button14.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Button15.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Button2.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Button3.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Button4.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Button5.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Button6.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Button7.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Button8.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Button9.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_2.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_3.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_4.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_5.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Part\Ass_Part_1.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Part\Ass_Part_2.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Part\Ass_Part_3.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Part\Ass_Part_4.vb" />
     <Compile Include="Code addin inventor\DrawingButtons.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Button1.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Button10.vb" />
@@ -125,36 +141,36 @@
     <Compile Include="Code addin inventor\AssemblyButtons.vb" />
     <Compile Include="Globals.vb" />
     <Compile Include="Basecode.vb" />
-    <Compile Include="Code addin inventor\Part\Buttons\Button1.vb" />
+    <Compile Include="Code addin inventor\Part\Buttons\Solid\Part_Solid_1.vb" />
     <Compile Include="Code addin inventor\Part\Buttons\Button10.vb" />
     <Compile Include="Code addin inventor\Part\Buttons\Button11.vb" />
     <Compile Include="Code addin inventor\Part\Buttons\Button12.vb" />
     <Compile Include="Code addin inventor\Part\Buttons\Button13.vb" />
     <Compile Include="Code addin inventor\Part\Buttons\Button14.vb" />
     <Compile Include="Code addin inventor\Part\Buttons\Button15.vb" />
-    <Compile Include="Code addin inventor\Part\Buttons\Button2.vb" />
-    <Compile Include="Code addin inventor\Part\Buttons\Button3.vb" />
-    <Compile Include="Code addin inventor\Part\Buttons\Button4.vb" />
-    <Compile Include="Code addin inventor\Part\Buttons\Button5.vb" />
-    <Compile Include="Code addin inventor\Part\Buttons\Button6.vb" />
+    <Compile Include="Code addin inventor\Part\Buttons\Solid\Part_Solid_2.vb" />
+    <Compile Include="Code addin inventor\Part\Buttons\Solid\Part_Solid_3.vb" />
+    <Compile Include="Code addin inventor\Part\Buttons\Solid\Part_Solid_4.vb" />
+    <Compile Include="Code addin inventor\Part\Buttons\Solid\Part_Solid_5.vb" />
+    <Compile Include="Code addin inventor\Part\Buttons\Solid\Part_Solid_6.vb" />
     <Compile Include="Code addin inventor\Part\Buttons\Button7.vb" />
     <Compile Include="Code addin inventor\Part\Buttons\Button8.vb" />
     <Compile Include="Code addin inventor\Part\Buttons\Button9.vb" />
-    <Compile Include="Code addin inventor\Assembly2\Buttons\Button1.vb" />
-    <Compile Include="Code addin inventor\Assembly2\Buttons\Button10.vb" />
-    <Compile Include="Code addin inventor\Assembly2\Buttons\Button11.vb" />
-    <Compile Include="Code addin inventor\Assembly2\Buttons\Button12.vb" />
-    <Compile Include="Code addin inventor\Assembly2\Buttons\Button13.vb" />
-    <Compile Include="Code addin inventor\Assembly2\Buttons\Button14.vb" />
-    <Compile Include="Code addin inventor\Assembly2\Buttons\Button15.vb" />
-    <Compile Include="Code addin inventor\Assembly2\Buttons\Button2.vb" />
-    <Compile Include="Code addin inventor\Assembly2\Buttons\Button3.vb" />
-    <Compile Include="Code addin inventor\Assembly2\Buttons\Button4.vb" />
-    <Compile Include="Code addin inventor\Assembly2\Buttons\Button5.vb" />
-    <Compile Include="Code addin inventor\Assembly2\Buttons\Button6.vb" />
-    <Compile Include="Code addin inventor\Assembly2\Buttons\Button7.vb" />
-    <Compile Include="Code addin inventor\Assembly2\Buttons\Button8.vb" />
-    <Compile Include="Code addin inventor\Assembly2\Buttons\Button9.vb" />
+    <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_1.vb" />
+    <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_10.vb" />
+    <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_11.vb" />
+    <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_12.vb" />
+    <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_13.vb" />
+    <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_14.vb" />
+    <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_15.vb" />
+    <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_2.vb" />
+    <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_3.vb" />
+    <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_4.vb" />
+    <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_5.vb" />
+    <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_6.vb" />
+    <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_7.vb" />
+    <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_8.vb" />
+    <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_9.vb" />
     <Compile Include="Code addin inventor\PartButtons.vb" />
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +185,7 @@
     <None Include="Readme.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Code addin inventor\Part\Buttons\Sheetmetal\" />
     <Folder Include="My Project\" />
   </ItemGroup>
   <ItemGroup>
