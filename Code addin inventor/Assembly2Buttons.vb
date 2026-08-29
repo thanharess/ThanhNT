@@ -70,6 +70,14 @@ tối đa 3 lever & không copy vào cụm lắp. chỉ copy part")
             AddHandler assemblyBtna15.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_15.OnExecute
             buttonsList.Add(assemblyBtna15)
 
+            Dim assemblyBtna16 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 16", "ThanhN_Assembly_Btna16", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            'AddHandler assemblyBtna16.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_16.OnExecute
+            buttonsList.Add(assemblyBtna16)
+
+            Dim assemblyBtna17 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 17", "ThanhN_Assembly_Btna17", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            'AddHandler assemblyBtna17.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_17.OnExecute
+            buttonsList.Add(assemblyBtna17)
+
         End Sub
     End Class
 End Namespace

@@ -65,17 +65,45 @@ Namespace ThanhN
             AddHandler assemblyBtn12.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_8.OnExecute
             buttonsList.Add(assemblyBtn12)
 
-            Dim assemblyBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 13", "ThanhN_Assembly_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim assemblyBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Import step to part", "ThanhN_Assembly_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                    Nothing,
+                                                                                    "Import all file to part tự lưu, xóa liên kết lưu file tự động")
             AddHandler assemblyBtn13.OnExecute, AddressOf Assembly.Buttons.Import_step_to_part.OnExecute
             buttonsList.Add(assemblyBtn13)
 
-            Dim assemblyBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 14", "ThanhN_Assembly_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
-            ' AddHandler assemblyBtn14.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Button14.OnExecute
+            Dim assemblyBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Save coppy to replace part", "ThanhN_Assembly_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            AddHandler assemblyBtn14.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_9.OnExecute
             buttonsList.Add(assemblyBtn14)
 
-            Dim assemblyBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 15", "ThanhN_Assembly_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
-            ' AddHandler assemblyBtn15.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Button15.OnExecute
+            Dim assemblyBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Design Assitan", "ThanhN_Assembly_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            AddHandler assemblyBtn15.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_10.OnExecute
             buttonsList.Add(assemblyBtn15)
+
+            Dim assemblyBtn16 As ButtonDefinition = controlDefs.AddButtonDefinition("Btach PL trong Ass top LVer", "ThanhN_Assembly_Btn16", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                    Nothing,
+                                                                                    "Tạo, ghép các chi tiết shetmetal để Phuc cụ bóc tách top lever")
+            AddHandler assemblyBtn16.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_11.OnExecute
+            buttonsList.Add(assemblyBtn16)
+
+            Dim assemblyBtn17 As ButtonDefinition = controlDefs.AddButtonDefinition("Lọc các PL trong ASS ALL", "ThanhN_Assembly_Btn17", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                    Nothing, "Tạo, ghép shetmetal to assembly all lever - lọc đếm phân loại ko ộng dồn ko trùng partnumber")
+            AddHandler assemblyBtn17.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_12.OnExecute
+            buttonsList.Add(assemblyBtn17)
+
+            Dim assemblyBtn18 As ButtonDefinition = controlDefs.AddButtonDefinition("Tập hợp PL trong ASS ALL", "ThanhN_Assembly_Btn18", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                    Nothing, "Tạo, ghép shetmetal to assembly all lever lấy tất cả các tấm kể cả trung tên partnumber")
+            AddHandler assemblyBtn18.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_13.OnExecute
+            buttonsList.Add(assemblyBtn18)
+
+            Dim assemblyBtn19 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghép shetmetal,mua,thư viện trong ASS ALL", "ThanhN_Assembly_Btn19", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                   Nothing, "Tạo, ghép shetmetal,mua,thư viện to assembly all lever lấy tổng partnumber")
+            AddHandler assemblyBtn19.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_14.OnExecute
+            buttonsList.Add(assemblyBtn19)
+
+            Dim assemblyBtn20 As ButtonDefinition = controlDefs.AddButtonDefinition("Lọc các loại tấm xuất hiện trong ASS ALL", "ThanhN_Assembly_Btn20", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                   Nothing, "")
+            AddHandler assemblyBtn20.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_15.OnExecute
+            buttonsList.Add(assemblyBtn20)
         End Sub
     End Class
 End Namespace
