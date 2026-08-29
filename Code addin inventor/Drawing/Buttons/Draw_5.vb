@@ -1,13 +1,13 @@
 Imports Inventor
 
 Namespace ThanhN.Drawing.Buttons
-    Public Module Button13
+    Public Module Draw_5
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Try
-                g_inventorApplication.UserInterfaceManager.UserInteractionManager.PostStatus("Executed Drawing Action 13")
+                g_inventorApplication.UserInterfaceManager.UserInteractionManager.PostStatus("Executed Drawing Action 5")
             Catch ex As Exception
                 Try
-                    g_inventorApplication.UserInterfaceManager.UserInteractionManager.PostStatus("Error in Drawing Action 13: " & ex.Message)
+                    g_inventorApplication.UserInterfaceManager.UserInteractionManager.PostStatus("Error in Drawing Action 5: " & ex.Message)
                 Catch
                 End Try
             End Try

@@ -1,5 +1,6 @@
 Imports System.Diagnostics.Contracts
 Imports Inventor
+Imports ThanhN.ThanhN.Assembly.Buttons
 
 Namespace ThanhN
     Public Class AssemblyButtons
@@ -97,13 +98,44 @@ Namespace ThanhN
 
             Dim assemblyBtn19 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghép shetmetal,mua,thư viện trong ASS ALL", "ThanhN_Assembly_Btn19", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing, "Tạo, ghép shetmetal,mua,thư viện to assembly all lever lấy tổng partnumber")
-            AddHandler assemblyBtn19.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_14.OnExecute
+            AddHandler assemblyBtn19.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.ass_14.OnExecute
             buttonsList.Add(assemblyBtn19)
 
             Dim assemblyBtn20 As ButtonDefinition = controlDefs.AddButtonDefinition("Lọc các loại tấm xuất hiện trong ASS ALL", "ThanhN_Assembly_Btn20", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing, "")
-            AddHandler assemblyBtn20.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_15.OnExecute
+            AddHandler assemblyBtn20.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.ass_15.OnExecute
             buttonsList.Add(assemblyBtn20)
+
+            Dim assemblyBtn21 As ButtonDefinition = controlDefs.AddButtonDefinition("UPDATE DESIGN STANDARD", "ThanhN_Assembly_Btn21", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                   Nothing, "Up date cho các tool tinh toán tiêu chuẩn ví dụ như buloong, key,...")
+            AddHandler assemblyBtn21.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.ass_16.OnExecute
+            buttonsList.Add(assemblyBtn21)
+
+            Dim assemblyBtn22 As ButtonDefinition = controlDefs.AddButtonDefinition("Thông số part", "ThanhN_Assembly_Btn22", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                   Nothing, "Up date cho các tool tinh toán tiêu chuẩn ví dụ như buloong, key,...")
+            AddHandler assemblyBtn22.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.ass_17.OnExecute
+            buttonsList.Add(assemblyBtn22)
+
+            Dim assemblyBtn23 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto drawing v8", "ThanhN_Assembly_Btn23", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                 Nothing, "Auto drawing cho ALL lever.")
+            AddHandler assemblyBtn23.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.AutoDrawingV8.OnExecute
+            buttonsList.Add(assemblyBtn23)
+
+            Dim assemblyBtn24 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto drawing ASS", "ThanhN_Assembly_Btn24", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                            Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.")
+            AddHandler assemblyBtn24.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.AutoDrawingASSTopLV.OnExecute
+            buttonsList.Add(assemblyBtn24)
+
+
+            Dim assemblyBtn25 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto drawing ASS", "ThanhN_Assembly_Btn25", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                            Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.")
+            AddHandler assemblyBtn25.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.AutoDrawingASSpartTopLV.OnExecute
+            buttonsList.Add(assemblyBtn25)
+
+
+
+
+
         End Sub
     End Class
 End Namespace
