@@ -27,11 +27,11 @@ Namespace ThanhN
             AddHandler DrawingBtn4.OnExecute, AddressOf Drawing.Buttons.Draw_4.OnExecute
             buttonsList.Add(DrawingBtn4)
 
-            Dim DrawingBtn5 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 5", "ThanhN_Drawing_Btn5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim DrawingBtn5 As ButtonDefinition = controlDefs.AddButtonDefinition("Reset part list", "ThanhN_Drawing_Btn5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
             AddHandler DrawingBtn5.OnExecute, AddressOf Drawing.Buttons.Draw_5.OnExecute
             buttonsList.Add(DrawingBtn5)
 
-            Dim DrawingBtn6 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 6", "ThanhN_Drawing_Btn6", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim DrawingBtn6 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi thông tin vào Partlist", "ThanhN_Drawing_Btn6", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
             AddHandler DrawingBtn6.OnExecute, AddressOf Drawing.Buttons.Draw_6.OnExecute
             buttonsList.Add(DrawingBtn6)
 
