@@ -1,346 +1,1402 @@
 
-Imports System
-Imports System.Runtime.InteropServices
-Imports System.Windows.Forms
-Imports Microsoft.VisualBasic ' For Interaction.InputBox
-Imports Inventor
-Imports System.Collections.Generic
+Option Explicit On
+Option Strict Off
 
+Imports Inventor
+Imports System.Windows.Forms
+Imports System.Collections.Generic
+Imports System.Globalization
 
 Namespace ThanhN.Drawing.Buttons
     Public Module Draw_6
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
+            Dim app As Inventor.Application = g_inventorApplication
+            Try
+                '=================================================
+                ' KIỂM TRA DRAWING
+                '=================================================
+                If app.ActiveDocument Is Nothing OrElse
+                   app.ActiveDocument.DocumentType <> Inventor.DocumentTypeEnum.kDrawingDocumentObject Then
+
+                    MessageBox.Show(
+                        "Vui lòng mở file Drawing (.idw)!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Exit Sub
+                End If
+
+                Dim oDrawDoc As Inventor.DrawingDocument = CType(app.ActiveDocument, Inventor.DrawingDocument)
+                Dim oSheet As Inventor.Sheet = oDrawDoc.ActiveSheet
+
+                If oSheet.PartsLists.Count < 1 Then
+                    MessageBox.Show(
+                        "Sheet hiện tại không có Parts List.",
+                        "Thông báo",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information)
+                    Exit Sub
+                End If
+                '=================================================
+                ' 1. CHẾ ĐỘ TÊN
+                '=================================================
+                Dim nameModeIdx As Integer =
+                    PickFromList(
+                        "Xử lý cột Tên",
+                        New String() {
+                            "1 - Part Number: không ghi đè nếu Tên đã là PN/SN",
+                            "2 - Part Number: chỉ ghi khi ô Tên đang trống",
+                            "3 - Stock Number: đồng bộ trực tiếp vào BOM",
+                            "4 - Không sửa tên"}, 0)
+
+                If nameModeIdx < 0 Then
+                    Exit Sub
+                End If
+
+                Dim nameMode As Integer = nameModeIdx + 1
+
+                '=================================================
+                ' 2. VẬT LIỆU
+                '=================================================
+                Dim matDefault As String =
+                    InputBox("Vật liệu mặc định (Part tự chế):", "Vật liệu", "SS400")
+
+                If matDefault Is Nothing Then
+                    matDefault = ""
+                End If
+                matDefault = matDefault.Trim()
+
+                '=================================================
+                ' 3. PHẠM VI
+                '=================================================
+                Dim scopeIdx As Integer =
+                    PickFromList(
+                        "Phạm vi",
+                        New String() {
+                            "1 - Chỉ Parts List đầu trên sheet active",
+                            "2 - Tất cả Parts List trên sheet active",
+                            "3 - Tất cả Parts List của toàn bộ Drawing"}, 0)
+
+                If scopeIdx < 0 Then
+                    Exit Sub
+                End If
+
+                '=================================================
+                ' TÊN CỘT
+                '=================================================
+                Dim colSTT As String = "STT"
+                Dim colTen As String = "Tên chi tiết"
+                Dim colTen2 As String = "Tên gọi"
+                Dim colDonVi As String = "Đơn vị"
+                Dim colVL As String = "Vật liệu"
+                Dim colUnitQty As String = "UNIT QTY"
+
+                Dim processed As Integer = 0
+
+
+                '=================================================
+                ' XỬ LÝ PHẠM VI
+                '=================================================
+
+                '-------------------------------------------------
+                ' 1 - PARTS LIST ĐẦU TIÊN SHEET ACTIVE
+                '-------------------------------------------------
+                If scopeIdx = 0 Then
+
+                    Try
+
+                        Dim oPartList As Inventor.PartsList = oSheet.PartsLists.Item(1)
+
+
+                        'MODE 3:
+                        'Stock Number -> BOM
+                        If nameMode = 3 Then
+                            SyncStockNumberToBOM(oPartList)
+
+                        End If
+
+
+                        ProcessOnePartsList(oPartList, nameMode, matDefault, colSTT, colTen, colTen2,
+                            colDonVi, colVL, colUnitQty)
+
+
+                        processed += 1
+
+
+                    Catch ex As Exception
+
+                        MessageBox.Show("Parts List 1:" & vbCrLf & ex.Message, "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+
+                    End Try
+
+                    '-------------------------------------------------
+                    ' 2 - TẤT CẢ PARTS LIST SHEET ACTIVE
+                    '-------------------------------------------------
+                ElseIf scopeIdx = 1 Then
+
+                    For plIdx As Integer = 1 To oSheet.PartsLists.Count
+
+                        Try
+
+                            Dim oPartList As Inventor.PartsList = oSheet.PartsLists.Item(plIdx)
+
+                            'MODE 3
+                            If nameMode = 3 Then
+
+                                SyncStockNumberToBOM(oPartList)
+
+                            End If
+
+
+                            ProcessOnePartsList(oPartList, nameMode, matDefault, colSTT, colTen, colTen2, colDonVi, colVL, colUnitQty)
+
+
+                            processed += 1
+
+
+                        Catch exPL As Exception
+
+                            MessageBox.Show("Sheet: " & oSheet.Name & vbCrLf & "Parts List: " & plIdx.ToString() &
+                                vbCrLf & exPL.Message, "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+
+                        End Try
+
+                    Next
+
+                    '-------------------------------------------------
+                    ' 3 - TẤT CẢ PARTS LIST TOÀN BỘ DRAWING
+                    '-------------------------------------------------
+                ElseIf scopeIdx = 2 Then
+
+                    For sheetIdx As Integer = 1 To oDrawDoc.Sheets.Count
+
+                        Try
+
+                            Dim oCurSheet As Inventor.Sheet = oDrawDoc.Sheets.Item(sheetIdx)
+
+
+                            For plIdx As Integer = 1 To oCurSheet.PartsLists.Count
+
+                                Try
+
+                                    Dim oPartList As Inventor.PartsList = oCurSheet.PartsLists.Item(plIdx)
+
+
+                                    'MODE 3
+                                    If nameMode = 3 Then
+
+                                        SyncStockNumberToBOM(oPartList)
+
+                                    End If
+
+
+                                    ProcessOnePartsList(oPartList, nameMode, matDefault, colSTT, colTen, colTen2, colDonVi, colVL, colUnitQty)
+
+
+                                    processed += 1
+
+
+                                Catch exPL As Exception
+                                    MessageBox.Show("Sheet: " & oCurSheet.Name & vbCrLf & "Parts List: " &
+                                        plIdx.ToString() & vbCrLf & exPL.Message, "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+
+                                End Try
+
+                            Next
+
+
+                        Catch exSheet As Exception
+
+                            MessageBox.Show("Lỗi Sheet " & sheetIdx.ToString() & ":" & vbCrLf & exSheet.Message, "Cảnh báo",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning)
+
+                        End Try
+
+                    Next
+
+                End If
+
+
+                '=================================================
+                ' UPDATE DRAWING CUỐI CÙNG
+                '=================================================
+                Try
+                    oDrawDoc.Update()
+                Catch
+                End Try
+
+
+                '=================================================
+                ' THÔNG BÁO
+                '=================================================
+                MessageBox.Show("Hoàn tất!" & vbCrLf & "Parts List đã xử lý: " & processed.ToString() &
+                    vbCrLf & "Chế độ tên: " & nameMode.ToString() &
+                    vbCrLf & "Nguồn tên: " & If(nameMode = 3, "Stock Number / đồng bộ từ Part Number",
+                        If(nameMode = 4, "Không sửa", "Part Number")) &
+                    vbCrLf & "VL mặc định: " & If(matDefault = "", "(không dùng)", matDefault),
+                    "Override Parts List", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+
+            Catch ex As Exception
+
+                MessageBox.Show("Lỗi:" & vbCrLf & ex.Message, "Override Parts List", MessageBoxButtons.OK, MessageBoxIcon.Error)
+
+            End Try
+
+        End Sub
+
+
+        '=========================================================
+        ' XỬ LÝ 1 PARTS LIST
+        '=========================================================
+        Private Sub ProcessOnePartsList(
+            oPartList As Inventor.PartsList,
+            nameMode As Integer,
+            matDefault As String,
+            colSTT As String,
+            colTen As String,
+            colTen2 As String,
+            colDonVi As String,
+            colVL As String,
+            colUnitQty As String)
+
+
+            '=====================================================
+            ' TÌM CỘT
+            '=====================================================
+            Dim cSTT As String = FindColumn(oPartList, New String() {colSTT, "Item", "ITEM"})
+
+            Dim cTen As String = FindColumn(oPartList, New String() {colTen, colTen2, "Part Number", "Stock Number", "Tên"})
+
+            Dim cDonVi As String = FindColumn(oPartList, New String() {colDonVi, "Keywords", "Unit", "ĐƠN VỊ"})
+
+            Dim cVL As String = FindColumn(oPartList, New String() {colVL, "Material", "MATERIAL", "VẬT LIỆU"})
+
+            Dim cUnitQty As String = FindUnitQtyColumn(oPartList)
+
+
+            If cSTT = "" OrElse cDonVi = "" Then
+
+                Throw New Exception("Không tìm thấy cột STT hoặc Đơn vị trên Parts List.")
+
+            End If
+
+            '=====================================================
+            ' DUYỆT ROW
+            '=====================================================
+            For i As Integer = 1 To oPartList.PartsListRows.Count
+
+                Try
+
+                    Dim row As Inventor.PartsListRow = oPartList.PartsListRows.Item(i)
+
+                    If row.ReferencedRows Is Nothing OrElse
+                       row.ReferencedRows.Count < 1 Then
+                        Continue For
+                    End If
+
+
+                    Dim bomRow As Inventor.BOMRow = row.ReferencedRows.Item(1).BOMRow
+
+                    If bomRow Is Nothing Then
+                        Continue For
+                    End If
+
+
+                    '=================================================
+                    ' BOM STRUCTURE
+                    '=================================================
+                    Dim bs As Inventor.BOMStructureEnum = bomRow.BOMStructure
+
+                    Dim isPurchased As Boolean = (bs = Inventor.BOMStructureEnum.kPurchasedBOMStructure)
+
+
+                    '=================================================
+                    ' DOCUMENT
+                    '=================================================
+                    Dim refDoc As Inventor.Document = Nothing
+
+
+                    Dim docType As Inventor.DocumentTypeEnum =
+                        Inventor.DocumentTypeEnum.kUnknownDocumentObject
+
+
+                    Try
+
+                        If bomRow.ComponentDefinitions.Count > 0 Then
+
+                            refDoc = bomRow.ComponentDefinitions.Item(1).Document
+
+
+                            If refDoc IsNot Nothing Then
+                                docType = refDoc.DocumentType
+
+                            End If
+
+                        End If
+
+                    Catch
+                    End Try
+
+                    Dim isAsm As Boolean = (docType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject)
+                    Dim isPart As Boolean = (docType = Inventor.DocumentTypeEnum.kPartDocumentObject)
+
+                    '=================================================
+                    ' PN / SN
+                    '=================================================
+                    Dim pn As String = ""
+                    Dim sn As String = ""
+
+
+                    If refDoc IsNot Nothing Then
+
+                        pn = GetProp(refDoc, "Part Number")
+                        sn = GetProp(refDoc, "Stock Number")
+
+                    End If
+
+                    pn = If(pn, "").Trim()
+                    sn = If(sn, "").Trim()
+
+                    '=================================================
+                    ' TÊN HIỆN TẠI
+                    '=================================================
+                    Dim currentName As String = GetCellValue(row, cTen).Trim()
+
+                    '=================================================
+                    ' MODE 1 / MODE 2
+                    '
+                    ' Mode 3 đã đồng bộ BOM trước đó.
+                    '=================================================
+                    If nameMode <> 3 Then
+
+                        ApplyNameLogic(row, currentName, pn, sn, nameMode)
+
+                    End If
+
+
+                    '=================================================
+                    ' ĐƠN VỊ
+                    '=================================================
+                    If isAsm Then
+
+                        SetCell(row, cDonVi, "Bộ")
+
+
+                    ElseIf isPart AndAlso Not isPurchased Then
+
+                        Dim nameForUnit As String = currentName
+
+                        If nameForUnit = "" Then
+
+                            If pn <> "" Then
+
+                                nameForUnit = pn
+                            Else
+                                nameForUnit = sn
+                            End If
+                        End If
+                        Dim donVi As String = GuessUnit(nameForUnit)
+                        SetCell(row, cDonVi, donVi)
+                    ElseIf isPurchased Then
+                        SetCell(row, cDonVi, "Cái")
+                    End If
+
+
+                    '=================================================
+                    ' MATERIAL
+                    '
+                    ' ASSEMBLY:
+                    '   KHÔNG ĐỤNG
+                    '
+                    ' PURCHASED:
+                    '   KHÔNG ĐỤNG
+                    '
+                    ' PART TỰ CHẾ:
+                    '   GHI ĐÈ
+                    '=================================================
+                    If isPart AndAlso Not isPurchased Then
+
+                        If matDefault <> "" Then
+
+                            SetCell(row, cVL, matDefault)
+
+                        End If
+                    End If
+                Catch
+                    'Bỏ qua row lỗi
+                End Try
+
+            Next
+            '=====================================================
+            ' UPDATE PARTS LIST TRƯỚC
+            '=====================================================
+            Try
+                oPartList.Parent.Update()
+
+            Catch
+            End Try
+
+            Try
+                oPartList.Update()
+            Catch
+            End Try
+            '=====================================================
+            ' UNIT QTY
+            '
+            ' <= 1 -> XÓA
+            ' > 1  -> GIỮ
+            '=====================================================
+            If cUnitQty <> "" Then
+
+                For qtyIdx As Integer = 1 To oPartList.PartsListRows.Count
+
+                    Try
+                        Dim qtyRow As Inventor.PartsListRow = oPartList.PartsListRows.Item(qtyIdx)
+                        Dim qtyText As String = GetCellValue(qtyRow, cUnitQty)
+
+                        If qtyText <> "" Then
+                            Dim qty As Double = 0
+                            If TryParseNumber(qtyText, qty) Then
+                                If qty <= 1 Then
+                                    ClearCell(qtyRow, cUnitQty)
+                                End If
+                            End If
+
+                        End If
+
+                    Catch
+                        'Bỏ qua row lỗi
+                    End Try
+
+                Next
+
+            End If
+
+            '=====================================================
+            ' SAVE OVERRIDE
+            '=====================================================
+            Try
+
+                oPartList.SaveItemOverridesToBOM()
+
+            Catch
+            End Try
+
+            '=====================================================
+            ' STT
+            '
+            ' CỤM → PART → PURCHASED
+            '=====================================================
+            Dim stt As Integer = 1
+
+            stt = NumberRows(oPartList, cSTT, stt, True, False)
+            stt = NumberRows(oPartList, cSTT, stt, False, False)
+            stt = NumberRows(oPartList, cSTT, stt, False, True)
+
+
+            '=====================================================
+            ' SORT
+            '=====================================================
+            Try
+                oPartList.Sort(cSTT)
+            Catch
+                Try
+                    oPartList.Sort("Item")
+                Catch
+                End Try
+
+            End Try
+            '=====================================================
+            ' SAVE LẦN CUỐI
+            '=====================================================
+            Try
+                oPartList.SaveItemOverridesToBOM()
+            Catch
+            End Try
+
+        End Sub
+
+
+        '=========================================================
+        ' MODE 1 / MODE 2
+        '
+        ' NGUỒN CHÍNH = PART NUMBER
+        '
+        ' Nếu PN trống:
+        '   fallback SN.
+        '=========================================================
+        Private Sub ApplyNameLogic(row As Inventor.PartsListRow, currentName As String, pn As String, sn As String, nameMode As Integer)
+
+            Dim cur As String = If(currentName, "").Trim()
+
+            Dim requiredName As String = ""
+            If pn <> "" Then
+                requiredName = pn
+            Else
+                requiredName = sn
+            End If
+
+            Select Case nameMode
+
+                '=================================================
+                ' MODE 1
+                '=================================================
+                Case 1
+
+                    If cur <> "" AndAlso
+                       (
+                           String.Equals(cur, pn, StringComparison.OrdinalIgnoreCase) OrElse
+                           String.Equals(cur, sn, StringComparison.OrdinalIgnoreCase)
+                       ) Then
+                        Exit Sub
+
+                    End If
+
+                    If requiredName <> "" Then
+
+                        SetCell(row, GetNameColumn(row), requiredName)
+
+                    End If
+                '   ===============================================
+                ' MODE 2
+                '                ' CHỈ KHI Ô TÊN TRỐNG
+                '=================================================
+                Case 2
+
+                    If cur <> "" Then
+                        Exit Sub
+                    End If
+
+                    If requiredName <> "" Then
+
+                        SetCell(row, GetNameColumn(row), requiredName)
+
+                    End If
+
+
+                '=================================================
+                ' MODE 4
+                '=================================================
+                Case 4
+
+                    Exit Sub
+
+            End Select
+
+        End Sub
+
+
+        '=========================================================
+        ' MODE 3
+        '
+        ' STOCK NUMBER
+        '
+        ' Nếu:
+        '
+        ' Part Number = ABC
+        ' Stock Number = ""
+        '
+        ' =>
+        '
+        ' Stock Number = ABC
+        '
+        ' Ghi trực tiếp vào Property của component.
+        '=========================================================
+        Private Sub SyncStockNumberToBOM(
+            oPartList As Inventor.PartsList)
+
+            For i As Integer = 1 To oPartList.PartsListRows.Count
+
+                Try
+
+                    Dim row As Inventor.PartsListRow = oPartList.PartsListRows.Item(i)
+
+                    If row.ReferencedRows Is Nothing OrElse
+                       row.ReferencedRows.Count < 1 Then
+
+                        Continue For
+
+                    End If
+
+                    Dim bomRow As Inventor.BOMRow = row.ReferencedRows.Item(1).BOMRow
+
+                    If bomRow Is Nothing Then
+                        Continue For
+                    End If
+
+                    If bomRow.ComponentDefinitions.Count < 1 Then
+                        Continue For
+                    End If
+
+                    Dim compDef As Inventor.ComponentDefinition = bomRow.ComponentDefinitions.Item(1)
+
+                    If compDef Is Nothing Then
+                        Continue For
+                    End If
+
+                    Dim refDoc As Inventor.Document = compDef.Document
+
+
+                    If refDoc Is Nothing Then
+                        Continue For
+                    End If
+
+                    '=================================================
+                    ' ĐỌC PN / SN TRỰC TIẾP
+                    '=================================================
+                    Dim pn As String = GetProp(refDoc, "Part Number")
+                    Dim sn As String = GetProp(refDoc, "Stock Number")
+
+
+                    pn = If(pn, "").Trim()
+                    sn = If(sn, "").Trim()
+
+
+                    '=================================================
+                    ' SN TRỐNG
+                    '
+                    ' COPY PN -> SN
+                    '=================================================
+                    If sn = "" AndAlso
+                       pn <> "" Then
+
+                        SetProp(refDoc, "Stock Number", pn)
+
+                        '---------------------------------------------
+                        ' UPDATE DOCUMENT NGAY
+                        '---------------------------------------------
+                        Try
+
+                            refDoc.Update()
+
+                        Catch
+                        End Try
+
+                    End If
+
+
+                Catch
+                    'Bỏ qua row lỗi
+                End Try
+
+            Next
+
+
+            '=====================================================
+            ' UPDATE BOM / PARTS LIST
+            '=====================================================
+            Try
+
+                oPartList.Parent.Update()
+
+            Catch
+            End Try
 
 
             Try
-                    ' Kết nối tới Inventor (lấy instance đang chạy)
-                    Dim invApp As Inventor.Application = Nothing
-                    Try
-                        invApp = CType(Marshal.GetActiveObject("Inventor.Application"), Inventor.Application)
-                    Catch ex As COMException
-                        MessageBox.Show("Không tìm thấy Inventor đang chạy. Vui lòng mở Inventor và một Drawing trước khi chạy.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                        Return
-                    End Try
 
-                    ' Lấy document hiện hành và kiểm tra là Drawing
-                    Dim doc As Document = invApp.ActiveDocument
-                    If doc Is Nothing OrElse doc.DocumentType <> DocumentTypeEnum.kDrawingDocumentObject Then
-                        MessageBox.Show("Vui lòng mở một Drawing document trong Inventor trước khi chạy.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                        Return
-                    End If
+                oPartList.Update()
 
-                    Dim oDrawDoc As DrawingDocument = CType(doc, DrawingDocument)
-                    Dim oSheet As Sheet = oDrawDoc.ActiveSheet
-                    If oSheet Is Nothing Then
-                        MessageBox.Show("Không thể truy cập ActiveSheet.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                        Return
-                    End If
+            Catch
+            End Try
 
-                    If oSheet.PartsLists.Count < 1 Then
-                        MessageBox.Show("Không tìm thấy PartsList trên sheet hiện hành.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                        Return
-                    End If
 
-                    Dim oPartList As PartsList = oSheet.PartsLists.Item(1)
+            '=====================================================
+            ' SAVE BOM
+            '=====================================================
+            Try
 
-                    ' Nhập vật liệu (InputBox)
-                    Dim aff As String = Interaction.InputBox("Vật Liệu", "Tên", "SS400")
+                oPartList.SaveItemOverridesToBOM()
 
-                ' Hiển thị dialog chọn (mô phỏng InputListBox)
-                Dim names As New List(Of String) From {"Ten chi tiet - Don vi", "Ten goi - Don vi"}
+            Catch
+            End Try
 
-                Dim myparam As String = ShowSelectionDialog("Vị trí cột STT", "Lựa Chọn", names)
-                    If String.IsNullOrEmpty(myparam) Then
-                        MessageBox.Show("Bạn đã hủy lựa chọn.", "Hủy", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                        Return
-                    End If
 
-                    ' Bắt transaction (undo wrapper) nếu có
-                    Dim txn As Transaction = Nothing
-                    Dim txnName As String = "Update PartsList Cells"
-                    Try
-                        txn = invApp.TransactionManager.StartTransaction(oDrawDoc, txnName)
-                    Catch
-                        txn = Nothing
-                    End Try
+            '=====================================================
+            ' UPDATE LẦN 2
+            '=====================================================
+            Try
 
-                    ' Các biến dùng trong vòng lặp
-                    Dim assssd As String = ""
-                    Dim assssd2 As String = ""
-                    Dim assssd3 As String = ""
+                oPartList.Parent.Update()
 
-                    If myparam = "Ten chi tiet - Don vi" Then
-                        assssd = "Đơn vị"
-                        assssd2 = "Vật liệu"
-                        assssd3 = "Tên chi tiết"
+            Catch
+            End Try
 
-                        ' Xử lý assembly rows: đặt Đơn vị = "Bộ", xóa vật liệu
-                        For i As Integer = 1 To oPartList.PartsListRows.Count
-                            Try
-                                Dim refRow = oPartList.PartsListRows(i).ReferencedRows(1)
-                                Dim bomRow = refRow.BOMRow
-                                Dim compDef = bomRow.ComponentDefinitions(1)
-                                If bomRow.BOMStructure <> BOMStructureEnum.kPurchasedBOMStructure AndAlso compDef.Document.DocumentType = DocumentTypeEnum.kAssemblyDocumentObject Then
-                                    Dim oCell2 = oPartList.PartsListRows.Item(i).Item(assssd)
-                                    Dim oCell3 = oPartList.PartsListRows.Item(i).Item(assssd2)
-                                    Try
-                                        oCell2.Static = True
-                                        oCell2.Value = "Bộ"
-                                    Catch
-                                    End Try
-                                    Try
-                                        oCell3.Static = True
-                                        If oCell3.Value <> "" Then oCell3.Value = ""
-                                    Catch
-                                    End Try
-                                End If
-                            Catch
-                                ' Bỏ qua nếu row không có ReferencedRows hoặc cấu trúc khác
-                            End Try
-                        Next
 
-                        ' Index part (part documents)
-                        For j As Integer = 1 To oPartList.PartsListRows.Count
-                            Try
-                                Dim refRow = oPartList.PartsListRows(j).ReferencedRows(1)
-                                Dim bomRow = refRow.BOMRow
-                                Dim compDef = bomRow.ComponentDefinitions(1)
-                                If bomRow.BOMStructure <> BOMStructureEnum.kPurchasedBOMStructure AndAlso compDef.Document.DocumentType = DocumentTypeEnum.kPartDocumentObject Then
-                                    Dim oCell2 = oPartList.PartsListRows.Item(j).Item(assssd)
-                                    Dim oCell3 = oPartList.PartsListRows.Item(j).Item(assssd2)
-                                    Dim oCell5 = oPartList.PartsListRows.Item(j).Item(assssd3)
-                                    Try
-                                        oCell2.Value = "Cái"
-                                        oCell2.Static = True
-                                    Catch
-                                    End Try
+            Try
 
-                                    Dim val5 As String = ""
-                                    Try
-                                        val5 = If(oCell5.Value IsNot Nothing, oCell5.Value.ToString(), "")
-                                    Catch
-                                        val5 = ""
-                                    End Try
+                oPartList.Update()
 
-                                    ' Các điều kiện chuỗi giống iLogic
-                                    If (val5.Length >= 2 AndAlso (val5.Substring(0, 2).ToUpper() = "TH" OrElse val5.Substring(0, 2).ToUpper() = "TR" OrElse val5.Substring(0, 2).ToUpper() = "TH" OrElse val5.Substring(0, 2).ToUpper() = "XG" OrElse val5.Substring(0, 2).ToUpper() = "TR")) AndAlso val5.EndsWith("L", StringComparison.OrdinalIgnoreCase) Then
-                                        Try : oCell2.Value = "Thanh" : Catch : End Try
-                                    End If
+            Catch
+            End Try
 
-                                    If val5.Length >= 1 AndAlso ("TPVLIHZCU".IndexOf(val5.Substring(0, 1).ToUpper()) >= 0) AndAlso val5.EndsWith("L", StringComparison.OrdinalIgnoreCase) Then
-                                        Try : oCell2.Value = "Thanh" : Catch : End Try
-                                    ElseIf val5.Length >= 2 AndAlso (val5.Substring(0, 2) = "PL" OrElse val5.Substring(0, 2) = "Tô" OrElse val5.Substring(0, 2) = "Tấ" OrElse val5.Substring(0, 2) = "Mã" OrElse val5.Substring(0, 2) = "Bi") Then
-                                        Try : oCell2.Value = "Tấm" : Catch : End Try
-                                    End If
+        End Sub
 
-                                    Try
-                                        oCell3.Static = True
-                                        oCell3.Value = aff
-                                    Catch
-                                    End Try
-                                End If
-                            Catch
-                                ' Bỏ qua
-                            End Try
-                        Next
 
-                        ' Index standard part (purchased)
-                        For k As Integer = 1 To oPartList.PartsListRows.Count
-                            Try
-                                Dim refRow = oPartList.PartsListRows(k).ReferencedRows(1)
-                                Dim bomRow = refRow.BOMRow
-                                If bomRow.BOMStructure = BOMStructureEnum.kPurchasedBOMStructure Then
-                                    Dim oCell2 = oPartList.PartsListRows.Item(k).Item(assssd)
-                                    Dim oCell3 = oPartList.PartsListRows.Item(k).Item(assssd2)
-                                    Try
-                                        oCell2.Static = True
-                                        oCell3.Static = True
-                                        oCell2.Value = "Cái"
-                                        oCell3.Value = ""
-                                    Catch
-                                    End Try
-                                End If
-                            Catch
-                            End Try
-                        Next
+        '=========================================================
+        ' LẤY TÊN CỘT
+        '=========================================================
+        Private Function GetNameColumn(row As Inventor.PartsListRow) As String
 
-                    ElseIf myparam = "Ten goi - Don vi" Then
-                        assssd = "Đơn vị"
-                        assssd2 = "Vật liệu"
-                        assssd3 = "Tên gọi"
+            Try
 
-                        ' Xử lý assembly rows
-                        For i As Integer = 1 To oPartList.PartsListRows.Count
-                            Try
-                                Dim refRow = oPartList.PartsListRows(i).ReferencedRows(1)
-                                Dim bomRow = refRow.BOMRow
-                                Dim compDef = bomRow.ComponentDefinitions(1)
-                                If bomRow.BOMStructure <> BOMStructureEnum.kPurchasedBOMStructure AndAlso compDef.Document.DocumentType = DocumentTypeEnum.kAssemblyDocumentObject Then
-                                    Dim oCell2 = oPartList.PartsListRows.Item(i).Item(assssd)
-                                    Dim oCell3 = oPartList.PartsListRows.Item(i).Item(assssd2)
-                                    Try
-                                        oCell2.Static = True
-                                        oCell2.Value = "Bộ"
-                                    Catch
-                                    End Try
-                                    Try
-                                        oCell3.Static = True
-                                        If oCell3.Value <> "" Then oCell3.Value = ""
-                                    Catch
-                                    End Try
-                                End If
-                            Catch
-                            End Try
-                        Next
+                Dim value As String = CStr(row.Item("Tên chi tiết").Value)
 
-                        ' Index part
-                        For j As Integer = 1 To oPartList.PartsListRows.Count
-                            Try
-                                Dim refRow = oPartList.PartsListRows(j).ReferencedRows(1)
-                                Dim bomRow = refRow.BOMRow
-                                Dim compDef = bomRow.ComponentDefinitions(1)
-                                If bomRow.BOMStructure <> BOMStructureEnum.kPurchasedBOMStructure AndAlso compDef.Document.DocumentType = DocumentTypeEnum.kPartDocumentObject Then
-                                    Dim oCell2 = oPartList.PartsListRows.Item(j).Item(assssd)
-                                    Dim oCell3 = oPartList.PartsListRows.Item(j).Item(assssd2)
-                                    Dim oCell5 = oPartList.PartsListRows.Item(j).Item(assssd3)
-                                    Try
-                                        oCell2.Value = "Cái"
-                                        oCell2.Static = True
-                                    Catch
-                                    End Try
+                Return "Tên chi tiết"
 
-                                    Dim val5 As String = ""
-                                    Try
-                                        val5 = If(oCell5.Value IsNot Nothing, oCell5.Value.ToString(), "")
-                                    Catch
-                                        val5 = ""
-                                    End Try
+            Catch
+            End Try
 
-                                    If (val5.Length >= 2 AndAlso (val5.Substring(0, 2).ToUpper() = "TH" OrElse val5.Substring(0, 2).ToUpper() = "TR" OrElse val5.Substring(0, 2).ToUpper() = "TH" OrElse val5.Substring(0, 2).ToUpper() = "XG" OrElse val5.Substring(0, 2).ToUpper() = "TR")) AndAlso val5.EndsWith("L", StringComparison.OrdinalIgnoreCase) Then
-                                        Try : oCell2.Value = "Thanh" : Catch : End Try
-                                    End If
 
-                                    If val5.Length >= 1 AndAlso ("TPVLIHZCU".IndexOf(val5.Substring(0, 1).ToUpper()) >= 0) AndAlso val5.EndsWith("L", StringComparison.OrdinalIgnoreCase) Then
-                                        Try : oCell2.Value = "Thanh" : Catch : End Try
-                                    ElseIf val5.Length >= 2 AndAlso (val5.Substring(0, 2) = "PL" OrElse val5.Substring(0, 2) = "Tô" OrElse val5.Substring(0, 2) = "Tấ" OrElse val5.Substring(0, 2) = "Mã" OrElse val5.Substring(0, 2) = "Bi") Then
-                                        Try : oCell2.Value = "Tấm" : Catch : End Try
-                                    End If
+            Try
+                Dim value As String = CStr(row.Item("Tên gọi").Value)
+                Return "Tên gọi"
 
-                                    Try
-                                        oCell3.Static = True
-                                        oCell3.Value = aff
-                                    Catch
-                                    End Try
-                                End If
-                            Catch
-                            End Try
-                        Next
+            Catch
+            End Try
 
-                        ' Index standard part
-                        For k As Integer = 1 To oPartList.PartsListRows.Count
-                            Try
-                                Dim refRow = oPartList.PartsListRows(k).ReferencedRows(1)
-                                Dim bomRow = refRow.BOMRow
-                                If bomRow.BOMStructure = BOMStructureEnum.kPurchasedBOMStructure Then
-                                    Dim oCell2 = oPartList.PartsListRows.Item(k).Item(assssd)
-                                    Dim oCell3 = oPartList.PartsListRows.Item(k).Item(assssd2)
-                                    Try
-                                        oCell2.Static = True
-                                        oCell3.Static = True
-                                        oCell2.Value = "Cái"
-                                        oCell3.Value = ""
-                                    Catch
-                                    End Try
-                                End If
-                            Catch
-                            End Try
-                        Next
+            Try
+
+                Dim value As String = CStr(row.Item("Tên").Value)
+
+                Return "Tên"
+
+            Catch
+            End Try
+
+            Return "Tên chi tiết"
+
+        End Function
+
+
+        '=========================================================
+        ' ĐƠN VỊ
+        '=========================================================
+        Private Function GuessUnit(ten As String) As String
+
+            If String.IsNullOrEmpty(ten) Then
+
+                Return "Cái"
+
+            End If
+
+            Dim t As String = ten.Trim()
+
+            '=====================================================
+            ' THANH
+            '=====================================================
+            If t.Length >= 3 AndAlso
+               (
+                   (t.StartsWith("TH", StringComparison.OrdinalIgnoreCase) OrElse
+                       t.StartsWith("Tr", StringComparison.OrdinalIgnoreCase) OrElse
+                       t.StartsWith("TR", StringComparison.OrdinalIgnoreCase) OrElse
+                       t.StartsWith("XG", StringComparison.OrdinalIgnoreCase)
+                       ) AndAlso
+                   t.EndsWith("L", StringComparison.OrdinalIgnoreCase)
+               ) Then
+
+                Return "Thanh"
+
+            End If
+
+
+            If t.Length >= 2 Then
+
+                Dim c0 As Char = Char.ToUpperInvariant(t(0))
+
+
+                If "TPVLHIZCU".IndexOf(c0) >= 0 AndAlso
+                    t.EndsWith("L", StringComparison.OrdinalIgnoreCase) Then
+                    Return "Thanh"
+
+                End If
+
+            End If
+
+
+            '=====================================================
+            ' TẤM
+            '=====================================================
+            If t.StartsWith("PL", StringComparison.OrdinalIgnoreCase) OrElse
+               t.StartsWith("Tô", StringComparison.OrdinalIgnoreCase) OrElse
+               t.StartsWith("Tấ", StringComparison.OrdinalIgnoreCase) OrElse
+               t.StartsWith("Mã", StringComparison.OrdinalIgnoreCase) OrElse
+               t.StartsWith("Bi", StringComparison.OrdinalIgnoreCase) Then
+
+                Return "Tấm"
+
+            End If
+
+            Return "Cái"
+
+        End Function
+
+
+        '=========================================================
+        ' FIND COLUMN
+        '=========================================================
+        Private Function FindColumn(pl As Inventor.PartsList, candidates As String()) As String
+
+            For Each name As String In candidates
+                Try
+                    Dim col As Inventor.PartsListColumn = pl.PartsListColumns.Item(name)
+
+                    If col IsNot Nothing Then
+
+                        Return name
 
                     End If
 
-                    ' Cập nhật document
-                    Try
-                        oDrawDoc.Update()
-                    Catch
-                        Try
-                            oDrawDoc.Update2()
-                        Catch
-                        End Try
-                    End Try
-
-                    ' Kết thúc transaction
-                    Try
-                        If txn IsNot Nothing Then txn.End()
-                    Catch
-                    End Try
-
-                    MessageBox.Show("Hoàn tất xử lý PartsList.", "Kết quả", MessageBoxButtons.OK, MessageBoxIcon.Information)
-
-                Catch ex As Exception
-                    MessageBox.Show("Lỗi: " & ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Catch
                 End Try
-            End Sub
 
-            ' Helper: hiển thị dialog chọn 1 mục từ danh sách (mô phỏng InputListBox)
-            Private Function ShowSelectionDialog(title As String, prompt As String, items As List(Of String)) As String
-                Dim result As String = ""
-                Using frm As New Form()
-                    frm.Text = title
-                    frm.StartPosition = FormStartPosition.CenterScreen
-                    frm.FormBorderStyle = FormBorderStyle.FixedDialog
-                    frm.MinimizeBox = False
-                    frm.MaximizeBox = False
-                    frm.Width = 400
-                    frm.Height = 220
+            Next
 
-                    Dim lbl As New Label()
-                    lbl.Text = prompt
-                    lbl.AutoSize = True
-                    lbl.Top = 10
-                    lbl.Left = 10
-                    frm.Controls.Add(lbl)
+            Try
 
-                    Dim lb As New ListBox()
-                    lb.Top = 35
-                    lb.Left = 10
-                    lb.Width = frm.ClientSize.Width - 20
-                    lb.Height = 100
-                    lb.SelectionMode = SelectionMode.One
-                    For Each it In items
-                        lb.Items.Add(it)
-                    Next
-                    If lb.Items.Count > 0 Then lb.SelectedIndex = 0
-                    frm.Controls.Add(lb)
+                For Each col As Inventor.PartsListColumn In
+                    pl.PartsListColumns
 
-                    Dim btnOk As New Button()
-                    btnOk.Text = "OK"
-                    btnOk.DialogResult = DialogResult.OK
-                    btnOk.Top = lb.Bottom + 10
-                    btnOk.Left = frm.ClientSize.Width - 180
-                    frm.Controls.Add(btnOk)
+                    For Each name As String In candidates
 
-                    Dim btnCancel As New Button()
-                    btnCancel.Text = "Cancel"
-                    btnCancel.DialogResult = DialogResult.Cancel
-                    btnCancel.Top = lb.Bottom + 10
-                    btnCancel.Left = frm.ClientSize.Width - 90
-                    frm.Controls.Add(btnCancel)
+                        If String.Equals(col.Title, name, StringComparison.OrdinalIgnoreCase) Then
 
-                    frm.AcceptButton = btnOk
-                    frm.CancelButton = btnCancel
+                            Return col.Title
 
-                    If frm.ShowDialog() = DialogResult.OK Then
-                        If lb.SelectedItem IsNot Nothing Then
-                            result = lb.SelectedItem.ToString()
                         End If
-                    Else
-                        result = ""
-                    End If
-                End Using
-                Return result
-            End Function
 
-        End Module
+                    Next
+
+                Next
+
+            Catch
+            End Try
+
+            Return ""
+
+        End Function
+
+
+        '=========================================================
+        ' GET CELL
+        '=========================================================
+        Private Function GetCellValue(row As Inventor.PartsListRow, colName As String) As String
+            If colName = "" Then
+                Return ""
+
+            End If
+            Try
+                Dim v As Object = row.Item(colName).Value
+                If v Is Nothing Then
+                    Return ""
+                End If
+                Return CStr(v).Trim()
+            Catch
+                Return ""
+            End Try
+
+        End Function
+
+        '=========================================================
+        ' SET CELL
+        '
+        ' VALUE trước
+        ' STATIC sau
+        '=========================================================
+        Private Sub SetCell(row As Inventor.PartsListRow, colName As String, value As String)
+
+            If colName = "" Then
+                Exit Sub
+            End If
+
+            If value Is Nothing Then
+                Exit Sub
+            End If
+
+            Dim newValue As String = value.Trim()
+
+            If newValue = "" Then
+                Exit Sub
+            End If
+
+            Try
+                Dim cell As Inventor.PartsListCell = row.Item(colName)
+                Dim oldValue As String = ""
+                Try
+
+                    If cell.Value IsNot Nothing Then
+
+                        oldValue = CStr(cell.Value).Trim()
+
+                    End If
+
+                Catch
+                End Try
+
+
+                If String.Equals(oldValue, newValue, StringComparison.OrdinalIgnoreCase) Then
+                    Exit Sub
+
+                End If
+
+                '=================================================
+                ' VALUE TRƯỚC
+                '=================================================
+                cell.Value = newValue
+
+                '=================================================
+                ' STATIC SAU
+                '=================================================
+                Try
+                    cell.Static = True
+                Catch
+                End Try
+
+            Catch
+            End Try
+
+        End Sub
+
+
+        '=========================================================
+        ' CLEAR CELL
+        '
+        ' UNIT QTY <= 1
+        '=========================================================
+        Private Sub ClearCell(row As Inventor.PartsListRow, colName As String)
+            If colName = "" Then
+                Exit Sub
+            End If
+
+            Try
+
+                Dim cell As Inventor.PartsListCell = row.Item(colName)
+
+                '=================================================
+                ' XÓA VALUE
+                '=================================================
+                cell.Value = ""
+                '=================================================
+                ' STATIC
+                '=================================================
+                Try
+
+                    cell.Static = True
+
+                Catch
+                End Try
+
+            Catch
+
+                Try
+                    row.Item(colName).Value = ""
+                Catch
+                End Try
+            End Try
+
+        End Sub
+
+
+        '=========================================================
+        ' PARSE NUMBER
+        '=========================================================
+        Private Function TryParseNumber(value As String, ByRef result As Double) As Boolean
+            result = 0
+
+            If value Is Nothing Then
+                Return False
+            End If
+
+            Dim s As String = value.Trim()
+
+            If s = "" Then
+                Return False
+            End If
+
+
+            '=====================================================
+            ' CURRENT CULTURE
+            '=====================================================
+            Try
+                If Double.TryParse(s, NumberStyles.Any, CultureInfo.CurrentCulture, result) Then
+
+                    Return True
+
+                End If
+
+            Catch
+            End Try
+
+            '=====================================================
+            ' INVARIANT
+            '=====================================================
+            Try
+
+                If Double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, result) Then
+                    Return True
+
+                End If
+
+            Catch
+            End Try
+
+
+            '=====================================================
+            ' ĐỔI , -> .
+            '=====================================================
+            Try
+
+                Dim s2 As String = s.Replace(",", ".")
+
+                If Double.TryParse(s2, NumberStyles.Any, CultureInfo.InvariantCulture, result) Then
+
+                    Return True
+                End If
+            Catch
+            End Try
+
+            Return False
+
+        End Function
+
+
+        '=========================================================
+        ' PICK LIST
+        '=========================================================
+        Private Function PickFromList(title As String, items As String(), Optional defaultIndex As Integer = 0) As Integer
+
+            Dim frm As New Form()
+
+            frm.Text = title
+
+            frm.StartPosition = FormStartPosition.CenterScreen
+
+
+            frm.FormBorderStyle = FormBorderStyle.FixedDialog
+
+            frm.MaximizeBox = False
+            frm.MinimizeBox = False
+            frm.Width = 500
+            frm.Height = 320
+            frm.ShowInTaskbar = False
+
+            Dim lst As New ListBox()
+
+            lst.Left = 12
+            lst.Top = 12
+            lst.Width = 460
+            lst.Height = 220
+
+            For Each s As String In items
+
+                lst.Items.Add(s)
+
+            Next
+
+            If defaultIndex >= 0 AndAlso
+               defaultIndex < lst.Items.Count Then
+
+                lst.SelectedIndex = defaultIndex
+
+            ElseIf lst.Items.Count > 0 Then
+
+                lst.SelectedIndex = 0
+
+            End If
+
+
+            Dim btnOK As New Button() With {
+                .Text = "OK",
+                .Left = 300,
+                .Top = 245,
+                .Width = 80,
+                .DialogResult = DialogResult.OK
+            }
+
+
+            Dim btnCancel As New Button() With {
+                .Text = "Hủy",
+                .Left = 390,
+                .Top = 245,
+                .Width = 80,
+                .DialogResult = DialogResult.Cancel
+            }
+
+
+            frm.Controls.Add(lst)
+            frm.Controls.Add(btnOK)
+            frm.Controls.Add(btnCancel)
+
+            frm.AcceptButton = btnOK
+            frm.CancelButton = btnCancel
+
+            If frm.ShowDialog() <>               DialogResult.OK OrElse
+               lst.SelectedIndex < 0 Then
+
+                Return -1
+
+            End If
+
+            Return lst.SelectedIndex
+
+        End Function
+
+
+        '=========================================================
+        ' GET PROPERTY
+        '=========================================================
+        Private Function GetProp(doc As Inventor.Document, propName As String) As String
+
+            If doc Is Nothing Then
+
+                Return ""
+
+            End If
+
+            Try
+
+                Dim ps As Inventor.PropertySet = doc.PropertySets.Item("Design Tracking Properties")
+
+                Dim v As Object = ps.Item(propName).Value
+
+
+                If v Is Nothing Then
+
+                    Return ""
+
+                End If
+
+
+                Return CStr(v).Trim()
+
+
+            Catch
+
+                Return ""
+
+            End Try
+
+        End Function
+
+
+        '=========================================================
+        ' SET PROPERTY
+        '
+        ' CHỈ GHI KHI PROPERTY ĐANG TRỐNG
+        '=========================================================
+        Private Sub SetProp(doc As Inventor.Document, propName As String, value As String)
+
+            If doc Is Nothing Then
+                Exit Sub
+            End If
+
+
+            If value Is Nothing Then
+                Exit Sub
+            End If
+
+            Dim newValue As String = value.Trim()
+
+
+            If newValue = "" Then
+                Exit Sub
+            End If
+
+
+            Try
+
+                Dim ps As Inventor.PropertySet = doc.PropertySets.Item("Design Tracking Properties")
+                Dim prop As Inventor.Property = ps.Item(propName)
+
+                Dim oldValue As String = ""
+
+
+                Try
+
+                    If prop.Value IsNot Nothing Then
+
+                        oldValue = CStr(prop.Value).Trim()
+
+                    End If
+
+                Catch
+                End Try
+
+
+                '=================================================
+                ' ĐÃ CÓ DỮ LIỆU -> KHÔNG GHI ĐÈ
+                '=================================================
+                If oldValue <> "" Then
+
+                    Exit Sub
+
+                End If
+
+
+                '=================================================
+                ' PROPERTY TRỐNG -> GHI
+                '=================================================
+                prop.Value = newValue
+
+            Catch
+            End Try
+
+        End Sub
+
+
+        '=========================================================
+        ' ĐÁNH STT
+        '=========================================================
+        Private Function NumberRows(oPartList As Inventor.PartsList, cSTT As String, stt As Integer, preferAsm As Boolean, purchased As Boolean) As Integer
+
+
+            For i As Integer = 1 To oPartList.PartsListRows.Count
+
+                Try
+
+                    Dim row As Inventor.PartsListRow = oPartList.PartsListRows.Item(i)
+
+
+                    If row.ReferencedRows Is Nothing OrElse
+                       row.ReferencedRows.Count < 1 Then
+
+                        Continue For
+
+                    End If
+
+
+                    Dim bomRow As Inventor.BOMRow = row.ReferencedRows.Item(1).BOMRow
+
+
+                    If bomRow Is Nothing Then
+                        Continue For
+                    End If
+
+
+                    Dim isPurchased As Boolean =
+                        (
+                            bomRow.BOMStructure = Inventor.BOMStructureEnum.kPurchasedBOMStructure
+                        )
+
+
+                    If purchased <> isPurchased Then
+                        Continue For
+
+                    End If
+
+                    If bomRow.ComponentDefinitions.Count < 1 Then
+                        Continue For
+                    End If
+
+                    Dim d As Inventor.Document = bomRow.ComponentDefinitions.Item(1).Document
+
+                    If d Is Nothing Then
+                        Continue For
+                    End If
+
+
+                    Dim isAsm As Boolean =
+                        (
+                            d.DocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject
+                        )
+
+
+                    If purchased Then
+
+                        SetCell(row, cSTT, stt.ToString())
+                        stt += 1
+
+                    ElseIf preferAsm AndAlso
+                           isAsm Then
+
+                        SetCell(row, cSTT, stt.ToString())
+
+                        stt += 1
+
+                    ElseIf (Not preferAsm) AndAlso
+                           (Not isAsm) Then
+                        SetCell(row, cSTT, stt.ToString())
+
+                        stt += 1
+
+                    End If
+
+                Catch
+                End Try
+
+            Next
+
+            Return stt
+
+        End Function
+
+        '=========================================================
+        ' TÌM CỘT UNIT QTY THEO PROPERTY GỐC
+        '
+        ' KHÔNG DỰA VÀO TÊN HIỂN THỊ CỦA CỘT
+        '
+        ' Vì người dùng có thể đổi:
+        '   UNIT QTY
+        '   Số lượng
+        '   SL
+        '   Đơn vị
+        '   ...
+        '
+        ' nên phải kiểm tra PropertyType của PartsListColumn.
+        '=========================================================
+        Private Function FindUnitQtyColumn(pl As Inventor.PartsList) As String
+
+            Try
+
+                For Each col As Inventor.PartsListColumn In
+                    pl.PartsListColumns
+
+                    Try
+                        '=================================================
+                        ' UNIT QUANTITY PROPERTY
+                        '=================================================
+                        If col.PropertyType = Inventor.PropertyTypeEnum.kUnitQuantityPartsListProperty Then
+
+                            Return col.Title
+
+                        End If
+                    Catch
+                    End Try
+
+                Next
+
+            Catch
+            End Try
+
+
+            '=========================================================
+            ' FALLBACK:
+            ' Một số cấu hình Inventor có thể trả về Item Quantity
+            ' cho cột mà người dùng đang dùng làm UNIT QTY.
+            '=========================================================
+            Try
+
+                For Each col As Inventor.PartsListColumn In
+                    pl.PartsListColumns
+
+                    Try
+
+                        If col.PropertyType = Inventor.PropertyTypeEnum.kItemQuantityPartsListProperty Then
+
+                            Return col.Title
+
+                        End If
+
+                    Catch
+                    End Try
+
+                Next
+            Catch
+            End Try
+
+            Return ""
+
+        End Function
+
+    End Module
 
 End Namespace

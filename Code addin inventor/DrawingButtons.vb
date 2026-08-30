@@ -35,11 +35,11 @@ Namespace ThanhN
             AddHandler DrawingBtn6.OnExecute, AddressOf Drawing.Buttons.Draw_6.OnExecute
             buttonsList.Add(DrawingBtn6)
 
-            Dim DrawingBtn7 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 7", "ThanhN_Drawing_Btn7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim DrawingBtn7 As ButtonDefinition = controlDefs.AddButtonDefinition("Nút chuyển Sheet", "ThanhN_Drawing_Btn7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
             AddHandler DrawingBtn7.OnExecute, AddressOf Drawing.Buttons.Draw_7.OnExecute
             buttonsList.Add(DrawingBtn7)
 
-            Dim DrawingBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 8", "ThanhN_Drawing_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim DrawingBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto centerline", "ThanhN_Drawing_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
             AddHandler DrawingBtn8.OnExecute, AddressOf Drawing.Buttons.Draw_8.OnExecute
             buttonsList.Add(DrawingBtn8)
 
