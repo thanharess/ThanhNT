@@ -53,7 +53,7 @@ Namespace ThanhN.Assembly2.Buttons.BOMcode
                             ' ===== FLAT PATTERN =====
                             If Not smDef.HasFlatPattern Then
                                 Try
-                                    '       smDef.Unfold().
+                                    smDef.Unfold() ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''' có thẻ vô hiệu hóa
                                 Catch
                                     Continue For
                                 End Try

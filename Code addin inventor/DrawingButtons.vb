@@ -39,15 +39,15 @@ Namespace ThanhN
             AddHandler DrawingBtn7.OnExecute, AddressOf Drawing.Buttons.Draw_7.OnExecute
             buttonsList.Add(DrawingBtn7)
 
-            Dim DrawingBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto centerline", "ThanhN_Drawing_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim DrawingBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Đổi scale view", "ThanhN_Drawing_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
             AddHandler DrawingBtn8.OnExecute, AddressOf Drawing.Buttons.Draw_8.OnExecute
             buttonsList.Add(DrawingBtn8)
 
-            Dim DrawingBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 9", "ThanhN_Drawing_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim DrawingBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa Part,ASS trùng lặp", "ThanhN_Drawing_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
             AddHandler DrawingBtn9.OnExecute, AddressOf Drawing.Buttons.Draw_9.OnExecute
             buttonsList.Add(DrawingBtn9)
 
-            Dim DrawingBtn10 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 10", "ThanhN_Drawing_Btn10", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim DrawingBtn10 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa centermark, centerline", "ThanhN_Drawing_Btn10", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
             AddHandler DrawingBtn10.OnExecute, AddressOf Drawing.Buttons.Draw_10.OnExecute
             buttonsList.Add(DrawingBtn10)
 
