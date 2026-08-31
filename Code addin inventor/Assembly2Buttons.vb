@@ -5,45 +5,45 @@ Namespace ThanhN
         Public Shared Sub Register(controlDefs As Inventor.ControlDefinitions, addInClientID As String, buttonsList As System.Collections.Generic.List(Of ButtonDefinition))
 
             ' Create Assembly buttons explicitly (no loop) so each button can have distinct implementation
-            Dim assemblyBtna1 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi tên theo chuỗi Top lever Partnumber", "ThanhN_Assembly_Btna1", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim assemblyBtna1 As ButtonDefinition = controlDefs.AddButtonDefinition("Thay tên ,STT BOM", "ThanhN_Assembly_Btna1", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
             AddHandler assemblyBtna1.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_1.OnExecute
             buttonsList.Add(assemblyBtna1)
 
-            Dim assemblyBtna2 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi tên theo chuỗi Top lever Stocknumber", "ThanhN_Assembly_Btna2", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim assemblyBtna2 As ButtonDefinition = controlDefs.AddButtonDefinition("Item1 Buy Top lever về cuối", "ThanhN_Assembly_Btna2", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
             AddHandler assemblyBtna2.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_2.OnExecute
             buttonsList.Add(assemblyBtna2)
 
-            Dim assemblyBtna3 As ButtonDefinition = controlDefs.AddButtonDefinition("Đánh STT cho item1 Top lever", "ThanhN_Assembly_Btna3", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim assemblyBtna3 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi item1,t,SL", "ThanhN_Assembly_Btna3", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
             AddHandler assemblyBtna3.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_3.OnExecute
             buttonsList.Add(assemblyBtna3)
 
-            Dim assemblyBtna4 As ButtonDefinition = controlDefs.AddButtonDefinition("Đánh STT cho cụm xếp VT partnumber Top lever", "ThanhN_Assembly_Btna4", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim assemblyBtna4 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi PL part,stocknumber", "ThanhN_Assembly_Btna4", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
             AddHandler assemblyBtna4.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_4.OnExecute
             buttonsList.Add(assemblyBtna4)
 
-            Dim assemblyBtna5 As ButtonDefinition = controlDefs.AddButtonDefinition("Đánh STT, item1 VT Buy Top lever về cuối", "ThanhN_Assembly_Btna5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim assemblyBtna5 As ButtonDefinition = controlDefs.AddButtonDefinition("2", "ThanhN_Assembly_Btna5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
             AddHandler assemblyBtna5.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_5.OnExecute
             buttonsList.Add(assemblyBtna5)
 
-            Dim assemblyBtna6 As ButtonDefinition = controlDefs.AddButtonDefinition("Đánh STT top lever", "ThanhN_Assembly_Btna6", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim assemblyBtna6 As ButtonDefinition = controlDefs.AddButtonDefinition("3", "ThanhN_Assembly_Btna6", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
             AddHandler assemblyBtna6.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_6.OnExecute
             buttonsList.Add(assemblyBtna6)
 
-            Dim assemblyBtna7 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi tên PLxx sheetmetal vào trong PartNB", "ThanhN_Assembly_Btna7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim assemblyBtna7 As ButtonDefinition = controlDefs.AddButtonDefinition("4", "ThanhN_Assembly_Btna7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
             AddHandler assemblyBtna7.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_7.OnExecute
             buttonsList.Add(assemblyBtna7)
 
-            Dim assemblyBtna8 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi tên PLxx sheetmetal vào trong StockNB", "ThanhN_Assembly_Btna8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, "Code này sẽ thay tên stocknumber 
+            Dim assemblyBtna8 As ButtonDefinition = controlDefs.AddButtonDefinition("5", "ThanhN_Assembly_Btna8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, "Code này sẽ thay tên stocknumber 
 theo kích thước bao sau khi trải ")
             AddHandler assemblyBtna8.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_8.OnExecute
             buttonsList.Add(assemblyBtna8)
 
-            Dim assemblyBtna9 As ButtonDefinition = controlDefs.AddButtonDefinition("Điền thông tin chiều dày tấm vào PL BOM", "ThanhN_Assembly_Btna9", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, "
+            Dim assemblyBtna9 As ButtonDefinition = controlDefs.AddButtonDefinition("9", "ThanhN_Assembly_Btna9", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, "
 Điền thông tin chiều dày theo thickness. chỉ áp dụng với cá sheetmetal! = t1,t2,t3,t4,...")
             AddHandler assemblyBtna9.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_9.OnExecute
             buttonsList.Add(assemblyBtna9)
 
-            Dim assemblyBtna10 As ButtonDefinition = controlDefs.AddButtonDefinition("STT từ Item sang item1 chỉ dánh part top lever", "ThanhN_Assembly_Btna10", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, "Code này chỉ coppy SST sang item1 cho part
+            Dim assemblyBtna10 As ButtonDefinition = controlDefs.AddButtonDefinition("6", "ThanhN_Assembly_Btna10", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, "Code này chỉ coppy SST sang item1 cho part
 toplever")
             AddHandler assemblyBtna10.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_10.OnExecute
             buttonsList.Add(assemblyBtna10)

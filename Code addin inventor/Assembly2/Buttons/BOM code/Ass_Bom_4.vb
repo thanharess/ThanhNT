@@ -1,315 +1,349 @@
-Imports Inventor
-Imports System.Windows.Forms
 Imports System.Collections.Generic
+Imports System.Windows.Forms
+Imports Inventor
+Imports Microsoft.VisualBasic
+Imports System.Globalization
 
 Namespace ThanhN.Assembly2.Buttons.BOMcode
+
     Public Module Ass_Bom_4
+
         Public Sub OnExecute(ByVal Context As NameValueMap)
+
+            '==================================================
+            ' CHỌN ÁP DỤNG CHO
+            '==================================================
+            Dim targetIdx As Integer = PickFromList(
+                "Áp dụng kiểm tra / ghi chiều dày Sheet Metal",
+                New String() {
+                    "Chỉ Part Number",
+                    "Chỉ Stock Number",
+                    "Cả Part Number và Stock Number"
+                }, 2)
+
+            If targetIdx < 0 Then Exit Sub
+
+            Dim applyPN As Boolean = False
+            Dim applySN As Boolean = False
+
+            Select Case targetIdx
+                Case 0 : applyPN = True
+                Case 1 : applySN = True
+                Case 2 : applyPN = True : applySN = True
+            End Select
+
+
             Try
-                NumberAssemblyPurchasedPartNumber()
+                Dim oAsm As AssemblyDocument =
+                    TryCast(g_inventorApplication.ActiveDocument, AssemblyDocument)
+
+                If oAsm Is Nothing Then
+                    MessageBox.Show("Rule này chỉ chạy trong Assembly.", "BOM")
+                    Exit Sub
+                End If
+
+                Dim oBOM As BOM = oAsm.ComponentDefinition.BOM
+                Try : oBOM.StructuredViewEnabled = True : Catch : End Try
+                Try : oBOM.StructuredViewFirstLevelOnly = False : Catch : End Try
+
+                Dim oBOMView As BOMView = oBOM.BOMViews.Item("Structured")
+
+                Dim countPN As Integer = 0
+                Dim countSN As Integer = 0
+                Dim listDocs As New List(Of Document)
+
+
+                For Each row As BOMRow In oBOMView.BOMRows
+
+                    ' Bỏ qua Reference + Phantom
+                    If IsSkipped(row) Then Continue For
+
+                    Dim refDoc As Document = Nothing
+                    Try
+                        refDoc = row.ComponentDefinitions.Item(1).Document
+                    Catch
+                        Continue For
+                    End Try
+
+                    If refDoc Is Nothing Then Continue For
+                    If refDoc.DocumentType <> DocumentTypeEnum.kPartDocumentObject Then Continue For
+                    If Not refDoc.IsModifiable Then Continue For
+
+                    Dim partDoc As PartDocument = CType(refDoc, PartDocument)
+
+                    ' Chỉ xử lý Sheet Metal
+                    Dim smDef As SheetMetalComponentDefinition =
+                        TryCast(partDoc.ComponentDefinition, SheetMetalComponentDefinition)
+
+                    If smDef Is Nothing Then Continue For
+
+
+                    '----- Lấy chiều dày thật (mm) -----
+                    Dim thickMM As Double = smDef.Thickness.Value * 10.0
+                    Dim thickStr As String = FormatThickness(thickMM)
+                    Dim newPrefix As String = "PL" & thickStr
+
+
+                    '----- Xử lý Part Number -----
+                    If applyPN Then
+                        Dim curPN As String = GetDesignProperty(partDoc, "Part Number")
+                        Dim newPN As String = SmartUpdateThickness(curPN, newPrefix, thickMM)
+
+                        If newPN <> "" AndAlso newPN <> curPN Then
+                            If SetDesignProperty(partDoc, "Part Number", newPN) Then
+                                countPN += 1
+                                If Not listDocs.Contains(partDoc) Then listDocs.Add(partDoc)
+                            End If
+                        End If
+                    End If
+
+
+                    '----- Xử lý Stock Number -----
+                    If applySN Then
+                        Dim curSN As String = GetDesignProperty(partDoc, "Stock Number")
+                        Dim newSN As String = SmartUpdateThickness(curSN, newPrefix, thickMM)
+
+                        If newSN <> "" AndAlso newSN <> curSN Then
+                            If SetDesignProperty(partDoc, "Stock Number", newSN) Then
+                                countSN += 1
+                                If Not listDocs.Contains(partDoc) Then listDocs.Add(partDoc)
+                            End If
+                        End If
+                    End If
+
+                Next
+
+
+                '----- Save các file đã sửa -----
+                For Each d As Document In listDocs
+                    Try
+                        If d.IsModifiable Then
+                            d.Update()
+                            d.Save2(True)
+                        End If
+                    Catch
+                    End Try
+                Next
+
+                Try : oBOM.Update() : Catch : End Try
+                Try : oAsm.Update2(True) : Catch : End Try
+
+
+                '----- Thông báo -----
+                Dim msg As String =
+                    "HOÀN TẤT – Sheet Metal Thickness" & vbCrLf &
+                    "=================================" & vbCrLf &
+                    "Part Number đã sửa  : " & countPN.ToString() & vbCrLf &
+                    "Stock Number đã sửa : " & countSN.ToString()
+
+                MessageBox.Show(msg, "PL → Part Number / Stock Number")
+
             Catch ex As Exception
-                MessageBox.Show("Error running NumberAssemblyPurchasedPartNumber: " & ex.Message, "Assembly2 - Purchased PartNumber")
+                MessageBox.Show("Lỗi:" & vbCrLf & ex.Message,
+                                "BOM", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
+
         End Sub
 
-        Private Sub NumberAssemblyPurchasedPartNumber()
-            Dim asmDoc As AssemblyDocument = TryCast(g_inventorApplication.ActiveDocument, AssemblyDocument)
-            If asmDoc Is Nothing Then
-                MessageBox.Show("Active document is not an assembly.", "Assembly2 - Purchased PartNumber")
-                Return
+
+        '==========================================================
+        ' LOGIC THÔNG MINH GIỐNG LỰA CHỌN 4
+        ' - Chưa có → ghi "PL" + chiều dày
+        ' - Đã có "PL" + số:
+        '     + Đúng chiều dày → giữ nguyên (trả về chuỗi cũ)
+        '     + Sai chiều dày → chỉ sửa phần số, giữ phần còn lại
+        '       Ví dụ: PL4x6x7  + dày thật 4.6 → PL4.6x6x7
+        '==========================================================
+        Private Function SmartUpdateThickness(current As String, newPrefix As String, realThick As Double) As String
+
+            If current Is Nothing Then current = ""
+            current = current.Trim()
+
+            ' Chưa có gì → ghi mới
+            If current = "" Then
+                Return newPrefix
             End If
 
-            Dim compDef As AssemblyComponentDefinition = asmDoc.ComponentDefinition
-            Dim bom As bom = compDef.BOM
-            bom.StructuredViewEnabled = True
-            bom.StructuredViewFirstLevelOnly = False
-            Dim bomView As BOMView = bom.BOMViews.Item("Structured")
+            ' Không bắt đầu bằng PL → ghi đè
+            If Not current.StartsWith("PL", StringComparison.OrdinalIgnoreCase) Then
+                Return newPrefix
+            End If
 
-            Dim prefix As String = Microsoft.VisualBasic.Interaction.InputBox("Nhập prefix cho STT Part Number (ví dụ: TH, để trống nếu không dùng):", "Prefix STT Part Number", "")
-            prefix = prefix.Trim()
+            ' Tách phần sau "PL"
+            Dim afterPL As String = current.Substring(2)
+            Dim oldThickStr As String = ""
+            Dim rest As String = ""
+            Dim i As Integer = 0
 
-            ' Collect all unique Documents from the entire assembly tree (excluding main assembly)
-            Dim allDocs As New HashSet(Of Document)()
-            For Each occ As ComponentOccurrence In compDef.Occurrences
-                CollectAllDocs(occ, allDocs)
-            Next
-            allDocs.Remove(asmDoc)
+            While i < afterPL.Length AndAlso (Char.IsDigit(afterPL(i)) OrElse afterPL(i) = "."c)
+                oldThickStr &= afterPL(i)
+                i += 1
+            End While
 
-            ' Build partKey -> list of docs map
-            Dim partKeyToDocs As New Dictionary(Of String, List(Of Document))(StringComparer.OrdinalIgnoreCase)
-            For Each refDoc As Document In allDocs
-                Dim partNum As String = GetPartNumberFromDoc(refDoc).Trim().ToUpper()
-                If partNum = String.Empty Then partNum = GetFallbackName(refDoc)
-                Dim rev As String = GetRevisionFromDoc(refDoc).Trim().ToUpper()
-                If rev = String.Empty Then rev = "?"
-                Dim partKey As String = partNum & "|" & rev
-                If Not partKeyToDocs.ContainsKey(partKey) Then
-                    partKeyToDocs.Add(partKey, New List(Of Document)())
-                End If
-                If Not partKeyToDocs(partKey).Contains(refDoc) Then
-                    partKeyToDocs(partKey).Add(refDoc)
-                End If
-            Next
+            If i < afterPL.Length Then
+                rest = afterPL.Substring(i)          ' ví dụ "x6x7"
+            End If
 
-            ' Get top-level structured BOM rows (sorted using purchased-last ordering)
-            Dim topRows As List(Of BOMRow) = SortRows(bomView.BOMRows)
+            ' So sánh chiều dày
+            Dim oldThick As Double = 0
+            Double.TryParse(oldThickStr, NumberStyles.Any, CultureInfo.InvariantCulture, oldThick)
 
-            ' Assign ItemNumber for top-level rows (numeric, no prefix on ItemNumber)
-            Dim partKeyToSTT As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
-            Dim sttCounter As Integer = 1
-            For Each row As BOMRow In topRows
-                If row Is Nothing Then Continue For
-                If row.ComponentDefinitions Is Nothing OrElse row.ComponentDefinitions.Count = 0 Then Continue For
-                Dim refDoc As Document = Nothing
-                Try
-                    refDoc = row.ComponentDefinitions.Item(1).Document
-                Catch
-                    Continue For
-                End Try
-                If refDoc Is Nothing Then Continue For
-                If String.Compare(refDoc.FullFileName, asmDoc.FullFileName, True) = 0 Then Continue For
+            If Math.Abs(oldThick - realThick) < 0.001 Then
+                ' Đúng → giữ nguyên
+                Return current
+            Else
+                ' Sai → sửa phần dày, giữ phần còn lại
+                Return newPrefix & rest
+            End If
 
-                Dim partNum As String = GetPartNumberFromDoc(refDoc).Trim().ToUpper()
-                If partNum = String.Empty Then partNum = GetFallbackName(refDoc)
-                Dim rev As String = GetRevisionFromDoc(refDoc).Trim().ToUpper()
-                If rev = String.Empty Then rev = "?"
-                Dim partKey As String = partNum & "|" & rev
-
-                Dim numericSTT As String
-                If partKeyToSTT.ContainsKey(partKey) Then
-                    numericSTT = partKeyToSTT(partKey)
-                Else
-                    numericSTT = CStr(sttCounter)
-                    partKeyToSTT.Add(partKey, numericSTT)
-                    sttCounter += 1
-                End If
-
-                Dim sttValue As String = numericSTT
-                Try
-                    row.ItemNumber = sttValue
-                Catch
-                End Try
-            Next
-
-            ' Write Part Number for all documents in each group (apply prefix to Part Number)
-            For Each kvp As KeyValuePair(Of String, String) In partKeyToSTT
-                Dim key As String = kvp.Key
-                Dim numericSTT As String = kvp.Value
-                Dim fullSTT As String = numericSTT
-                If prefix <> String.Empty Then fullSTT = prefix & fullSTT
-                If partKeyToDocs.ContainsKey(key) Then
-                    For Each doc As Document In partKeyToDocs(key)
-                        SetPartNumber(doc, fullSTT)
-                    Next
-                End If
-            Next
-
-            MessageBox.Show("Hoàn tất: Structured BOM (top-level only, purchased items sorted lower) và Model Data (Part Number với prefix '" & prefix & "') đã được đánh STT.", "iLogic - Converted")
-        End Sub
-
-        Private Sub CollectAllDocs(occ As ComponentOccurrence, ByRef docsSet As HashSet(Of Document))
-            Try
-                If occ Is Nothing OrElse occ.Definition Is Nothing Then Return
-                docsSet.Add(occ.Definition.Document)
-                If occ.Definition.Type = ObjectTypeEnum.kAssemblyComponentDefinitionObject Then
-                    Dim subDef As AssemblyComponentDefinition = TryCast(occ.Definition, AssemblyComponentDefinition)
-                    If subDef IsNot Nothing Then
-                        For Each subOcc As ComponentOccurrence In subDef.Occurrences
-                            CollectAllDocs(subOcc, docsSet)
-                        Next
-                    End If
-                End If
-            Catch
-                ' ignore
-            End Try
-        End Sub
-
-        Private Function SortRows(bomRows As BOMRowsEnumerator) As List(Of BOMRow)
-            Dim subAsmMassList As New List(Of Tuple(Of BOMRow, Double))
-            Dim partMassList As New List(Of Tuple(Of BOMRow, Double))
-            Dim purchasedAsm As New List(Of Tuple(Of BOMRow, String))
-            Dim purchasedPart As New List(Of Tuple(Of BOMRow, String))
-            Dim phantomAsmMassList As New List(Of Tuple(Of BOMRow, Double))
-            Dim phantomPartMassList As New List(Of Tuple(Of BOMRow, Double))
-            Dim reference As New List(Of Tuple(Of BOMRow, String))
-
-            For Each Row As BOMRow In bomRows
-                If Row Is Nothing Then Continue For
-                If Row.ComponentDefinitions Is Nothing OrElse Row.ComponentDefinitions.Count = 0 Then
-                    If Row.BOMStructure = BOMStructureEnum.kReferenceBOMStructure Then
-                        reference.Add(Tuple.Create(Row, ""))
-                    End If
-                    Continue For
-                End If
-                Dim refDoc As Document = Nothing
-                Try
-                    refDoc = Row.ComponentDefinitions.Item(1).Document
-                Catch
-                    Continue For
-                End Try
-                If refDoc Is Nothing Then Continue For
-
-                Dim partNum As String = GetPartNumberFromDoc(refDoc).Trim().ToUpper()
-                If partNum = String.Empty Then partNum = "?"
-
-                If Row.BOMStructure = BOMStructureEnum.kReferenceBOMStructure Then
-                    reference.Add(Tuple.Create(Row, partNum))
-                ElseIf Row.BOMStructure = BOMStructureEnum.kPhantomBOMStructure Then
-                    Dim mass As Double = GetMassOfDocument(refDoc)
-                    If refDoc.DocumentType = DocumentTypeEnum.kAssemblyDocumentObject Then
-                        phantomAsmMassList.Add(Tuple.Create(Row, mass))
-                    Else
-                        phantomPartMassList.Add(Tuple.Create(Row, mass))
-                    End If
-                ElseIf Row.BOMStructure = BOMStructureEnum.kPurchasedBOMStructure Then
-                    ' purchased assemblies and parts sorted by Part Number ascending
-                    If refDoc.DocumentType = DocumentTypeEnum.kAssemblyDocumentObject Then
-                        purchasedAsm.Add(Tuple.Create(Row, partNum))
-                    Else
-                        purchasedPart.Add(Tuple.Create(Row, partNum))
-                    End If
-                Else
-                    ' Normal (non-phantom, non-purchased, non-reference)
-                    Dim mass As Double = GetMassOfDocument(refDoc)
-                    If refDoc.DocumentType = DocumentTypeEnum.kAssemblyDocumentObject Then
-                        subAsmMassList.Add(Tuple.Create(Row, mass))
-                    Else
-                        partMassList.Add(Tuple.Create(Row, mass))
-                    End If
-                End If
-            Next
-
-            ' Sort groups
-            subAsmMassList.Sort(Function(a, b) b.Item2.CompareTo(a.Item2))
-            partMassList.Sort(Function(a, b) b.Item2.CompareTo(a.Item2))
-            purchasedAsm.Sort(Function(a, b) String.Compare(a.Item2, b.Item2, StringComparison.OrdinalIgnoreCase))
-            purchasedPart.Sort(Function(a, b) String.Compare(a.Item2, b.Item2, StringComparison.OrdinalIgnoreCase))
-            phantomAsmMassList.Sort(Function(a, b) b.Item2.CompareTo(a.Item2))
-            phantomPartMassList.Sort(Function(a, b) b.Item2.CompareTo(a.Item2))
-            reference.Sort(Function(a, b) String.Compare(a.Item2, b.Item2, StringComparison.OrdinalIgnoreCase))
-
-            ' Combine in required order: normal assemblies, normal parts, purchased assemblies, purchased parts, phantom assemblies, phantom parts, reference
-            Dim result As New List(Of BOMRow)()
-            For Each t In subAsmMassList
-                result.Add(t.Item1)
-            Next
-            For Each t In partMassList
-                result.Add(t.Item1)
-            Next
-            For Each t In purchasedAsm
-                result.Add(t.Item1)
-            Next
-            For Each t In purchasedPart
-                result.Add(t.Item1)
-            Next
-            For Each t In phantomAsmMassList
-                result.Add(t.Item1)
-            Next
-            For Each t In phantomPartMassList
-                result.Add(t.Item1)
-            Next
-            For Each t In reference
-                result.Add(t.Item1)
-            Next
-
-            Return result
         End Function
 
-        Private Function GetMassOfDocument(doc As Document) As Double
-            Try
-                Dim partDoc As PartDocument = TryCast(doc, PartDocument)
-                If partDoc IsNot Nothing Then
-                    Try
-                        Return partDoc.ComponentDefinition.MassProperties.Mass
-                    Catch
-                    End Try
-                End If
-                Dim asmDoc As AssemblyDocument = TryCast(doc, AssemblyDocument)
-                If asmDoc IsNot Nothing Then
-                    Try
-                        Return asmDoc.ComponentDefinition.MassProperties.Mass
-                    Catch
-                    End Try
-                End If
-            Catch
-            End Try
-            Return 0.0
+
+        '==========================================================
+        ' FORMAT CHIỀU DÀY
+        '==========================================================
+        Private Function FormatThickness(value As Double) As String
+            Return value.ToString("0.###", CultureInfo.InvariantCulture)
         End Function
 
-        Private Function GetPartNumberFromDoc(doc As Document) As String
+
+        '==========================================================
+        ' BỎ QUA Reference + Phantom
+        '==========================================================
+        Private Function IsSkipped(row As BOMRow) As Boolean
             Try
+                If row.BOMStructure = BOMStructureEnum.kReferenceBOMStructure Then Return True
+                If row.BOMStructure = BOMStructureEnum.kPhantomBOMStructure Then Return True
+            Catch
+            End Try
+            Return False
+        End Function
+
+
+        '==========================================================
+        ' DESIGN TRACKING PROPERTY
+        '==========================================================
+        Private Function GetDesignProperty(doc As Document, propName As String) As String
+            Try
+                If doc Is Nothing Then Return ""
                 Dim ps As PropertySet = doc.PropertySets.Item("Design Tracking Properties")
-                Dim prop As [Property] = Nothing
-                Try
-                    prop = ps.Item("Part Number")
-                Catch
-                End Try
-                If prop IsNot Nothing AndAlso prop.Value IsNot Nothing Then
-                    Return Convert.ToString(prop.Value)
-                End If
+                Dim prop As Inventor.Property = ps.Item(propName)
+                If prop Is Nothing OrElse prop.Value Is Nothing Then Return ""
+                Return CStr(prop.Value).Trim()
             Catch
+                Return ""
             End Try
-            Return String.Empty
         End Function
 
-        Private Function GetRevisionFromDoc(doc As Document) As String
-            Try
-                Dim ps As PropertySet = doc.PropertySets.Item("Design Tracking Properties")
-                Dim prop As [Property] = Nothing
-                Try
-                    prop = ps.Item("Revision")
-                Catch
-                End Try
-                If prop Is Nothing Then
-                    Try
-                        prop = ps.Item("Revision Number")
-                    Catch
-                    End Try
-                End If
-                If prop IsNot Nothing AndAlso prop.Value IsNot Nothing Then
-                    Return Convert.ToString(prop.Value)
-                End If
-            Catch
-            End Try
-            Return String.Empty
-        End Function
 
-        Private Function GetFallbackName(doc As Document) As String
+        Private Function SetDesignProperty(doc As Document, propName As String, value As String) As Boolean
             Try
-                Return System.IO.Path.GetFileNameWithoutExtension(doc.FullFileName)
-            Catch
-            End Try
-            Return String.Empty
-        End Function
+                If doc Is Nothing OrElse Not doc.IsModifiable Then Return False
 
-        Private Sub SetPartNumber(doc As Document, value As String)
-            Try
-                Dim ps As PropertySet = doc.PropertySets.Item("Design Tracking Properties")
-                Dim prop As [Property] = Nothing
+                Dim designProps As PropertySet = Nothing
                 Try
-                    prop = ps.Item("Part Number")
+                    designProps = doc.PropertySets.Item("Design Tracking Properties")
                 Catch
+                    Return False
                 End Try
-                If prop Is Nothing Then
-                    Try
-                        ps.Add("Part Number", value)
-                    Catch
-                        ' ignore add failures
-                    End Try
-                Else
+
+                Try
+                    Dim prop As Inventor.Property = designProps.Item(propName)
                     prop.Value = value
-                End If
-
-                Try
-                    doc.Update()
-                    If doc.ReadOnly = False Then
-                        doc.Save()
-                    End If
+                    Return True
                 Catch
+                    Try
+                        designProps.Add(value, propName)
+                        Return True
+                    Catch
+                        Return False
+                    End Try
                 End Try
             Catch
+                Return False
             End Try
-        End Sub
+        End Function
+
+
+        '==========================================================
+        ' PICK LIST
+        '==========================================================
+        Private Function PickFromList(title As String, items As String(),
+                                      Optional defaultIndex As Integer = 0) As Integer
+
+            Dim frm As New Form()
+            Try
+                frm.Text = title
+                frm.StartPosition = FormStartPosition.CenterScreen
+                frm.FormBorderStyle = FormBorderStyle.FixedDialog
+                frm.MaximizeBox = False
+                frm.MinimizeBox = False
+                frm.ShowInTaskbar = False
+                frm.Width = 420
+                frm.Height = 280
+
+                Dim lst As New ListBox()
+                lst.Left = 12 : lst.Top = 12
+                lst.Width = 380 : lst.Height = 170
+                lst.Font = New System.Drawing.Font("Segoe UI", 10)
+
+                For Each s As String In items
+                    lst.Items.Add(s)
+                Next
+
+                If lst.Items.Count > 0 Then
+                    If defaultIndex >= 0 AndAlso defaultIndex < lst.Items.Count Then
+                        lst.SelectedIndex = defaultIndex
+                    Else
+                        lst.SelectedIndex = 0
+                    End If
+                End If
+
+                Dim btnOK As New Button()
+                btnOK.Text = "OK"
+                btnOK.Left = 200 : btnOK.Top = 195
+                btnOK.Width = 90 : btnOK.Height = 30
+                btnOK.DialogResult = DialogResult.OK
+
+                Dim btnCancel As New Button()
+                btnCancel.Text = "Hủy"
+                btnCancel.Left = 300 : btnCancel.Top = 195
+                btnCancel.Width = 90 : btnCancel.Height = 30
+                btnCancel.DialogResult = DialogResult.Cancel
+
+                frm.Controls.Add(lst)
+                frm.Controls.Add(btnOK)
+                frm.Controls.Add(btnCancel)
+                frm.AcceptButton = btnOK
+                frm.CancelButton = btnCancel
+                frm.KeyPreview = True
+
+                AddHandler lst.DoubleClick,
+                    Sub(s, e)
+                        frm.DialogResult = DialogResult.OK
+                        frm.Close()
+                    End Sub
+
+                AddHandler frm.KeyDown,
+                    Sub(s, e)
+                        If e.KeyCode = Keys.Escape Then
+                            e.Handled = True
+                            frm.DialogResult = DialogResult.Cancel
+                            frm.Close()
+                        End If
+                    End Sub
+
+                If frm.ShowDialog() <> DialogResult.OK Then Return -1
+                If lst.SelectedIndex < 0 Then Return -1
+                Return lst.SelectedIndex
+
+            Finally
+                If frm IsNot Nothing Then
+                    Try : frm.Dispose() : Catch : End Try
+                End If
+            End Try
+        End Function
 
     End Module
+
 End Namespace
