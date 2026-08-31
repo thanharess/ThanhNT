@@ -119,6 +119,9 @@
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_6.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_7.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_8.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Frame\Ass_Frame_3.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Frame\Ass_Frame_2.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Frame\Ass_Frame_1.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Import_step_to_part.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_9.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_10.vb" />
@@ -197,6 +200,7 @@
     <None Include="Readme.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Code addin inventor\Assembly\NewFolder1\" />
     <Folder Include="Code addin inventor\Part\Buttons\Sheetmetal\" />
     <Folder Include="My Project\" />
   </ItemGroup>

@@ -48,17 +48,17 @@ toplever")
             AddHandler assemblyBtna10.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_10.OnExecute
             buttonsList.Add(assemblyBtna10)
 
-            Dim assemblyBtna11 As ButtonDefinition = controlDefs.AddButtonDefinition("Item, Item Qty part sang Item1, SL Part all lever", "ThanhN_Assembly_Btna11", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, "Coppy Item, Item Qty part all leveer sang Item1, SL Part all lever
+            Dim assemblyBtna11 As ButtonDefinition = controlDefs.AddButtonDefinition("7", "ThanhN_Assembly_Btna11", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, "Coppy Item, Item Qty part all leveer sang Item1, SL Part all lever
 tối đa 3 lever & không copy vào cụm lắp. chỉ copy part")
             AddHandler assemblyBtna11.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_11.OnExecute
             buttonsList.Add(assemblyBtna11)
 
-            Dim assemblyBtna12 As ButtonDefinition = controlDefs.AddButtonDefinition("Item, Item Qty part sang Item1, SL Part, PL all lever", "ThanhN_Assembly_Btna12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, "Coppy Item, Item Qty part all leveer sang Item1, SL Part, thickness PL sheetmetal all lever
+            Dim assemblyBtna12 As ButtonDefinition = controlDefs.AddButtonDefinition("8", "ThanhN_Assembly_Btna12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, "Coppy Item, Item Qty part all leveer sang Item1, SL Part, thickness PL sheetmetal all lever
 tối đa 3 lever & không copy vào cụm lắp. chỉ copy part")
             AddHandler assemblyBtna12.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_12.OnExecute
             buttonsList.Add(assemblyBtna12)
 
-            Dim assemblyBtna13 As ButtonDefinition = controlDefs.AddButtonDefinition("Item, Item Qty part sang Item1, SL Part, PL all lever", "ThanhN_Assembly_Btna13", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
+            Dim assemblyBtna13 As ButtonDefinition = controlDefs.AddButtonDefinition("9", "ThanhN_Assembly_Btna13", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
             AddHandler assemblyBtna13.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_13.OnExecute
             buttonsList.Add(assemblyBtna13)
 

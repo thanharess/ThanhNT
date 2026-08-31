@@ -73,7 +73,7 @@ Namespace ThanhN
             buttonsList.Add(assemblyBtn13)
 
             Dim assemblyBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Save coppy to replace part", "ThanhN_Assembly_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
-            AddHandler assemblyBtn14.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_9.OnExecute
+            AddHandler assemblyBtn14.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_Frame_1.OnExecute
             buttonsList.Add(assemblyBtn14)
 
             Dim assemblyBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Design Assitan", "ThanhN_Assembly_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing)
@@ -132,10 +132,20 @@ Namespace ThanhN
             AddHandler assemblyBtn25.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.AutoDrawingASSpartTopLV.OnExecute
             buttonsList.Add(assemblyBtn25)
 
+            Dim assemblyBtn26 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame", "ThanhN_Assembly_Btn26", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                          Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.")
+            AddHandler assemblyBtn26.OnExecute, AddressOf Assembly.Buttons.Frame.Ass_Frame_1.OnExecute
+            buttonsList.Add(assemblyBtn26)
 
+            Dim assemblyBtn27 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame2", "ThanhN_Assembly_Btn27", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                          Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.")
+            AddHandler assemblyBtn27.OnExecute, AddressOf Assembly.Buttons.Frame.Ass_Frame_2.OnExecute
+            buttonsList.Add(assemblyBtn27)
 
-
-
+            Dim assemblyBtn28 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame3", "ThanhN_Assembly_Btn28", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                          Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.")
+            AddHandler assemblyBtn28.OnExecute, AddressOf Assembly.Buttons.Frame.Ass_Frame_3.OnExecute
+            buttonsList.Add(assemblyBtn28)
         End Sub
     End Class
 End Namespace

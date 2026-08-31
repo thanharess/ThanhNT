@@ -4,7 +4,7 @@ Imports Inventor
 Imports System.IO
 
 Namespace ThanhN.Assembly.Buttons.caclenhlapghep
-    Public Module Ass_9
+    Public Module Ass_Frame_1
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Dim invApp As Inventor.Application
             Try
