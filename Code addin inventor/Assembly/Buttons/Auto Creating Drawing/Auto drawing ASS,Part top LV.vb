@@ -5,7 +5,7 @@ Imports Inventor
 Imports System.Windows.Forms
 Imports System.Collections
 Imports System.Collections.Generic
-Namespace ThanhN.Assembly.Buttons.AutoCreateDrawing
+Namespace ToolInventor2020.Assembly.Buttons.AutoCreateDrawing
     Public Module AutoDrawingASSpartTopLV
 
         Public Sub OnExecute(ByVal Context As NameValueMap)

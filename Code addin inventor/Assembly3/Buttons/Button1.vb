@@ -3,7 +3,7 @@ Imports System.Windows.Forms
 Imports System.Runtime.InteropServices
 Imports System.Collections.Generic
 
-Namespace ThanhN.Assembly3.Buttons
+Namespace ToolInventor2020.Assembly3.Buttons
     Public Module Button1
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Try

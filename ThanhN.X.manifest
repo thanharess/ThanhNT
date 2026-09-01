@@ -2,10 +2,10 @@
 
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
 
-  <assemblyIdentity name="ThanhN" version="1.0.0.0"></assemblyIdentity>
+  <assemblyIdentity name="ToolInventor2020" version="1.0.0.0"></assemblyIdentity>
 
-  <clrClass clsid="{27785725-854b-490a-ac86-ab9dad7f3cc5}" progid="ThanhN.StandardAddInServer" threadingModel="Both" name="ThanhN.ThanhN.StandardAddInServer" runtimeVersion=""></clrClass>
+  <clrClass clsid="{27785725-854b-490a-ac86-ab9dad7f3cc5}" progid="ToolInventor2020.StandardAddInServer" threadingModel="Both" name="ToolInventor2020.ToolInventor2020.StandardAddInServer" runtimeVersion=""></clrClass>
 
-  <file name="ThanhN.dll" hashalg="SHA1"></file>
+  <file name="ToolInventor2020.dll" hashalg="SHA1"></file>
 
 </assembly>

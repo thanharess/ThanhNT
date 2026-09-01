@@ -6,7 +6,7 @@ Imports System
 Imports System.Drawing
 Imports System.Windows.Forms
 
-Namespace ThanhN.Drawing.Buttons
+Namespace ToolInventor2020.Drawing.Buttons
 
     Public Module Draw_7
 

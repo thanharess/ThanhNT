@@ -5,7 +5,7 @@ Imports Microsoft.VisualBasic
 Imports System.Globalization
 Imports System.Runtime.InteropServices
 
-Namespace ThanhN.Assembly2.Buttons.BOMcode
+Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
 
     Public Module Ass_Bom_3
 

@@ -3,345 +3,345 @@ Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ThanhN.Assembly.Buttons.part
+Namespace ToolInventor2020.Assembly.Buttons.part
     Public Module Ass_Part_2
 
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
-                Try
-                    SetDocumentUnits()
+            Try
+                SetDocumentUnits()
 
-                Catch ex As Exception
+            Catch ex As Exception
 
-                    MessageBox.Show(
+                MessageBox.Show(
                     "Lỗi: " & ex.Message,
                     "Đơn vị File",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error)
 
-                End Try
+            End Try
 
-            End Sub
-
-
-            Private Sub SetDocumentUnits()
-
-                '==========================================================
-                ' Danh sách lựa chọn
-                '==========================================================
-                Dim unitOptions As New List(Of String)
-
-                unitOptions.Add("All Part Thành mm - kg")
-                unitOptions.Add("All Assembly Thành mm - kg")
-                unitOptions.Add("All Assembly và Part Thành mm - kg")
-                unitOptions.Add("")
-                unitOptions.Add("All Assembly và Part Thành cm - kg")
-                unitOptions.Add("All Assembly và Part Thành m - kg")
+        End Sub
 
 
-                '==========================================================
-                ' Hiện Form chọn
-                '==========================================================
-                Dim selectedOption As String =
+        Private Sub SetDocumentUnits()
+
+            '==========================================================
+            ' Danh sách lựa chọn
+            '==========================================================
+            Dim unitOptions As New List(Of String)
+
+            unitOptions.Add("All Part Thành mm - kg")
+            unitOptions.Add("All Assembly Thành mm - kg")
+            unitOptions.Add("All Assembly và Part Thành mm - kg")
+            unitOptions.Add("")
+            unitOptions.Add("All Assembly và Part Thành cm - kg")
+            unitOptions.Add("All Assembly và Part Thành m - kg")
+
+
+            '==========================================================
+            ' Hiện Form chọn
+            '==========================================================
+            Dim selectedOption As String =
                 ShowUnitSelectionForm(unitOptions)
 
-                ' Cancel
-                If String.IsNullOrEmpty(selectedOption) Then
-                    Return
-                End If
+            ' Cancel
+            If String.IsNullOrEmpty(selectedOption) Then
+                Return
+            End If
 
 
-                '==========================================================
-                ' Active Document
-                '==========================================================
-                Dim openDoc As Document =
+            '==========================================================
+            ' Active Document
+            '==========================================================
+            Dim openDoc As Document =
                 g_inventorApplication.ActiveDocument
 
-                If openDoc Is Nothing Then
-                    MessageBox.Show(
+            If openDoc Is Nothing Then
+                MessageBox.Show(
                     "Không có Document đang mở.",
                     "Đơn vị File",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning)
-                    Return
-                End If
+                Return
+            End If
 
 
-                '==========================================================
-                ' Thiết lập đơn vị
-                '==========================================================
-                Dim oUOM1 As UnitsTypeEnum
-                Dim oUOM2 As UnitsTypeEnum
-                Dim oPrecision As Integer = 3
+            '==========================================================
+            ' Thiết lập đơn vị
+            '==========================================================
+            Dim oUOM1 As UnitsTypeEnum
+            Dim oUOM2 As UnitsTypeEnum
+            Dim oPrecision As Integer = 3
 
 
-                Select Case selectedOption
+            Select Case selectedOption
 
-                    Case "All Part Thành mm - kg"
+                Case "All Part Thành mm - kg"
 
-                        oUOM1 = UnitsTypeEnum.kMillimeterLengthUnits
-                        oUOM2 = UnitsTypeEnum.kKilogramMassUnits
+                    oUOM1 = UnitsTypeEnum.kMillimeterLengthUnits
+                    oUOM2 = UnitsTypeEnum.kKilogramMassUnits
 
-                        ' Active document
-                        openDoc.UnitsOfMeasure.LengthUnits = oUOM1
-                        openDoc.UnitsOfMeasure.MassUnits = oUOM2
-                        openDoc.UnitsOfMeasure.LengthDisplayPrecision = oPrecision
+                    ' Active document
+                    openDoc.UnitsOfMeasure.LengthUnits = oUOM1
+                    openDoc.UnitsOfMeasure.MassUnits = oUOM2
+                    openDoc.UnitsOfMeasure.LengthDisplayPrecision = oPrecision
 
-                        ' Chỉ Part
-                        For Each docFile As Document In openDoc.AllReferencedDocuments
+                    ' Chỉ Part
+                    For Each docFile As Document In openDoc.AllReferencedDocuments
 
-                            If docFile.DocumentType =
+                        If docFile.DocumentType =
                             DocumentTypeEnum.kPartDocumentObject Then
 
-                                SetUnits(
+                            SetUnits(
                                 docFile,
                                 oUOM1,
                                 oUOM2,
                                 oPrecision)
 
-                            End If
+                        End If
 
-                        Next
+                    Next
 
 
-                    Case "All Assembly Thành mm - kg"
+                Case "All Assembly Thành mm - kg"
 
-                        oUOM1 = UnitsTypeEnum.kMillimeterLengthUnits
-                        oUOM2 = UnitsTypeEnum.kKilogramMassUnits
+                    oUOM1 = UnitsTypeEnum.kMillimeterLengthUnits
+                    oUOM2 = UnitsTypeEnum.kKilogramMassUnits
 
-                        ' Active document
-                        openDoc.UnitsOfMeasure.LengthUnits = oUOM1
-                        openDoc.UnitsOfMeasure.MassUnits = oUOM2
-                        openDoc.UnitsOfMeasure.LengthDisplayPrecision = oPrecision
+                    ' Active document
+                    openDoc.UnitsOfMeasure.LengthUnits = oUOM1
+                    openDoc.UnitsOfMeasure.MassUnits = oUOM2
+                    openDoc.UnitsOfMeasure.LengthDisplayPrecision = oPrecision
 
-                        ' Chỉ Assembly
-                        For Each docFile As Document In openDoc.AllReferencedDocuments
+                    ' Chỉ Assembly
+                    For Each docFile As Document In openDoc.AllReferencedDocuments
 
-                            If docFile.DocumentType =
+                        If docFile.DocumentType =
                             DocumentTypeEnum.kAssemblyDocumentObject Then
 
-                                SetUnits(
+                            SetUnits(
                                 docFile,
                                 oUOM1,
                                 oUOM2,
                                 oPrecision)
 
-                            End If
+                        End If
 
-                        Next
+                    Next
 
 
-                    Case "All Assembly và Part Thành mm - kg"
+                Case "All Assembly và Part Thành mm - kg"
 
-                        oUOM1 = UnitsTypeEnum.kMillimeterLengthUnits
-                        oUOM2 = UnitsTypeEnum.kKilogramMassUnits
+                    oUOM1 = UnitsTypeEnum.kMillimeterLengthUnits
+                    oUOM2 = UnitsTypeEnum.kKilogramMassUnits
 
-                        SetUnits(
+                    SetUnits(
                         openDoc,
                         oUOM1,
                         oUOM2,
                         oPrecision)
 
-                        ' Assembly + Part
-                        For Each docFile As Document In openDoc.AllReferencedDocuments
+                    ' Assembly + Part
+                    For Each docFile As Document In openDoc.AllReferencedDocuments
 
-                            SetUnits(
+                        SetUnits(
                             docFile,
                             oUOM1,
                             oUOM2,
                             oPrecision)
 
-                        Next
+                    Next
 
 
-                    Case "All Assembly và Part Thành cm - kg"
+                Case "All Assembly và Part Thành cm - kg"
 
-                        oUOM1 = UnitsTypeEnum.kCentimeterLengthUnits
-                        oUOM2 = UnitsTypeEnum.kKilogramMassUnits
+                    oUOM1 = UnitsTypeEnum.kCentimeterLengthUnits
+                    oUOM2 = UnitsTypeEnum.kKilogramMassUnits
 
-                        SetUnits(
+                    SetUnits(
                         openDoc,
                         oUOM1,
                         oUOM2,
                         oPrecision)
 
-                        ' Assembly + Part
-                        For Each docFile As Document In openDoc.AllReferencedDocuments
+                    ' Assembly + Part
+                    For Each docFile As Document In openDoc.AllReferencedDocuments
 
-                            SetUnits(
+                        SetUnits(
                             docFile,
                             oUOM1,
                             oUOM2,
                             oPrecision)
 
-                        Next
+                    Next
 
 
-                    Case "All Assembly và Part Thành m - kg"
+                Case "All Assembly và Part Thành m - kg"
 
-                        oUOM1 = UnitsTypeEnum.kMeterLengthUnits
-                        oUOM2 = UnitsTypeEnum.kKilogramMassUnits
+                    oUOM1 = UnitsTypeEnum.kMeterLengthUnits
+                    oUOM2 = UnitsTypeEnum.kKilogramMassUnits
 
-                        SetUnits(
+                    SetUnits(
                         openDoc,
                         oUOM1,
                         oUOM2,
                         oPrecision)
 
-                        ' Assembly + Part
-                        For Each docFile As Document In openDoc.AllReferencedDocuments
+                    ' Assembly + Part
+                    For Each docFile As Document In openDoc.AllReferencedDocuments
 
-                            SetUnits(
+                        SetUnits(
                             docFile,
                             oUOM1,
                             oUOM2,
                             oPrecision)
 
-                        Next
+                    Next
 
-                End Select
+            End Select
 
 
-                '==========================================================
-                ' Update
-                '==========================================================
-                openDoc.Update()
+            '==========================================================
+            ' Update
+            '==========================================================
+            openDoc.Update()
 
-                MessageBox.Show(
+            MessageBox.Show(
                 "Đã cập nhật đơn vị:" &
                 vbCrLf & selectedOption,
                 "Đơn vị File",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information)
 
-            End Sub
+        End Sub
 
 
-            '==============================================================
-            ' Hàm thiết lập Unit cho Document
-            '==============================================================
-            Private Sub SetUnits(
+        '==============================================================
+        ' Hàm thiết lập Unit cho Document
+        '==============================================================
+        Private Sub SetUnits(
             ByVal docFile As Document,
             ByVal lengthUnit As UnitsTypeEnum,
             ByVal massUnit As UnitsTypeEnum,
             ByVal precision As Integer)
 
-                Try
+            Try
 
-                    If docFile Is Nothing Then Return
+                If docFile Is Nothing Then Return
 
-                    docFile.UnitsOfMeasure.LengthUnits = lengthUnit
-                    docFile.UnitsOfMeasure.MassUnits = massUnit
-                    docFile.UnitsOfMeasure.LengthDisplayPrecision = precision
+                docFile.UnitsOfMeasure.LengthUnits = lengthUnit
+                docFile.UnitsOfMeasure.MassUnits = massUnit
+                docFile.UnitsOfMeasure.LengthDisplayPrecision = precision
 
-                    docFile.Update()
+                docFile.Update()
 
-                Catch
-                    ' Bỏ qua document không thể update
-                End Try
+            Catch
+                ' Bỏ qua document không thể update
+            End Try
 
-            End Sub
+        End Sub
 
 
-            '==============================================================
-            ' Form chọn đơn vị
-            '==============================================================
-            Private Function ShowUnitSelectionForm(
+        '==============================================================
+        ' Form chọn đơn vị
+        '==============================================================
+        Private Function ShowUnitSelectionForm(
             ByVal options As List(Of String)) As String
 
-                Dim result As String = Nothing
+            Dim result As String = Nothing
 
-                Using frm As New Form()
+            Using frm As New Form()
 
-                    frm.Text = "Đơn vị File"
-                    frm.Width = 430
-                    frm.Height = 190
-                    frm.StartPosition = FormStartPosition.CenterScreen
-                    frm.FormBorderStyle = FormBorderStyle.FixedDialog
-                    frm.MaximizeBox = False
-                    frm.MinimizeBox = False
-                    frm.ShowInTaskbar = False
-
-
-                    ' Label
-                    Dim lbl As New Label()
-
-                    lbl.Text = "Các loại đơn vị:"
-                    lbl.Left = 20
-                    lbl.Top = 20
-                    lbl.Width = 350
-
-                    frm.Controls.Add(lbl)
+                frm.Text = "Đơn vị File"
+                frm.Width = 430
+                frm.Height = 190
+                frm.StartPosition = FormStartPosition.CenterScreen
+                frm.FormBorderStyle = FormBorderStyle.FixedDialog
+                frm.MaximizeBox = False
+                frm.MinimizeBox = False
+                frm.ShowInTaskbar = False
 
 
-                    ' ComboBox
-                    Dim cbo As New ComboBox()
+                ' Label
+                Dim lbl As New Label()
 
-                    cbo.Left = 20
-                    cbo.Top = 45
-                    cbo.Width = 370
-                    cbo.DropDownStyle = ComboBoxStyle.DropDownList
+                lbl.Text = "Các loại đơn vị:"
+                lbl.Left = 20
+                lbl.Top = 20
+                lbl.Width = 350
 
-                    For Each item As String In options
+                frm.Controls.Add(lbl)
 
-                        ' Không đưa dòng trống vào ComboBox
-                        If Not String.IsNullOrEmpty(item) Then
-                            cbo.Items.Add(item)
-                        End If
 
-                    Next
+                ' ComboBox
+                Dim cbo As New ComboBox()
 
-                    If cbo.Items.Count > 0 Then
-                        cbo.SelectedIndex = 0
+                cbo.Left = 20
+                cbo.Top = 45
+                cbo.Width = 370
+                cbo.DropDownStyle = ComboBoxStyle.DropDownList
+
+                For Each item As String In options
+
+                    ' Không đưa dòng trống vào ComboBox
+                    If Not String.IsNullOrEmpty(item) Then
+                        cbo.Items.Add(item)
                     End If
 
-                    frm.Controls.Add(cbo)
+                Next
+
+                If cbo.Items.Count > 0 Then
+                    cbo.SelectedIndex = 0
+                End If
+
+                frm.Controls.Add(cbo)
 
 
-                    ' OK
-                    Dim btnOK As New Button()
+                ' OK
+                Dim btnOK As New Button()
 
-                    btnOK.Text = "OK"
-                    btnOK.Left = 225
-                    btnOK.Top = 90
-                    btnOK.Width = 80
+                btnOK.Text = "OK"
+                btnOK.Left = 225
+                btnOK.Top = 90
+                btnOK.Width = 80
 
-                    btnOK.DialogResult = DialogResult.OK
+                btnOK.DialogResult = DialogResult.OK
 
-                    frm.Controls.Add(btnOK)
-
-
-                    ' Cancel
-                    Dim btnCancel As New Button()
-
-                    btnCancel.Text = "Cancel"
-                    btnCancel.Left = 310
-                    btnCancel.Top = 90
-                    btnCancel.Width = 80
-
-                    btnCancel.DialogResult = DialogResult.Cancel
-
-                    frm.Controls.Add(btnCancel)
+                frm.Controls.Add(btnOK)
 
 
-                    frm.AcceptButton = btnOK
-                    frm.CancelButton = btnCancel
+                ' Cancel
+                Dim btnCancel As New Button()
+
+                btnCancel.Text = "Cancel"
+                btnCancel.Left = 310
+                btnCancel.Top = 90
+                btnCancel.Width = 80
+
+                btnCancel.DialogResult = DialogResult.Cancel
+
+                frm.Controls.Add(btnCancel)
 
 
-                    If frm.ShowDialog() = DialogResult.OK Then
+                frm.AcceptButton = btnOK
+                frm.CancelButton = btnCancel
 
-                        If cbo.SelectedItem IsNot Nothing Then
-                            result = cbo.SelectedItem.ToString()
-                        End If
 
+                If frm.ShowDialog() = DialogResult.OK Then
+
+                    If cbo.SelectedItem IsNot Nothing Then
+                        result = cbo.SelectedItem.ToString()
                     End If
 
-                End Using
+                End If
 
-                Return result
+            End Using
 
-            End Function
+            Return result
 
-        End Module
+        End Function
+
+    End Module
 End Namespace

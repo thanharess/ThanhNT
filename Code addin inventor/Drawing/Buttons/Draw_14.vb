@@ -1,6 +1,6 @@
 Imports Inventor
 
-Namespace ThanhN.Drawing.Buttons
+Namespace ToolInventor2020.Drawing.Buttons
     Public Module Draw_14
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Try

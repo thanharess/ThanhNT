@@ -1,6 +1,6 @@
 Imports Inventor
 
-Namespace ThanhN.Assembly2.Buttons.BOMcode
+Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
     Public Module Ass_Bom_14
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Try

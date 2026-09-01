@@ -5,7 +5,7 @@ Imports Microsoft.VisualBasic
 Imports System.Collections.Generic
 Imports System.IO
 
-Namespace ThanhN.Assembly3.Buttons
+Namespace ToolInventor2020.Assembly3.Buttons
 
     Public Module Button5
 

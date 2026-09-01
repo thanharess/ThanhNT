@@ -4,7 +4,7 @@ Option Strict Off
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ThanhN.Drawing.Buttons
+Namespace ToolInventor2020.Drawing.Buttons
     Public Module Draw_8
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Try

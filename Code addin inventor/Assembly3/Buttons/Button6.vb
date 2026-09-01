@@ -3,7 +3,7 @@ Imports System.Windows.Forms
 Imports Inventor
 Imports Microsoft.VisualBasic
 
-Namespace ThanhN.Assembly3.Buttons
+Namespace ToolInventor2020.Assembly3.Buttons
 
     Public Module Button6
 

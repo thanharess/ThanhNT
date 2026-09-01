@@ -2,7 +2,7 @@ Imports System.Collections.Generic
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ThanhN.Assembly.Buttons.caclenhlapghep
+Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
     Public Module Ass_12
 
 
@@ -15,365 +15,365 @@ Namespace ThanhN.Assembly.Buttons.caclenhlapghep
 
             Dim oApp As Inventor.Application = g_inventorApplication
 
-                Dim selectedFile As String = ""
+            Dim selectedFile As String = ""
 
-                Dim activeDoc As Document = Nothing
+            Dim activeDoc As Document = Nothing
 
-                Try
+            Try
 
-                    activeDoc = oApp.ActiveDocument
+                activeDoc = oApp.ActiveDocument
 
-                Catch
-                End Try
+            Catch
+            End Try
 
 
-                '=========================================================
-                ' BƯỚC 1: CHỌN FILE ASSEMBLY
-                '=========================================================
+            '=========================================================
+            ' BƯỚC 1: CHỌN FILE ASSEMBLY
+            '=========================================================
 
-                If activeDoc IsNot Nothing AndAlso
+            If activeDoc IsNot Nothing AndAlso
                    activeDoc.DocumentType =
                    DocumentTypeEnum.kAssemblyDocumentObject Then
 
-                    Dim result As DialogResult =
+                Dim result As DialogResult =
                         MessageBox.Show(
                             "Sử dụng file lắp ghép đang mở?",
                             "Chọn file",
                             MessageBoxButtons.YesNo,
                             MessageBoxIcon.Question)
 
-                    If result = DialogResult.Yes Then
+                If result = DialogResult.Yes Then
 
-                        selectedFile =
+                    selectedFile =
                             activeDoc.FullFileName
-
-                    Else
-
-                        selectedFile =
-                            SelectAssemblyFile()
-
-                    End If
 
                 Else
 
                     selectedFile =
+                            SelectAssemblyFile()
+
+                End If
+
+            Else
+
+                selectedFile =
                         SelectAssemblyFile()
 
-                End If
+            End If
 
 
-                '=========================================================
-                ' HỦY
-                '=========================================================
+            '=========================================================
+            ' HỦY
+            '=========================================================
 
-                If String.IsNullOrWhiteSpace(selectedFile) Then
-                    Exit Sub
-                End If
-
-
-                '=========================================================
-                ' BƯỚC 2: MỞ ASSEMBLY GỐC
-                '=========================================================
-
-                Dim oOrigAsmDoc As AssemblyDocument = Nothing
-
-                Dim openedByCode As Boolean = False
+            If String.IsNullOrWhiteSpace(selectedFile) Then
+                Exit Sub
+            End If
 
 
-                Try
+            '=========================================================
+            ' BƯỚC 2: MỞ ASSEMBLY GỐC
+            '=========================================================
 
-                    If activeDoc IsNot Nothing AndAlso
+            Dim oOrigAsmDoc As AssemblyDocument = Nothing
+
+            Dim openedByCode As Boolean = False
+
+
+            Try
+
+                If activeDoc IsNot Nothing AndAlso
                        String.Equals(
                            selectedFile,
                            activeDoc.FullFileName,
                            StringComparison.OrdinalIgnoreCase) Then
 
-                        oOrigAsmDoc =
+                    oOrigAsmDoc =
                             CType(
                                 activeDoc,
                                 AssemblyDocument)
 
-                    Else
+                Else
 
-                        oOrigAsmDoc =
+                    oOrigAsmDoc =
                             CType(
                                 oApp.Documents.Open(
                                     selectedFile,
                                     False),
                                 AssemblyDocument)
 
-                        openedByCode = True
+                    openedByCode = True
 
-                    End If
+                End If
 
 
-                    '=====================================================
-                    ' BƯỚC 3: TẠO ASSEMBLY MỚI
-                    '=====================================================
+                '=====================================================
+                ' BƯỚC 3: TẠO ASSEMBLY MỚI
+                '=====================================================
 
-                    Dim oNewAsmDoc As AssemblyDocument =
+                Dim oNewAsmDoc As AssemblyDocument =
                         CType(
                             oApp.Documents.Add(
                                 DocumentTypeEnum.kAssemblyDocumentObject),
                             AssemblyDocument)
 
 
-                    Dim baseName As String =
+                Dim baseName As String =
                         IO.Path.GetFileNameWithoutExtension(
                             selectedFile)
 
 
-                    oNewAsmDoc.DisplayName =
+                oNewAsmDoc.DisplayName =
                         baseName &
                         "_SheetMetal_Unfold"
 
 
-                    '=====================================================
-                    ' BƯỚC 4:
-                    ' THU THẬP TẤT CẢ SHEET METAL
-                    '
-                    ' Bao gồm:
-                    '
-                    ' MAIN
-                    '   ├── PART
-                    '   ├── SUB ASM
-                    '   │     ├── PART
-                    '   │     └── SUB ASM
-                    '   │           └── PART
-                    '
-                    '=====================================================
+                '=====================================================
+                ' BƯỚC 4:
+                ' THU THẬP TẤT CẢ SHEET METAL
+                '
+                ' Bao gồm:
+                '
+                ' MAIN
+                '   ├── PART
+                '   ├── SUB ASM
+                '   │     ├── PART
+                '   │     └── SUB ASM
+                '   │           └── PART
+                '
+                '=====================================================
 
-                    Dim sheetMetalParts As New HashSet(Of String)(
+                Dim sheetMetalParts As New HashSet(Of String)(
                         StringComparer.OrdinalIgnoreCase)
 
 
-                    CollectSheetMetalParts(
+                CollectSheetMetalParts(
                         oOrigAsmDoc.ComponentDefinition,
                         sheetMetalParts)
 
 
-                    '=====================================================
-                    ' KIỂM TRA SỐ LƯỢNG
-                    '=====================================================
+                '=====================================================
+                ' KIỂM TRA SỐ LƯỢNG
+                '=====================================================
 
-                    If sheetMetalParts.Count = 0 Then
+                If sheetMetalParts.Count = 0 Then
 
-                        MessageBox.Show(
+                    MessageBox.Show(
                             "Không tìm thấy Sheet Metal Part nào trong Assembly.",
                             "Sheet Metal Unfold",
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Information)
 
-                        oNewAsmDoc.Close(True)
+                    oNewAsmDoc.Close(True)
 
-                        If openedByCode Then
-                            oOrigAsmDoc.Close(False)
-                        End If
-
-                        Exit Sub
-
+                    If openedByCode Then
+                        oOrigAsmDoc.Close(False)
                     End If
 
+                    Exit Sub
 
-                    '=====================================================
-                    ' BƯỚC 5:
-                    ' THÊM TẤT CẢ PART TẠI ORIGIN
-                    '=====================================================
+                End If
 
-                    Dim oTG As TransientGeometry =
+
+                '=====================================================
+                ' BƯỚC 5:
+                ' THÊM TẤT CẢ PART TẠI ORIGIN
+                '=====================================================
+
+                Dim oTG As TransientGeometry =
                         oApp.TransientGeometry
 
 
-                    Dim oMatrix As Matrix =
+                Dim oMatrix As Matrix =
                         oTG.CreateMatrix()
 
 
-                    Dim counter As Integer = 0
+                Dim counter As Integer = 0
 
 
-                    For Each partFullName As String
+                For Each partFullName As String
                         In sheetMetalParts
 
 
-                        Try
+                    Try
 
-                            '=================================================
-                            ' THÊM OCCURRENCE
-                            '=================================================
+                        '=================================================
+                        ' THÊM OCCURRENCE
+                        '=================================================
 
-                            Dim oNewOcc As ComponentOccurrence =
+                        Dim oNewOcc As ComponentOccurrence =
                                 oNewAsmDoc.ComponentDefinition.Occurrences.Add(
                                     partFullName,
                                     oMatrix)
 
 
-                            '=================================================
-                            ' LẤY PART NUMBER
-                            '=================================================
+                        '=================================================
+                        ' LẤY PART NUMBER
+                        '=================================================
 
-                            Dim partName As String = ""
+                        Dim partName As String = ""
 
 
-                            Dim oPartDoc As PartDocument = Nothing
+                        Dim oPartDoc As PartDocument = Nothing
 
-                            Dim partWasAlreadyOpen As Boolean = False
+                        Dim partWasAlreadyOpen As Boolean = False
 
+
+                        Try
+
+                            '---------------------------------------------
+                            ' Kiểm tra Part đã mở chưa
+                            '---------------------------------------------
 
                             Try
 
-                                '---------------------------------------------
-                                ' Kiểm tra Part đã mở chưa
-                                '---------------------------------------------
-
-                                Try
-
-                                    oPartDoc =
+                                oPartDoc =
                                         CType(
                                             oApp.Documents.ItemByName(
                                                 partFullName),
                                             PartDocument)
 
-                                    If oPartDoc IsNot Nothing Then
-                                        partWasAlreadyOpen = True
-                                    End If
+                                If oPartDoc IsNot Nothing Then
+                                    partWasAlreadyOpen = True
+                                End If
 
-                                Catch
+                            Catch
 
-                                    partWasAlreadyOpen = False
+                                partWasAlreadyOpen = False
 
-                                End Try
+                            End Try
 
 
-                                '---------------------------------------------
-                                ' Nếu chưa mở thì mở
-                                '---------------------------------------------
+                            '---------------------------------------------
+                            ' Nếu chưa mở thì mở
+                            '---------------------------------------------
 
-                                If Not partWasAlreadyOpen Then
+                            If Not partWasAlreadyOpen Then
 
-                                    oPartDoc =
+                                oPartDoc =
                                         CType(
                                             oApp.Documents.Open(
                                                 partFullName,
                                                 False),
                                             PartDocument)
 
-                                End If
+                            End If
 
 
-                                '---------------------------------------------
-                                ' Lấy Part Number
-                                '---------------------------------------------
+                            '---------------------------------------------
+                            ' Lấy Part Number
+                            '---------------------------------------------
 
-                                Try
+                            Try
 
-                                    partName =
+                                partName =
                                         CStr(
                                             oPartDoc.PropertySets(
                                                 "Design Tracking Properties").
                                                 Item("Part Number").Value)
 
-                                Catch
-
-                                    partName = ""
-
-                                End Try
-
-
-                                '---------------------------------------------
-                                ' Không có Part Number
-                                '---------------------------------------------
-
-                                If String.IsNullOrWhiteSpace(partName) Then
-
-                                    partName =
-                                        IO.Path.GetFileNameWithoutExtension(
-                                            partFullName)
-
-                                End If
-
-
-                                '---------------------------------------------
-                                ' Đặt tên Occurrence
-                                '---------------------------------------------
-
-                                If Not String.IsNullOrWhiteSpace(partName) Then
-
-                                    Try
-
-                                        oNewOcc.Name =
-                                            partName
-
-                                    Catch
-
-                                    End Try
-
-                                End If
-
-
                             Catch
 
-                                ' Nếu không lấy được Part Number
-                                ' vẫn giữ occurrence
-
-
-                            Finally
-
-                                '---------------------------------------------
-                                ' Chỉ đóng nếu code đã mở Part
-                                '---------------------------------------------
-
-                                If oPartDoc IsNot Nothing AndAlso
-                                   Not partWasAlreadyOpen Then
-
-                                    Try
-                                        oPartDoc.Close(False)
-                                    Catch
-                                    End Try
-
-                                End If
+                                partName = ""
 
                             End Try
 
 
-                            counter += 1
+                            '---------------------------------------------
+                            ' Không có Part Number
+                            '---------------------------------------------
 
+                            If String.IsNullOrWhiteSpace(partName) Then
 
-                        Catch ex As Exception
+                                partName =
+                                        IO.Path.GetFileNameWithoutExtension(
+                                            partFullName)
+
+                            End If
+
 
                             '---------------------------------------------
-                            ' Bỏ qua Part lỗi
+                            ' Đặt tên Occurrence
                             '---------------------------------------------
+
+                            If Not String.IsNullOrWhiteSpace(partName) Then
+
+                                Try
+
+                                    oNewOcc.Name =
+                                            partName
+
+                                Catch
+
+                                End Try
+
+                            End If
+
+
+                        Catch
+
+                            ' Nếu không lấy được Part Number
+                            ' vẫn giữ occurrence
+
+
+                        Finally
+
+                            '---------------------------------------------
+                            ' Chỉ đóng nếu code đã mở Part
+                            '---------------------------------------------
+
+                            If oPartDoc IsNot Nothing AndAlso
+                                   Not partWasAlreadyOpen Then
+
+                                Try
+                                    oPartDoc.Close(False)
+                                Catch
+                                End Try
+
+                            End If
 
                         End Try
 
 
-                    Next
+                        counter += 1
 
 
-                    '=====================================================
-                    ' BƯỚC 6: UPDATE
-                    '=====================================================
+                    Catch ex As Exception
 
-                    oNewAsmDoc.Update2(True)
+                        '---------------------------------------------
+                        ' Bỏ qua Part lỗi
+                        '---------------------------------------------
+
+                    End Try
 
 
-                    '=====================================================
-                    ' BƯỚC 7: CHỌN NƠI LƯU
-                    '=====================================================
+                Next
 
-                    Dim savePath As String =
+
+                '=====================================================
+                ' BƯỚC 6: UPDATE
+                '=====================================================
+
+                oNewAsmDoc.Update2(True)
+
+
+                '=====================================================
+                ' BƯỚC 7: CHỌN NƠI LƯU
+                '=====================================================
+
+                Dim savePath As String =
                         SelectSaveAssemblyFile(
                             baseName &
                             "_SheetMetal_Unfold.iam")
 
 
-                    '=====================================================
-                    ' HỦY LƯU
-                    '=====================================================
+                '=====================================================
+                ' HỦY LƯU
+                '=====================================================
 
-                    If String.IsNullOrWhiteSpace(savePath) Then
+                If String.IsNullOrWhiteSpace(savePath) Then
 
-                        MessageBox.Show(
+                    MessageBox.Show(
                             "Đã hủy lưu file." &
                             vbCrLf & vbCrLf &
                             "Assembly mới vẫn đang mở.",
@@ -381,18 +381,18 @@ Namespace ThanhN.Assembly.Buttons.caclenhlapghep
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Information)
 
-                    Else
+                Else
 
-                        '=================================================
-                        ' SAVE AS
-                        '=================================================
+                    '=================================================
+                    ' SAVE AS
+                    '=================================================
 
-                        oNewAsmDoc.SaveAs(
+                    oNewAsmDoc.SaveAs(
                             savePath,
                             False)
 
 
-                        MessageBox.Show(
+                    MessageBox.Show(
                             "ĐÃ HOÀN TẤT!" &
                             vbCrLf & vbCrLf &
                             "File:" &
@@ -407,44 +407,44 @@ Namespace ThanhN.Assembly.Buttons.caclenhlapghep
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Information)
 
-                    End If
+                End If
 
 
-                    '=====================================================
-                    ' ĐÓNG ASSEMBLY GỐC
-                    ' NẾU CODE ĐÃ MỞ NÓ
-                    '=====================================================
+                '=====================================================
+                ' ĐÓNG ASSEMBLY GỐC
+                ' NẾU CODE ĐÃ MỞ NÓ
+                '=====================================================
 
-                    If openedByCode AndAlso
+                If openedByCode AndAlso
                        oOrigAsmDoc IsNot Nothing Then
-
-                        Try
-
-                            oOrigAsmDoc.Close(False)
-
-                        Catch
-
-                        End Try
-
-                    End If
-
-
-                    '=====================================================
-                    ' ACTIVE ASSEMBLY MỚI
-                    '=====================================================
 
                     Try
 
-                        oNewAsmDoc.Activate()
+                        oOrigAsmDoc.Close(False)
 
                     Catch
 
                     End Try
 
+                End If
 
-                Catch ex As Exception
 
-                    MessageBox.Show(
+                '=====================================================
+                ' ACTIVE ASSEMBLY MỚI
+                '=====================================================
+
+                Try
+
+                    oNewAsmDoc.Activate()
+
+                Catch
+
+                End Try
+
+
+            Catch ex As Exception
+
+                MessageBox.Show(
                         "CÓ LỖI:" &
                         vbCrLf & vbCrLf &
                         ex.Message &
@@ -455,279 +455,279 @@ Namespace ThanhN.Assembly.Buttons.caclenhlapghep
                         MessageBoxIcon.Error)
 
 
-                    '=====================================================
-                    ' ĐÓNG FILE GỐC NẾU CODE MỞ
-                    '=====================================================
+                '=====================================================
+                ' ĐÓNG FILE GỐC NẾU CODE MỞ
+                '=====================================================
 
-                    If openedByCode AndAlso
+                If openedByCode AndAlso
                        oOrigAsmDoc IsNot Nothing Then
 
-                        Try
-                            oOrigAsmDoc.Close(False)
-                        Catch
-                        End Try
+                    Try
+                        oOrigAsmDoc.Close(False)
+                    Catch
+                    End Try
+
+                End If
+
+            End Try
+
+        End Sub
+
+
+        '=============================================================
+        ' CHỌN ASSEMBLY
+        '=============================================================
+
+        Private Function SelectAssemblyFile() As String
+
+            Try
+
+                Using dlg As New OpenFileDialog()
+
+                    dlg.Title =
+                            "Chọn file lắp ghép (.iam)"
+
+                    dlg.Filter =
+                            "Assembly Files (*.iam)|*.iam"
+
+                    dlg.Multiselect = False
+
+
+                    If dlg.ShowDialog() =
+                           DialogResult.OK Then
+
+                        Return dlg.FileName
 
                     End If
 
-                End Try
-
-            End Sub
+                End Using
 
 
-            '=============================================================
-            ' CHỌN ASSEMBLY
-            '=============================================================
+            Catch ex As Exception
 
-            Private Function SelectAssemblyFile() As String
-
-                Try
-
-                    Using dlg As New OpenFileDialog()
-
-                        dlg.Title =
-                            "Chọn file lắp ghép (.iam)"
-
-                        dlg.Filter =
-                            "Assembly Files (*.iam)|*.iam"
-
-                        dlg.Multiselect = False
-
-
-                        If dlg.ShowDialog() =
-                           DialogResult.OK Then
-
-                            Return dlg.FileName
-
-                        End If
-
-                    End Using
-
-
-                Catch ex As Exception
-
-                    MessageBox.Show(
+                MessageBox.Show(
                         "Lỗi chọn Assembly:" &
                         vbCrLf &
                         ex.Message,
                         "Lỗi")
 
-                End Try
+            End Try
 
 
-                Return ""
+            Return ""
 
-            End Function
+        End Function
 
 
-            '=============================================================
-            ' CHỌN NƠI LƯU ASSEMBLY
-            '=============================================================
+        '=============================================================
+        ' CHỌN NƠI LƯU ASSEMBLY
+        '=============================================================
 
-            Private Function SelectSaveAssemblyFile(
+        Private Function SelectSaveAssemblyFile(
                 ByVal defaultFileName As String) As String
 
-                Try
+            Try
 
-                    Using dlg As New SaveFileDialog()
+                Using dlg As New SaveFileDialog()
 
-                        dlg.Title =
+                    dlg.Title =
                             "Lưu file lắp ghép mới (.iam)"
 
-                        dlg.Filter =
+                    dlg.Filter =
                             "Assembly Files (*.iam)|*.iam"
 
-                        dlg.DefaultExt = "iam"
+                    dlg.DefaultExt = "iam"
 
-                        dlg.AddExtension = True
+                    dlg.AddExtension = True
 
-                        dlg.FileName =
+                    dlg.FileName =
                             defaultFileName
 
 
-                        If dlg.ShowDialog() =
+                    If dlg.ShowDialog() =
                            DialogResult.OK Then
 
-                            Return dlg.FileName
+                        Return dlg.FileName
 
-                        End If
+                    End If
 
-                    End Using
+                End Using
 
 
-                Catch ex As Exception
+            Catch ex As Exception
 
-                    MessageBox.Show(
+                MessageBox.Show(
                         "Lỗi chọn nơi lưu:" &
                         vbCrLf &
                         ex.Message,
                         "Lỗi")
 
-                End Try
+            End Try
 
 
-                Return ""
+            Return ""
 
-            End Function
+        End Function
 
 
-            '=============================================================
-            ' RECURSIVE:
-            ' THU THẬP TẤT CẢ SHEET METAL PART
-            '
-            ' Duyệt toàn bộ Assembly + Sub Assembly
-            '
-            '=============================================================
+        '=============================================================
+        ' RECURSIVE:
+        ' THU THẬP TẤT CẢ SHEET METAL PART
+        '
+        ' Duyệt toàn bộ Assembly + Sub Assembly
+        '
+        '=============================================================
 
-            Private Sub CollectSheetMetalParts(
+        Private Sub CollectSheetMetalParts(
                 ByVal asmDef As AssemblyComponentDefinition,
                 ByRef sheetMetalParts As HashSet(Of String))
 
 
-                For Each oOcc As ComponentOccurrence
+            For Each oOcc As ComponentOccurrence
                     In asmDef.Occurrences
+
+
+                Try
+
+                    '=================================================
+                    ' BỎ QUA SUPPRESSED
+                    '=================================================
+
+                    If oOcc.Suppressed Then
+                        Continue For
+                    End If
+
+
+                    '=================================================
+                    ' LẤY DOCUMENT
+                    '=================================================
+
+                    Dim oRefDoc As Document = Nothing
 
 
                     Try
 
-                        '=================================================
-                        ' BỎ QUA SUPPRESSED
-                        '=================================================
+                        oRefDoc =
+                                oOcc.ReferencedDocumentDescriptor.
+                                ReferencedDocument
 
-                        If oOcc.Suppressed Then
-                            Continue For
-                        End If
-
-
-                        '=================================================
-                        ' LẤY DOCUMENT
-                        '=================================================
-
-                        Dim oRefDoc As Document = Nothing
-
+                    Catch
 
                         Try
 
                             oRefDoc =
-                                oOcc.ReferencedDocumentDescriptor.
-                                ReferencedDocument
+                                    oOcc.Definition.Document
 
                         Catch
 
-                            Try
-
-                                oRefDoc =
-                                    oOcc.Definition.Document
-
-                            Catch
-
-                                oRefDoc = Nothing
-
-                            End Try
+                            oRefDoc = Nothing
 
                         End Try
 
-
-                        If oRefDoc Is Nothing Then
-                            Continue For
-                        End If
+                    End Try
 
 
-                        If String.IsNullOrWhiteSpace(
+                    If oRefDoc Is Nothing Then
+                        Continue For
+                    End If
+
+
+                    If String.IsNullOrWhiteSpace(
                             oRefDoc.FullFileName) Then
 
-                            Continue For
+                        Continue For
 
-                        End If
+                    End If
 
 
-                        '=================================================
-                        ' NẾU LÀ PART
-                        '=================================================
+                    '=================================================
+                    ' NẾU LÀ PART
+                    '=================================================
 
-                        If oRefDoc.DocumentType =
+                    If oRefDoc.DocumentType =
                            DocumentTypeEnum.kPartDocumentObject Then
 
 
-                            Dim oPartDoc As PartDocument =
+                        Dim oPartDoc As PartDocument =
                                 TryCast(
                                     oRefDoc,
                                     PartDocument)
 
 
-                            If oPartDoc Is Nothing Then
-                                Continue For
-                            End If
+                        If oPartDoc Is Nothing Then
+                            Continue For
+                        End If
 
 
-                            '---------------------------------------------
-                            ' Kiểm tra Sheet Metal
-                            '---------------------------------------------
+                        '---------------------------------------------
+                        ' Kiểm tra Sheet Metal
+                        '---------------------------------------------
 
-                            Dim oPartCD As PartComponentDefinition =
+                        Dim oPartCD As PartComponentDefinition =
                                 oPartDoc.ComponentDefinition
 
 
-                            Dim oSMCD As SheetMetalComponentDefinition =
+                        Dim oSMCD As SheetMetalComponentDefinition =
                                 TryCast(
                                     oPartCD,
                                     SheetMetalComponentDefinition)
 
 
-                            If oSMCD IsNot Nothing Then
+                        If oSMCD IsNot Nothing Then
 
-                                If oSMCD.Features.Count > 0 Then
+                            If oSMCD.Features.Count > 0 Then
 
-                                    sheetMetalParts.Add(
+                                sheetMetalParts.Add(
                                         oPartDoc.FullFileName)
-
-                                End If
 
                             End If
 
+                        End If
 
-                            '=================================================
-                            ' NẾU LÀ SUB ASSEMBLY
-                            '=================================================
 
-                        ElseIf oRefDoc.DocumentType =
+                        '=================================================
+                        ' NẾU LÀ SUB ASSEMBLY
+                        '=================================================
+
+                    ElseIf oRefDoc.DocumentType =
                                DocumentTypeEnum.kAssemblyDocumentObject Then
 
 
-                            Dim oSubAsmDef As AssemblyComponentDefinition =
+                        Dim oSubAsmDef As AssemblyComponentDefinition =
                                 TryCast(
                                     oRefDoc.ComponentDefinition,
                                     AssemblyComponentDefinition)
 
 
-                            If oSubAsmDef IsNot Nothing Then
+                        If oSubAsmDef IsNot Nothing Then
 
-                                '-----------------------------------------
-                                ' Đệ quy xuống Level tiếp theo
-                                '-----------------------------------------
+                            '-----------------------------------------
+                            ' Đệ quy xuống Level tiếp theo
+                            '-----------------------------------------
 
-                                CollectSheetMetalParts(
+                            CollectSheetMetalParts(
                                     oSubAsmDef,
                                     sheetMetalParts)
-
-                            End If
-
 
                         End If
 
 
-                    Catch
-
-                        ' Bỏ qua occurrence lỗi
-
-                    End Try
+                    End If
 
 
-                Next
+                Catch
 
-            End Sub
+                    ' Bỏ qua occurrence lỗi
 
-        End Module
+                End Try
 
-    End Namespace
+
+            Next
+
+        End Sub
+
+    End Module
+
+End Namespace
 
 

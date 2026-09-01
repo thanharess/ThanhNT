@@ -2,7 +2,7 @@ Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ThanhN.Assembly.Buttons.caclenhlapghep
+Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
     Public Module Ass_8
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Try

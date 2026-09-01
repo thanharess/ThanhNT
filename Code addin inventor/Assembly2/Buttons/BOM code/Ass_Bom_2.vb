@@ -5,7 +5,7 @@ Imports Microsoft.VisualBasic
 Imports System.Collections.Generic
 Imports System.IO
 
-Namespace ThanhN.Assembly2.Buttons.BOMcode
+Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
 
     Public Module Ass_Bom_2
 

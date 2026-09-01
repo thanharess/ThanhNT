@@ -4,18 +4,18 @@ Imports System.Windows.Forms
 Imports Inventor
 
 
-Namespace ThanhN.Drawing.Buttons
+Namespace ToolInventor2020.Drawing.Buttons
     Public Module Draw_5
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
             ' Lấy ứng dụng Inventor đang chạy
             Dim invApp As Inventor.Application = System.Runtime.InteropServices.Marshal.GetActiveObject("Inventor.Application")
 
-                ' Lấy tài liệu Drawing hiện tại
-                Dim oDrawDoc As DrawingDocument = CType(invApp.ActiveDocument, DrawingDocument)
+            ' Lấy tài liệu Drawing hiện tại
+            Dim oDrawDoc As DrawingDocument = CType(invApp.ActiveDocument, DrawingDocument)
 
-                ' Hộp thoại cho người dùng chọn
-                Dim choice As String = InputBox("Nhập lựa chọn:" & vbCrLf &
+            ' Hộp thoại cho người dùng chọn
+            Dim choice As String = InputBox("Nhập lựa chọn:" & vbCrLf &
                                         "1 = Reset Active Sheet" & vbCrLf &
                                         "2 = Reset All Sheets", "Reset Parts List")
 
@@ -50,4 +50,4 @@ Namespace ThanhN.Drawing.Buttons
         End Sub
 
     End Module
-        End Namespace
+End Namespace

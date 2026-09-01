@@ -3,7 +3,7 @@ Imports System.Windows.Forms
 Imports Inventor
 Imports Microsoft.VisualBasic
 
-Namespace ThanhN.Assembly2.Buttons.BOMcode
+Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
     Public Module Ass_Bom_7
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Dim invApp As Inventor.Application

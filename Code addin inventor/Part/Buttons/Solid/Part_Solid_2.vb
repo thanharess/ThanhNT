@@ -2,7 +2,7 @@ Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ThanhN.Part.Buttons.solid
+Namespace ToolInventor2020.Part.Buttons.solid
     Public Module Part_Solid_2
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Try

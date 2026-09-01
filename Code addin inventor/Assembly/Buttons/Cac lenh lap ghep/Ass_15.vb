@@ -6,7 +6,7 @@ Imports System.Windows.Forms
 Imports System.Collections.Generic
 Imports IO = System.IO
 
-Namespace ThanhN.Assembly.Buttons.caclenhlapghep
+Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
 
     Public Module ass_15
 

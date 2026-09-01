@@ -2,7 +2,7 @@ Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ThanhN.Assembly.Buttons.part
+Namespace ToolInventor2020.Assembly.Buttons.part
     Public Module Ass_Part_4
 
 
@@ -26,65 +26,65 @@ Namespace ThanhN.Assembly.Buttons.part
 
         Private Sub CreateAllFlatPatterns()
 
-                '==========================================================
-                ' Kiểm tra Active Document
-                '==========================================================
-                Dim oActiveDoc As Document =
+            '==========================================================
+            ' Kiểm tra Active Document
+            '==========================================================
+            Dim oActiveDoc As Document =
                 g_inventorApplication.ActiveDocument
 
-                If oActiveDoc Is Nothing Then
-                    Return
-                End If
+            If oActiveDoc Is Nothing Then
+                Return
+            End If
 
 
-                If oActiveDoc.DocumentType <>
+            If oActiveDoc.DocumentType <>
                 DocumentTypeEnum.kAssemblyDocumentObject Then
 
-                    MessageBox.Show(
+                MessageBox.Show(
                     "Vui lòng mở Assembly.",
                     "Create Flat Pattern",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning)
 
-                    Return
+                Return
 
-                End If
+            End If
 
 
-                '==========================================================
-                ' Lấy Assembly
-                '==========================================================
-                Dim oAsmDoc As AssemblyDocument =
+            '==========================================================
+            ' Lấy Assembly
+            '==========================================================
+            Dim oAsmDoc As AssemblyDocument =
                 TryCast(oActiveDoc, AssemblyDocument)
 
-                If oAsmDoc Is Nothing Then
-                    Return
-                End If
+            If oAsmDoc Is Nothing Then
+                Return
+            End If
 
 
-                '==========================================================
-                ' Duyệt toàn bộ Reference Documents
-                '==========================================================
-                Dim oRefDocs As DocumentsEnumerator =
+            '==========================================================
+            ' Duyệt toàn bộ Reference Documents
+            '==========================================================
+            Dim oRefDocs As DocumentsEnumerator =
                 oAsmDoc.AllReferencedDocuments
 
-                Dim successCount As Integer = 0
-                Dim skipCount As Integer = 0
+            Dim successCount As Integer = 0
+            Dim skipCount As Integer = 0
 
 
-                For Each oRefDoc As Document In oRefDocs
+            For Each oRefDoc As Document In oRefDocs
 
-                    Try
+                Try
 
-                        '==================================================
-                        ' Chỉ xử lý Part
-                        '==================================================
-                        If oRefDoc.DocumentType <>
+                    '==================================================
+                    ' Chỉ xử lý Part
+                    '==================================================
+                    If oRefDoc.DocumentType <>
                         DocumentTypeEnum.kPartDocumentObject Then
 
-                            Continue For
+                        Continue For
 
-                        End If
+                    End If
 
 
                     '==================================================
@@ -109,100 +109,100 @@ Namespace ThanhN.Assembly.Buttons.part
 
 
                     If oPartDoc Is Nothing Then
-                            Continue For
-                        End If
+                        Continue For
+                    End If
 
 
-                        Try
+                    Try
 
-                            '==============================================
-                            ' Kiểm tra có phải Sheet Metal hay không
-                            '==============================================
-                            Dim oCompDef As SheetMetalComponentDefinition =
+                        '==============================================
+                        ' Kiểm tra có phải Sheet Metal hay không
+                        '==============================================
+                        Dim oCompDef As SheetMetalComponentDefinition =
                             TryCast(
                                 oPartDoc.ComponentDefinition,
                                 SheetMetalComponentDefinition)
 
 
-                            If oCompDef Is Nothing Then
-
-                                skipCount += 1
-                                Continue For
-
-                            End If
-
-
-                            '==============================================
-                            ' Tạo Flat Pattern
-                            '==============================================
-                            If oCompDef.HasFlatPattern = False Then
-
-                                oCompDef.Unfold()
-
-                            Else
-
-                                oCompDef.FlatPattern.Edit()
-
-                            End If
-
-
-                            '==============================================
-                            ' Thoát Flat Pattern Edit
-                            '==============================================
-                            oCompDef.FlatPattern.ExitEdit()
-
-
-                            '==============================================
-                            ' Update Part
-                            '==============================================
-                            oPartDoc.Update()
-
-                            successCount += 1
-
-
-                        Catch
+                        If oCompDef Is Nothing Then
 
                             skipCount += 1
+                            Continue For
 
-                        Finally
+                        End If
 
-                            '==============================================
-                            ' Đóng Part
-                            '==============================================
-                            Try
 
-                                oPartDoc.Close(
-                                True)
+                        '==============================================
+                        ' Tạo Flat Pattern
+                        '==============================================
+                        If oCompDef.HasFlatPattern = False Then
 
-                            Catch
+                            oCompDef.Unfold()
 
-                            End Try
+                        Else
 
-                        End Try
+                            oCompDef.FlatPattern.Edit()
+
+                        End If
+
+
+                        '==============================================
+                        ' Thoát Flat Pattern Edit
+                        '==============================================
+                        oCompDef.FlatPattern.ExitEdit()
+
+
+                        '==============================================
+                        ' Update Part
+                        '==============================================
+                        oPartDoc.Update()
+
+                        successCount += 1
 
 
                     Catch
 
                         skipCount += 1
 
+                    Finally
+
+                        '==============================================
+                        ' Đóng Part
+                        '==============================================
+                        Try
+
+                            oPartDoc.Close(
+                                True)
+
+                        Catch
+
+                        End Try
+
                     End Try
 
-                Next
 
-
-                '==========================================================
-                ' Update Assembly
-                '==========================================================
-                Try
-                    oAsmDoc.Update()
                 Catch
+
+                    skipCount += 1
+
                 End Try
 
+            Next
 
-                '==========================================================
-                ' Thông báo
-                '==========================================================
-                MessageBox.Show(
+
+            '==========================================================
+            ' Update Assembly
+            '==========================================================
+            Try
+                oAsmDoc.Update()
+            Catch
+            End Try
+
+
+            '==========================================================
+            ' Thông báo
+            '==========================================================
+            MessageBox.Show(
                 "Hoàn thành tạo Flat Pattern." &
                 vbCrLf & vbCrLf &
                 "Đã xử lý: " & successCount.ToString() &
@@ -212,9 +212,9 @@ Namespace ThanhN.Assembly.Buttons.part
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information)
 
-            End Sub
+        End Sub
 
 
 
-        End Module
+    End Module
 End Namespace

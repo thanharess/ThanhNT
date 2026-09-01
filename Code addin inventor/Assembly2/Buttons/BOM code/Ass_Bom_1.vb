@@ -8,7 +8,7 @@ Imports System.Windows.Forms
 Imports System.Collections.Generic
 Imports System.Runtime.InteropServices
 
-Namespace ThanhN.Assembly2.Buttons.BOMcode
+Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
 
     Public Module Ass_Bom_1
 

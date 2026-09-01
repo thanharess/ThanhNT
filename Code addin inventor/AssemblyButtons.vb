@@ -1,8 +1,8 @@
 Imports System.Diagnostics.Contracts
 Imports Inventor
-Imports ThanhN.ThanhN.Assembly.Buttons
 
-Namespace ThanhN
+
+Namespace ToolInventor2020
     Public Class AssemblyButtons
         Public Shared Sub Register(controlDefs As Inventor.ControlDefinitions, addInClientID As String, buttonsList As System.Collections.Generic.List(Of ButtonDefinition))
 

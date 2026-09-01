@@ -2,8 +2,8 @@ Imports System.Runtime.InteropServices
 Imports Inventor
 Imports Microsoft.Win32
 
-Namespace ThanhN
-    <ProgIdAttribute("ThanhN.StandardAddInServer"),
+Namespace ToolInventor2020
+    <ProgIdAttribute("ToolInventor2020.StandardAddInServer"),
     GuidAttribute("27785725-854b-490a-ac86-ab9dad7f3cc5")>
     Public Class Basecode
         Implements Inventor.ApplicationAddInServer
@@ -29,7 +29,7 @@ Namespace ThanhN
             g_inventorApplication = addInSiteObject.Application
 
             ' Connect to the user-interface events to handle a ribbon reset.
-            M_uievents = g_inventorApplication.UserInterfaceManager.UserInterfaceEvents
+            m_uievents = g_inventorApplication.UserInterfaceManager.UserInterfaceEvents
 
             ' Create button definitions for Part, Assembly and Drawing: 15 buttons each.
             Dim controlDefs As Inventor.ControlDefinitions = g_inventorApplication.CommandManager.ControlDefinitions
@@ -91,73 +91,100 @@ Namespace ThanhN
 #Region "User interface definition"
         ' Sub where the user-interface creation is done.  This is called when
         ' the add-in loaded and also if the user interface is reset.
+
+        ' Helper method to add a tab/panel/buttons to a ribbon.
+        Private Sub AddTabPanelButtons(ribbonName As String, tabDisplayName As String, tabInternalName As String, panelDisplayName As String, panelInternalName As String, buttons As System.Collections.Generic.List(Of ButtonDefinition), Optional usePulldownOnly As Boolean = False)
+            Try
+                Dim ribbonObj As Ribbon = g_inventorApplication.UserInterfaceManager.Ribbons.Item(ribbonName)
+
+                Dim customTab As RibbonTab = Nothing
+                Try
+                    customTab = ribbonObj.RibbonTabs.Add(tabDisplayName, tabInternalName, AddInClientID)
+                Catch
+                    ' Tab likely exists - try to get it
+                    Try
+                        customTab = ribbonObj.RibbonTabs.Item(tabInternalName)
+                    Catch
+                        customTab = Nothing
+                    End Try
+                End Try
+
+                If customTab IsNot Nothing Then
+                    Dim customPanel As RibbonPanel = Nothing
+                    Try
+                        customPanel = customTab.RibbonPanels.Add(panelDisplayName, panelInternalName, AddInClientID)
+                    Catch
+                        Try
+                            customPanel = customTab.RibbonPanels.Item(panelInternalName)
+                        Catch
+                            customPanel = Nothing
+                        End Try
+                    End Try
+
+                    If customPanel IsNot Nothing Then
+                        If buttons IsNot Nothing Then
+                            If Not usePulldownOnly Then
+                                ' Add each button directly to the panel
+                                For Each bd As ButtonDefinition In buttons
+                                    customPanel.CommandControls.AddButton(bd)
+                                Next
+                            Else
+                                ' Try to create a pulldown menu; if the API is unavailable, fall back to adding buttons directly
+                                Try
+                                    Dim pulldown As CommandControl = customPanel.CommandControls.AddPulldown(panelDisplayName, panelInternalName & "_Pulldown", AddInClientID)
+                                    For Each bd As ButtonDefinition In buttons
+                                        pulldown.Controls.AddButton(bd)
+                                    Next
+                                Catch pullex As Exception
+                                    ' Fall back: add buttons directly to the panel so functionality remains available
+                                    Try
+                                        For Each bd As ButtonDefinition In buttons
+                                            customPanel.CommandControls.AddButton(bd)
+                                        Next
+                                    Catch
+                                    End Try
+                                    ' Optional diagnostic to show pulldown API not available
+                                    Try
+                                        System.Windows.Forms.MessageBox.Show("Pulldown API unavailable; added buttons directly to panel. " & pullex.Message, "ToolInventor2020", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information)
+                                    Catch
+                                    End Try
+                                End Try
+                            End If
+                        End If
+                    End If
+
+                End If
+            Catch ex As Exception
+                ' Show diagnostic so we can see why ribbon/pulldown creation failed at runtime
+                Try
+                    System.Windows.Forms.MessageBox.Show("AddTabPanelButtons error: " & ex.Message, "ToolInventor2020", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error)
+                Catch
+                    ' ignore any failures showing the message
+                End Try
+            End Try
+        End Sub
+
         Private Sub AddToUserInterface()
             ' This is where you'll add code to add buttons to the ribbon.
 
             '** Create a separate custom tab (not inside the Tools tab) for Assembly and Drawing.
 
-            ' Helper lambda to add a tab/panel/buttons to a ribbon.
-            Dim AddTabPanelButtons = Sub(ribbonName As String, tabDisplayName As String, tabInternalName As String, panelDisplayName As String, panelInternalName As String, buttons As System.Collections.Generic.List(Of ButtonDefinition))
-                                         Try
-                                             Dim ribbonObj As Ribbon = g_inventorApplication.UserInterfaceManager.Ribbons.Item(ribbonName)
-
-                                             Dim customTab As RibbonTab = Nothing
-                                             Try
-                                                 customTab = ribbonObj.RibbonTabs.Add(tabDisplayName, tabInternalName, AddInClientID)
-                                             Catch
-                                                 ' Tab likely exists - try to get it
-                                                 Try
-                                                     customTab = ribbonObj.RibbonTabs.Item(tabInternalName)
-                                                 Catch
-                                                     customTab = Nothing
-                                                 End Try
-                                             End Try
-
-                                             If customTab IsNot Nothing Then
-                                                 Dim customPanel As RibbonPanel = Nothing
-                                                 Try
-                                                     customPanel = customTab.RibbonPanels.Add(panelDisplayName, panelInternalName, AddInClientID)
-                                                 Catch
-                                                     Try
-                                                         customPanel = customTab.RibbonPanels.Item(panelInternalName)
-                                                     Catch
-                                                         customPanel = Nothing
-                                                     End Try
-                                                 End Try
-
-                                                 If customPanel IsNot Nothing Then
-                                                     If buttons IsNot Nothing Then
-                                                         ' 1. Thêm trực tiếp từng button vào panel
-                                                         For Each bd As ButtonDefinition In buttons
-                                                             customPanel.CommandControls.AddButton(bd)
-                                                         Next
-
-                                                         ' 2. Tạo pulldown menu và thêm các button vào đó
-                                                         Dim pulldown As CommandControl = customPanel.CommandControls.AddPulldown(panelDisplayName, panelInternalName, AddInClientID)
-                                                         For Each bd As ButtonDefinition In buttons
-                                                             pulldown.Controls.AddButton(bd)
-                                                         Next
-                                                     End If
-                                                 End If
-
-                                             End If
-                                         Catch
-                                             ' Ignore failures for missing ribbons or other issues
-                                         End Try
-                                     End Sub
+            ' Use AddTabPanelButtons helper defined above to add tabs/panels/buttons to the ribbon.
+            ' (The AddTabPanelButtons method is implemented as a Private Sub at class scope to allow Optional parameter.)
 
             ' Add to Assembly ribbon as a separate tab.
-            AddTabPanelButtons("Assembly", "ThanhN", "ThanhN_AssemblyTab", "Main", "ThanhN_AssemblyPanel", m_assemblyButtons)
+            AddTabPanelButtons("Assembly", "ThanhN", "ThanhN_AssemblyTab", "Main", "ThanhN_AssemblyPanel", m_assemblyButtons, False)
 
             ' Add to Drawing ribbon as a separate tab.
-            AddTabPanelButtons("Drawing", "ThanhN", "ThanhN_DrawingTab", "Main", "ThanhN_DrawingPanel", m_drawingButtons)
+            AddTabPanelButtons("Drawing", "ThanhN", "ThanhN_DrawingTab", "Main", "ThanhN_DrawingPanel", m_drawingButtons, False)
 
             ' Add to Part ribbon as a separate tab.
-            AddTabPanelButtons("Part", "ThanhN", "ThanhN_PartTab", "Main", "ThanhN_PartPanel", m_partButtons)
+            AddTabPanelButtons("Part", "ThanhN", "ThanhN_PartTab", "Main", "ThanhN_PartPanel", m_partButtons, False)
 
             ' Add to Assembly ribbon as a separate tab.
-            AddTabPanelButtons("Assembly", "BOM ADDIN", "ThanhN_AssemblyTab2", "Main2", "ThanhN_AssemblyPanel2", m_assembly2Buttons)
-            AddTabPanelButtons("Assembly", "BOM ADDIN2", "ThanhN_Assembly3_Pulldown", "Main3", "Assembly3 Actions", m_assembly3Buttons)
+            AddTabPanelButtons("Assembly", "BOM ADDIN", "ToolInventor2020_AssemblyTab2", "Main2", "ToolInventor2020_AssemblyPanel2", m_assembly2Buttons, False)
+            ' Panel visible; add buttons directly to the panel (no pulldown)
+            AddTabPanelButtons("Assembly", "BOM ADDIN2", "ToolInventor2020_Assembly3_Pulldown", "Main3", "Assembly3 Actions", m_assembly3Buttons, False)
 
         End Sub
 
@@ -185,7 +212,7 @@ Public Module Globals
     Public Function AddInClientID() As String
         Dim guid As String = ""
         Try
-            Dim t As Type = GetType(ThanhN.Basecode)
+            Dim t As Type = GetType(ToolInventor2020.Basecode)
             Dim customAttributes() As Object = t.GetCustomAttributes(GetType(GuidAttribute), False)
             Dim guidAttribute As GuidAttribute = CType(customAttributes(0), GuidAttribute)
             guid = "{" + guidAttribute.Value.ToString() + "}"

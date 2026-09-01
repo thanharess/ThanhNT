@@ -8,8 +8,8 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("ThanhN")>
-<Assembly: AssemblyDescription("ThanhN")>
+<Assembly: AssemblyTitle("Tool_Inventor_2020")>
+<Assembly: AssemblyDescription("Tool_Inventor_2020")>
 <Assembly: AssemblyCompany("Autodesk, Inc.")>
 <Assembly: AssemblyProduct("Autodesk Inventor")>
 <Assembly: AssemblyCopyright("Copyright ?2012 Autodesk, Inc.")>

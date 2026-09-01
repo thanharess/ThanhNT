@@ -8,7 +8,7 @@ Imports System.Text
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ThanhN.Assembly.Buttons.Frame
+Namespace ToolInventor2020.Assembly.Buttons.Frame
 
     Public Module Ass_Frame_3
 

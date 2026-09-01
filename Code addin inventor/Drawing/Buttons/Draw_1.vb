@@ -5,7 +5,7 @@ Imports Inventor
 Imports System.Windows.Forms
 Imports System.Collections
 Imports System.Collections.Generic
-Namespace ThanhN.Drawing.Buttons
+Namespace ToolInventor2020.Drawing.Buttons
     Public Module Draw_1
 
 

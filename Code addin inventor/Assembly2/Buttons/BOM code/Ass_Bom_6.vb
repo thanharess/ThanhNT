@@ -3,7 +3,7 @@ Imports System.Windows.Forms
 Imports Inventor
 Imports Microsoft.VisualBasic
 
-Namespace ThanhN.Assembly2.Buttons.BOMcode
+Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
 
     Public Module Ass_Bom_6
 
@@ -28,7 +28,7 @@ Namespace ThanhN.Assembly2.Buttons.BOMcode
                 '==================================================
                 ' BOM
                 '==================================================
-                Dim oBOM As bom =
+                Dim oBOM As BOM =
                     oAsm.ComponentDefinition.BOM
 
                 oBOM.StructuredViewEnabled = True

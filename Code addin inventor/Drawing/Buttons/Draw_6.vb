@@ -7,7 +7,7 @@ Imports System.Windows.Forms
 Imports System.Collections.Generic
 Imports System.Globalization
 
-Namespace ThanhN.Drawing.Buttons
+Namespace ToolInventor2020.Drawing.Buttons
     Public Module Draw_6
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
@@ -1129,7 +1129,7 @@ Namespace ThanhN.Drawing.Buttons
             frm.AcceptButton = btnOK
             frm.CancelButton = btnCancel
 
-            If frm.ShowDialog() <>               DialogResult.OK OrElse
+            If frm.ShowDialog() <> DialogResult.OK OrElse
                lst.SelectedIndex < 0 Then
 
                 Return -1

@@ -33,7 +33,7 @@
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\..\..\..\..\ProgramData\Autodesk\Inventor 2020\Addins\ThanhN\</OutputPath>
+    <OutputPath>..\..\..\..\..\ProgramData\Autodesk\Inventor 2020\Addins\ToolInventor2020\</OutputPath>
     <DocumentationFile>.xml</DocumentationFile>
     <DebugSymbols>true</DebugSymbols>
     <DefineDebug>true</DefineDebug>
@@ -68,7 +68,10 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <PropertyGroup>
-    <RootNamespace>ThanhN</RootNamespace>
+    <RootNamespace>ToolInventor2020</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyName>ToolInventor2020</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="autodesk.inventor.interop, Version=24.0.0.0, Culture=neutral, PublicKeyToken=d84147f8b4276564, processorArchitecture=MSIL">
@@ -189,10 +192,11 @@
     <Compile Include="Code addin inventor\PartButtons.vb" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Autodesk.ThanhN.Inventor.addin" />
     <None Include="ThanhN.X.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Autodesk.ThanhN.Inventor.addin">
+    <None Include="Autodesk.ToolInventor2020.Inventor.addin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

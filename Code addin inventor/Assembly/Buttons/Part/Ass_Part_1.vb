@@ -2,7 +2,7 @@ Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ThanhN.Assembly.Buttons.part
+Namespace ToolInventor2020.Assembly.Buttons.part
     Public Module Ass_Part_1
         Public Sub OnExecute(ByVal Context As NameValueMap)
 

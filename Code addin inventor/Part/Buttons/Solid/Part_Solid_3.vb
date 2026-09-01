@@ -1,6 +1,6 @@
 Imports Inventor
 
-Namespace ThanhN.Part.Buttons.solid
+Namespace ToolInventor2020.Part.Buttons.solid
     Public Module Part_Solid_3
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Try

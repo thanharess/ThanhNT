@@ -6,7 +6,7 @@ Imports System.Collections.Generic
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ThanhN.Drawing.Buttons
+Namespace ToolInventor2020.Drawing.Buttons
     Public Module Draw_9
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
