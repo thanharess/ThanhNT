@@ -1,4 +1,6 @@
 Imports System.Runtime.InteropServices
+Imports System.Drawing
+Imports System.Windows.Forms
 Imports Inventor
 Imports Microsoft.Win32
 
@@ -34,11 +36,36 @@ Namespace ToolInventor2020
             ' Create button definitions for Part, Assembly and Drawing: 15 buttons each.
             Dim controlDefs As Inventor.ControlDefinitions = g_inventorApplication.CommandManager.ControlDefinitions
 
-            ' No icons: use text-only buttons to avoid bitmap/COM issues
+            ' Load icons for buttons
             Dim largeIcon As stdole.IPictureDisp = Nothing
             Dim smallIcon As stdole.IPictureDisp = Nothing
-            ' Create Part buttons via helper class
-            PartButtons.Register(controlDefs, AddInClientID, m_partButtons)
+            Try
+                Dim largePath As String = "C:\Users\thanh\source\repos\ThanhN\Code addin inventor\Images\Button\Part\o3.bmp"
+                Dim smallPath As String = "C:\Users\thanh\source\repos\ThanhN\Code addin inventor\Images\Button\Part\o1.bmp"
+                If System.IO.File.Exists(largePath) Then
+                    largeIcon = LoadAndResizeIcon(largePath, 32, 32)
+                Else
+                    largeIcon = Nothing
+                End If
+
+                If System.IO.File.Exists(smallPath) Then
+                    smallIcon = LoadAndResizeIcon(smallPath, 16, 16)
+                Else
+                    ' fall back to resized large icon when no small icon available
+                    If largeIcon IsNot Nothing Then
+                        smallIcon = LoadAndResizeIcon(largePath, 16, 16)
+                    Else
+                        smallIcon = Nothing
+                    End If
+                End If
+            Catch ex As Exception
+                ' If loading fails, fall back to text-only buttons
+                largeIcon = Nothing
+                smallIcon = Nothing
+            End Try
+
+            ' Create Part buttons via helper class (pass icons)
+            PartButtons.Register(controlDefs, AddInClientID, m_partButtons, largeIcon, smallIcon)
 
             ' Create Assembly buttons via helper class
             AssemblyButtons.Register(controlDefs, AddInClientID, m_assemblyButtons)
@@ -194,6 +221,63 @@ Namespace ToolInventor2020
         End Sub
 
 
+        ' Helpers to load images from disk and convert to IPictureDisp for Inventor
+        ' AxHost.GetIPictureDispFromPicture is Protected, so expose it via a small derived helper class.
+        Private NotInheritable Class AxHostHelper
+            Inherits System.Windows.Forms.AxHost
+
+            Private Sub New()
+                MyBase.New(String.Empty)
+            End Sub
+
+            Public Shared Function GetIPictureDispFromImage(img As Image) As stdole.IPictureDisp
+                ' Call the protected Shared method from the derived class context
+                Return CType(GetIPictureDispFromPicture(img), stdole.IPictureDisp)
+            End Function
+        End Class
+
+        Private Function PictureDispFromBitmap(bmp As Bitmap) As stdole.IPictureDisp
+            Return AxHostHelper.GetIPictureDispFromImage(bmp)
+        End Function
+
+        Private Function LoadIconFromFile(path As String) As stdole.IPictureDisp
+            If String.IsNullOrEmpty(path) Then Return Nothing
+            If Not System.IO.File.Exists(path) Then Return Nothing
+            Using bmp As New Bitmap(path)
+                Dim clone As New Bitmap(bmp)
+                Try
+                    ' Use the Inventor sample converter which calls OleCreatePictureIndirect.
+                    Return PictureDispConverter.ToIPictureDisp(clone)
+                Finally
+                    ' Dispose managed clone; OleCreatePictureIndirect takes ownership of the underlying HBITMAP
+                    clone.Dispose()
+                End Try
+            End Using
+        End Function
+
+        Private Function LoadAndResizeIcon(path As String, width As Integer, height As Integer) As stdole.IPictureDisp
+            If String.IsNullOrEmpty(path) Then Return Nothing
+            If Not System.IO.File.Exists(path) Then Return Nothing
+
+            Using src As New Bitmap(path)
+                Using resized As New Bitmap(width, height)
+                    Using g As Graphics = Graphics.FromImage(resized)
+                        g.InterpolationMode = Drawing2D.InterpolationMode.HighQualityBicubic
+                        g.CompositingQuality = Drawing2D.CompositingQuality.HighQuality
+                        g.SmoothingMode = Drawing2D.SmoothingMode.HighQuality
+                        g.Clear(System.Drawing.Color.Transparent)
+                        g.DrawImage(src, 0, 0, width, height)
+                    End Using
+
+                    Dim clone As New Bitmap(resized)
+                    Try
+                        Return PictureDispConverter.ToIPictureDisp(clone)
+                    Finally
+                        clone.Dispose()
+                    End Try
+                End Using
+            End Using
+        End Function
 
         ' Button dispatcher methods removed: handlers wired directly to specific Button classes
 

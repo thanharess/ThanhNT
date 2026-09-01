@@ -138,6 +138,7 @@
     <Compile Include="Code addin inventor\Assembly\Buttons\Part\Ass_Part_4.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Auto Creating Drawing\Auto drawing V8.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Auto Creating Drawing\Auto drawing ASS top LV.vb" />
+    <Compile Include="Code addin inventor\Basecode.vb" />
     <Compile Include="Code addin inventor\DrawingButtons.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_1.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_10.vb" />
