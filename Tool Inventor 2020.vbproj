@@ -108,7 +108,7 @@
     <Compile Include="Code addin inventor\Assembly3\Buttons\Button7.vb" />
     <Compile Include="Code addin inventor\Assembly3\Buttons\Button8.vb" />
     <Compile Include="Code addin inventor\Assembly3\Buttons\Button9.vb" />
-    <Compile Include="Code addin inventor\Assembly2Buttons -Pulldown.vb" />
+    <Compile Include="Code addin inventor\Assembly3Buttons.vb" />
     <Compile Include="Code addin inventor\Assembly2Buttons.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Auto Creating Drawing\Auto drawing ASS,Part top LV.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_1.vb" />
