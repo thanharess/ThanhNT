@@ -21,159 +21,280 @@ Namespace ToolInventor2020
             End Try
         End Function
 
-        Public Shared Sub Register(controlDefs As Inventor.ControlDefinitions, addInClientID As String, buttonsList As System.Collections.Generic.List(Of ButtonDefinition))
+        Public Shared Sub Register(controlDefs As Inventor.ControlDefinitions, addInClientID As String, buttonsList As System.Collections.Generic.List(Of ButtonDefinition), largeIcon As stdole.IPictureDisp, smallIcon As stdole.IPictureDisp)
 
-            ' Load shared icons for Assembly buttons (change paths later to set per-button icons)
-            Dim iconsFolder As String = "C:\Users\thanh\source\repos\ThanhN\Code addin inventor\Images\Button\Assembly"
-            Dim asmLargePath As String = System.IO.Path.Combine(iconsFolder, "a_large.bmp")
-            Dim asmSmallPath As String = System.IO.Path.Combine(iconsFolder, "a_small.bmp")
-            Dim smallIcon As stdole.IPictureDisp = Nothing
-            Dim largeIcon As stdole.IPictureDisp = Nothing
+
+            Dim assemblyFolder2 As String = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+            ' Resolve icons folder (prefer user-configured folder if set)
+            Dim configured As String = Nothing
             Try
-                If System.IO.File.Exists(asmLargePath) Then largeIcon = LoadIconFromPath(asmLargePath)
-                If System.IO.File.Exists(asmSmallPath) Then smallIcon = LoadIconFromPath(asmSmallPath) Else smallIcon = largeIcon
+                configured = My.Settings.ImageFolder
             Catch
-                smallIcon = Nothing
-                largeIcon = Nothing
+                configured = Nothing
             End Try
+
+            Dim iconsFolder As String = Nothing
+            If Not String.IsNullOrWhiteSpace(configured) AndAlso System.IO.Directory.Exists(configured) Then
+                ' If the user configured a folder, look for an "Assembly" subfolder there to keep compatibility
+                iconsFolder = System.IO.Path.Combine(configured, "Assembly")
+            Else
+                iconsFolder = System.IO.Path.Combine(assemblyFolder2, "Code addin inventor", "Images", "Assembly")
+            End If
+
+            Dim Ass1LargePath1 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath1 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath2 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath2 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath3 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath3 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath4 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath4 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath5 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath5 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath6 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath6 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath7 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath7 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath8 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath8 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath9 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath9 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath10 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath10 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath11 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath11 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath12 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath12 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath13 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath13 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath14 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath14 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath15 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath15 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath16 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath16 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath17 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath17 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath18 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath18 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath19 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath19 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath20 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath20 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath21 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath21 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath22 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath22 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath23 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath23 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath24 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath24 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath25 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath25 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath26 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath26 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath27 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath27 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath28 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath28 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+
+
+            ' Load per-button icons (fallback to provided largeIcon/smallIcon when file missing)
+            Dim ass1LargeIcon1 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath1), LoadIconFromPath(Ass1LargePath1), largeIcon)
+            Dim ass1SmallIcon1 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath1), LoadIconFromPath(Ass1SmallPath1), smallIcon)
+            Dim ass1LargeIcon2 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath2), LoadIconFromPath(Ass1LargePath2), largeIcon)
+            Dim ass1SmallIcon2 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath2), LoadIconFromPath(Ass1SmallPath2), smallIcon)
+            Dim ass1LargeIcon3 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath3), LoadIconFromPath(Ass1LargePath3), largeIcon)
+            Dim ass1SmallIcon3 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath3), LoadIconFromPath(Ass1SmallPath3), smallIcon)
+            Dim ass1LargeIcon4 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath4), LoadIconFromPath(Ass1LargePath4), largeIcon)
+            Dim ass1SmallIcon4 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath4), LoadIconFromPath(Ass1SmallPath4), smallIcon)
+            Dim ass1LargeIcon5 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath5), LoadIconFromPath(Ass1LargePath5), largeIcon)
+            Dim ass1SmallIcon5 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath5), LoadIconFromPath(Ass1SmallPath5), smallIcon)
+            Dim ass1LargeIcon6 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath6), LoadIconFromPath(Ass1LargePath6), largeIcon)
+            Dim ass1SmallIcon6 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath6), LoadIconFromPath(Ass1SmallPath6), smallIcon)
+            Dim ass1LargeIcon7 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath7), LoadIconFromPath(Ass1LargePath7), largeIcon)
+            Dim ass1SmallIcon7 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath7), LoadIconFromPath(Ass1SmallPath7), smallIcon)
+            Dim ass1LargeIcon8 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath8), LoadIconFromPath(Ass1LargePath8), largeIcon)
+            Dim ass1SmallIcon8 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath8), LoadIconFromPath(Ass1SmallPath8), smallIcon)
+            Dim ass1LargeIcon9 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath9), LoadIconFromPath(Ass1LargePath9), largeIcon)
+            Dim ass1SmallIcon9 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath9), LoadIconFromPath(Ass1SmallPath9), smallIcon)
+            Dim ass1LargeIcon10 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath10), LoadIconFromPath(Ass1LargePath10), largeIcon)
+            Dim ass1SmallIcon10 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath10), LoadIconFromPath(Ass1SmallPath10), smallIcon)
+            Dim ass1LargeIcon11 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath11), LoadIconFromPath(Ass1LargePath11), largeIcon)
+            Dim ass1SmallIcon11 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath11), LoadIconFromPath(Ass1SmallPath11), smallIcon)
+            Dim ass1LargeIcon12 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath12), LoadIconFromPath(Ass1LargePath12), largeIcon)
+            Dim ass1SmallIcon12 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath12), LoadIconFromPath(Ass1SmallPath12), smallIcon)
+            Dim ass1LargeIcon13 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath13), LoadIconFromPath(Ass1LargePath13), largeIcon)
+            Dim ass1SmallIcon13 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath13), LoadIconFromPath(Ass1SmallPath13), smallIcon)
+            Dim ass1LargeIcon14 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath14), LoadIconFromPath(Ass1LargePath14), largeIcon)
+            Dim ass1SmallIcon14 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath14), LoadIconFromPath(Ass1SmallPath14), smallIcon)
+            Dim ass1LargeIcon15 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath15), LoadIconFromPath(Ass1LargePath15), largeIcon)
+            Dim ass1SmallIcon15 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath15), LoadIconFromPath(Ass1SmallPath15), smallIcon)
+            Dim ass1LargeIcon16 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath16), LoadIconFromPath(Ass1LargePath16), largeIcon)
+            Dim ass1SmallIcon16 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath16), LoadIconFromPath(Ass1SmallPath16), smallIcon)
+            Dim ass1LargeIcon17 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath17), LoadIconFromPath(Ass1LargePath17), largeIcon)
+            Dim ass1SmallIcon17 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath17), LoadIconFromPath(Ass1SmallPath17), smallIcon)
+            Dim ass1LargeIcon18 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath18), LoadIconFromPath(Ass1LargePath18), largeIcon)
+            Dim ass1SmallIcon18 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath18), LoadIconFromPath(Ass1SmallPath18), smallIcon)
+            Dim ass1LargeIcon19 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath19), LoadIconFromPath(Ass1LargePath19), largeIcon)
+            Dim ass1SmallIcon19 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath19), LoadIconFromPath(Ass1SmallPath19), smallIcon)
+            Dim ass1LargeIcon20 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath20), LoadIconFromPath(Ass1LargePath20), largeIcon)
+            Dim ass1SmallIcon20 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath20), LoadIconFromPath(Ass1SmallPath20), smallIcon)
+            Dim ass1LargeIcon21 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath21), LoadIconFromPath(Ass1LargePath21), largeIcon)
+            Dim ass1SmallIcon21 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath21), LoadIconFromPath(Ass1SmallPath21), smallIcon)
+            Dim ass1LargeIcon22 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath22), LoadIconFromPath(Ass1LargePath22), largeIcon)
+            Dim ass1SmallIcon22 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath22), LoadIconFromPath(Ass1SmallPath22), smallIcon)
+            Dim ass1LargeIcon23 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath23), LoadIconFromPath(Ass1LargePath23), largeIcon)
+            Dim ass1SmallIcon23 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath23), LoadIconFromPath(Ass1SmallPath23), smallIcon)
+            Dim ass1LargeIcon24 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath24), LoadIconFromPath(Ass1LargePath24), largeIcon)
+            Dim ass1SmallIcon24 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath24), LoadIconFromPath(Ass1SmallPath24), smallIcon)
+            Dim ass1LargeIcon25 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath25), LoadIconFromPath(Ass1LargePath25), largeIcon)
+            Dim ass1SmallIcon25 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath25), LoadIconFromPath(Ass1SmallPath25), smallIcon)
+            Dim ass1LargeIcon26 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath26), LoadIconFromPath(Ass1LargePath26), largeIcon)
+            Dim ass1SmallIcon26 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath26), LoadIconFromPath(Ass1SmallPath26), smallIcon)
+            Dim ass1LargeIcon27 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath27), LoadIconFromPath(Ass1LargePath27), largeIcon)
+            Dim ass1SmallIcon27 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath27), LoadIconFromPath(Ass1SmallPath27), smallIcon)
+            Dim ass1LargeIcon28 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath28), LoadIconFromPath(Ass1LargePath28), largeIcon)
+            Dim ass1SmallIcon28 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath28), LoadIconFromPath(Ass1SmallPath28), smallIcon)
+
 
             ' Create Assembly buttons explicitly (no loop) so each button can have distinct implementation
             Dim assemblyBtn1 As ButtonDefinition = controlDefs.AddButtonDefinition("Suppress & Unsuppress contrain all", "ThanhN_Assembly_Btn1", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
-                                                                                   Nothing, smallIcon, largeIcon)
+                                                                                   Nothing, ass1SmallIcon1, ass1LargeIcon1)
             AddHandler assemblyBtn1.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_1.OnExecute
             buttonsList.Add(assemblyBtn1)
 
             Dim assemblyBtn2 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto contrain Keep position", "ThanhN_Assembly_Btn2", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
-                                                                                   "code giữ nguyên vị trí các cum & gán contrain tự động", smallIcon, largeIcon)
+                                                                                   "code giữ nguyên vị trí các cum & gán contrain tự động", ass1SmallIcon2, ass1LargeIcon2)
             AddHandler assemblyBtn2.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_2.OnExecute
             buttonsList.Add(assemblyBtn2)
 
             Dim assemblyBtn3 As ButtonDefinition = controlDefs.AddButtonDefinition("Contrain về gốc tọa dộ 2 chi tiết", "ThanhN_Assembly_Btn3", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                   Nothing, "Contrain cụm chi tiết hoặc part về gốc tọa độ của nhau", smallIcon, largeIcon)
+                                                                                   Nothing, "Contrain cụm chi tiết hoặc part về gốc tọa độ của nhau", ass1SmallIcon3, ass1LargeIcon3)
             AddHandler assemblyBtn3.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_3.OnExecute
             buttonsList.Add(assemblyBtn3)
 
             Dim assemblyBtn4 As ButtonDefinition = controlDefs.AddButtonDefinition("Contrain all to select", "ThanhN_Assembly_Btn4", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
-                                                                                   "Contrain cụm chi tiết & part tất cả về gốc tọa độ của chi tiết hoặc cụm chi tiết được chọn", smallIcon, largeIcon)
+                                                                                   "Contrain cụm chi tiết & part tất cả về gốc tọa độ của chi tiết hoặc cụm chi tiết được chọn", ass1SmallIcon4, ass1LargeIcon4)
             AddHandler assemblyBtn4.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_4.OnExecute
             buttonsList.Add(assemblyBtn4)
 
-            Dim assemblyBtn5 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa Contrain & ground,.. ", "ThanhN_Assembly_Btn5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim assemblyBtn5 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa Contrain & ground,.. ", "ThanhN_Assembly_Btn5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon5, ass1LargeIcon5)
             AddHandler assemblyBtn5.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_5.OnExecute
             buttonsList.Add(assemblyBtn5)
 
             Dim assemblyBtn6 As ButtonDefinition = controlDefs.AddButtonDefinition("Covert to sheetmetal", "ThanhN_Assembly_Btn6", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
-                                                                                   "Chuyển part thành sheet metal", smallIcon, largeIcon)
+                                                                                   "Chuyển part thành sheet metal", ass1SmallIcon6, ass1LargeIcon6)
             AddHandler assemblyBtn6.OnExecute, AddressOf Assembly.Buttons.part.Ass_Part_1.OnExecute
             buttonsList.Add(assemblyBtn6)
 
-            Dim assemblyBtn7 As ButtonDefinition = controlDefs.AddButtonDefinition("Đổi đơn vị part & Cụm lắp", "ThanhN_Assembly_Btn7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim assemblyBtn7 As ButtonDefinition = controlDefs.AddButtonDefinition("Đổi đơn vị part & Cụm lắp", "ThanhN_Assembly_Btn7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon7, ass1LargeIcon7)
             AddHandler assemblyBtn7.OnExecute, AddressOf Assembly.Buttons.part.Ass_Part_2.OnExecute
             buttonsList.Add(assemblyBtn7)
 
             Dim assemblyBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Generic part to steel", "ThanhN_Assembly_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
-                                                                                   "Thay đổi vật liệu part từ generic sang steel", smallIcon, largeIcon)
+                                                                                   "Thay đổi vật liệu part từ generic sang steel", ass1SmallIcon8, ass1LargeIcon8)
             AddHandler assemblyBtn8.OnExecute, AddressOf Assembly.Buttons.part.Ass_Part_3.OnExecute
             buttonsList.Add(assemblyBtn8)
 
-            Dim assemblyBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Trải ALL Sheetmetal", "ThanhN_Assembly_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim assemblyBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Trải ALL Sheetmetal", "ThanhN_Assembly_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon9, ass1LargeIcon9)
             AddHandler assemblyBtn9.OnExecute, AddressOf Assembly.Buttons.part.Ass_Part_4.OnExecute
             buttonsList.Add(assemblyBtn9)
 
-            Dim assemblyBtn10 As ButtonDefinition = controlDefs.AddButtonDefinition("Tat ALL Adaptive cum LG", "ThanhN_Assembly_Btn10", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim assemblyBtn10 As ButtonDefinition = controlDefs.AddButtonDefinition("Tat ALL Adaptive cum LG", "ThanhN_Assembly_Btn10", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon10, ass1LargeIcon10)
             AddHandler assemblyBtn10.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_6.OnExecute
             buttonsList.Add(assemblyBtn10)
 
-            Dim assemblyBtn11 As ButtonDefinition = controlDefs.AddButtonDefinition("An all plane part", "ThanhN_Assembly_Btn11", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim assemblyBtn11 As ButtonDefinition = controlDefs.AddButtonDefinition("An all plane part", "ThanhN_Assembly_Btn11", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon11, ass1LargeIcon11)
             AddHandler assemblyBtn11.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_7.OnExecute
             buttonsList.Add(assemblyBtn11)
 
-            Dim assemblyBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Xoa mau ghi de len part", "ThanhN_Assembly_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim assemblyBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Xoa mau ghi de len part", "ThanhN_Assembly_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon12, ass1LargeIcon12)
             AddHandler assemblyBtn12.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_8.OnExecute
             buttonsList.Add(assemblyBtn12)
 
             Dim assemblyBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Import step to part", "ThanhN_Assembly_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                     Nothing,
-                                                                                    "Import all file to part tự lưu, xóa liên kết lưu file tự động", smallIcon, largeIcon)
+                                                                                    "Import all file to part tự lưu, xóa liên kết lưu file tự động", ass1SmallIcon13, ass1LargeIcon13)
             AddHandler assemblyBtn13.OnExecute, AddressOf Assembly.Buttons.Import_step_to_part.OnExecute
             buttonsList.Add(assemblyBtn13)
 
-            Dim assemblyBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Save coppy to replace part", "ThanhN_Assembly_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim assemblyBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Save coppy to replace part", "ThanhN_Assembly_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon14, ass1LargeIcon14)
             AddHandler assemblyBtn14.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_Frame_1.OnExecute
             buttonsList.Add(assemblyBtn14)
 
-            Dim assemblyBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Design Assitan", "ThanhN_Assembly_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim assemblyBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Design Assitan", "ThanhN_Assembly_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon15, ass1LargeIcon15)
             AddHandler assemblyBtn15.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_10.OnExecute
             buttonsList.Add(assemblyBtn15)
 
             Dim assemblyBtn16 As ButtonDefinition = controlDefs.AddButtonDefinition("Btach PL trong Ass top LVer", "ThanhN_Assembly_Btn16", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                     Nothing,
-                                                                                    "Tạo, ghép các chi tiết shetmetal để Phuc cụ bóc tách top lever")
+                                                                                    "Tạo, ghép các chi tiết shetmetal để Phuc cụ bóc tách top lever", ass1SmallIcon16, ass1LargeIcon16)
             AddHandler assemblyBtn16.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_11.OnExecute
             buttonsList.Add(assemblyBtn16)
 
             Dim assemblyBtn17 As ButtonDefinition = controlDefs.AddButtonDefinition("Lọc các PL trong ASS ALL", "ThanhN_Assembly_Btn17", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                    Nothing, "Tạo, ghép shetmetal to assembly all lever - lọc đếm phân loại ko ộng dồn ko trùng partnumber")
+                                                                                    Nothing, "Tạo, ghép shetmetal to assembly all lever - lọc đếm phân loại ko ộng dồn ko trùng partnumber", ass1SmallIcon17, ass1LargeIcon17)
             AddHandler assemblyBtn17.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_12.OnExecute
             buttonsList.Add(assemblyBtn17)
 
             Dim assemblyBtn18 As ButtonDefinition = controlDefs.AddButtonDefinition("Tập hợp PL trong ASS ALL", "ThanhN_Assembly_Btn18", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                    Nothing, "Tạo, ghép shetmetal to assembly all lever lấy tất cả các tấm kể cả trung tên partnumber")
+                                                                                    Nothing, "Tạo, ghép shetmetal to assembly all lever lấy tất cả các tấm kể cả trung tên partnumber", ass1SmallIcon18, ass1LargeIcon18)
             AddHandler assemblyBtn18.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_13.OnExecute
             buttonsList.Add(assemblyBtn18)
 
             Dim assemblyBtn19 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghép shetmetal,mua,thư viện trong ASS ALL", "ThanhN_Assembly_Btn19", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                   Nothing, "Tạo, ghép shetmetal,mua,thư viện to assembly all lever lấy tổng partnumber")
+                                                                                   Nothing, "Tạo, ghép shetmetal,mua,thư viện to assembly all lever lấy tổng partnumber", ass1SmallIcon19, ass1LargeIcon19)
             AddHandler assemblyBtn19.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.ass_14.OnExecute
             buttonsList.Add(assemblyBtn19)
 
             Dim assemblyBtn20 As ButtonDefinition = controlDefs.AddButtonDefinition("Lọc các loại tấm xuất hiện trong ASS ALL", "ThanhN_Assembly_Btn20", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                   Nothing, "")
+                                                                                   Nothing, "", ass1SmallIcon20, ass1LargeIcon20)
             AddHandler assemblyBtn20.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.ass_15.OnExecute
             buttonsList.Add(assemblyBtn20)
 
             Dim assemblyBtn21 As ButtonDefinition = controlDefs.AddButtonDefinition("UPDATE DESIGN STANDARD", "ThanhN_Assembly_Btn21", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                   Nothing, "Up date cho các tool tinh toán tiêu chuẩn ví dụ như buloong, key,...")
+                                                                                   Nothing, "Up date cho các tool tinh toán tiêu chuẩn ví dụ như buloong, key,...", ass1SmallIcon21, ass1LargeIcon21)
             AddHandler assemblyBtn21.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.ass_16.OnExecute
             buttonsList.Add(assemblyBtn21)
 
             Dim assemblyBtn22 As ButtonDefinition = controlDefs.AddButtonDefinition("Thông số part", "ThanhN_Assembly_Btn22", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                   Nothing, "Up date cho các tool tinh toán tiêu chuẩn ví dụ như buloong, key,...")
+                                                                                   Nothing, "Up date cho các tool tinh toán tiêu chuẩn ví dụ như buloong, key,...", ass1SmallIcon22, ass1LargeIcon22)
             AddHandler assemblyBtn22.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.ass_17.OnExecute
             buttonsList.Add(assemblyBtn22)
 
             Dim assemblyBtn23 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto drawing v8", "ThanhN_Assembly_Btn23", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                 Nothing, "Auto drawing cho ALL lever.")
+                                                                                 Nothing, "Auto drawing cho ALL lever.", ass1SmallIcon23, ass1LargeIcon23)
             AddHandler assemblyBtn23.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.AutoDrawingV8.OnExecute
             buttonsList.Add(assemblyBtn23)
 
             Dim assemblyBtn24 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto drawing ASS", "ThanhN_Assembly_Btn24", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                            Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.")
+                                                                            Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.", ass1SmallIcon24, ass1LargeIcon24)
             AddHandler assemblyBtn24.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.AutoDrawingASSTopLV.OnExecute
             buttonsList.Add(assemblyBtn24)
 
 
             Dim assemblyBtn25 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto drawing ASS", "ThanhN_Assembly_Btn25", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                            Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.")
+                                                                            Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.", ass1SmallIcon25, ass1LargeIcon25)
             AddHandler assemblyBtn25.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.AutoDrawingASSpartTopLV.OnExecute
             buttonsList.Add(assemblyBtn25)
 
             Dim assemblyBtn26 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame", "ThanhN_Assembly_Btn26", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                          Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.")
+                                                                          Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.", ass1SmallIcon26, ass1LargeIcon26)
             AddHandler assemblyBtn26.OnExecute, AddressOf Assembly.Buttons.Frame.Ass_Frame_1.OnExecute
             buttonsList.Add(assemblyBtn26)
 
             Dim assemblyBtn27 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame2", "ThanhN_Assembly_Btn27", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                          Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.")
+                                                                          Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.", ass1SmallIcon27, ass1LargeIcon27)
             AddHandler assemblyBtn27.OnExecute, AddressOf Assembly.Buttons.Frame.Ass_Frame_2.OnExecute
             buttonsList.Add(assemblyBtn27)
 
             Dim assemblyBtn28 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame3", "ThanhN_Assembly_Btn28", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                          Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.")
+                                                                          Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.", ass1SmallIcon28, ass1LargeIcon28)
             AddHandler assemblyBtn28.OnExecute, AddressOf Assembly.Buttons.Frame.Ass_Frame_3.OnExecute
             buttonsList.Add(assemblyBtn28)
         End Sub

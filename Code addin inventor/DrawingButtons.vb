@@ -19,86 +19,196 @@ Namespace ToolInventor2020
             End Try
         End Function
 
-        Public Shared Sub Register(controlDefs As Inventor.ControlDefinitions, addInClientID As String, buttonsList As System.Collections.Generic.List(Of ButtonDefinition))
+        Public Shared Sub Register(controlDefs As Inventor.ControlDefinitions, addInClientID As String, buttonsList As System.Collections.Generic.List(Of ButtonDefinition), largeIcon As stdole.IPictureDisp, smallIcon As stdole.IPictureDisp)
 
-            ' Load shared icons for Drawing buttons
-            Dim iconsFolder As String = "C:\Users\thanh\source\repos\ThanhN\Code addin inventor\Images\Button\Drawing"
-            Dim drwLargePath As String = System.IO.Path.Combine(iconsFolder, "d_large.bmp")
-            Dim drwSmallPath As String = System.IO.Path.Combine(iconsFolder, "d_small.bmp")
-            Dim smallIcon As stdole.IPictureDisp = Nothing
-            Dim largeIcon As stdole.IPictureDisp = Nothing
+            Dim assemblyFolder4 As String = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+            Dim configured As String = Nothing
             Try
-                If System.IO.File.Exists(drwLargePath) Then largeIcon = LoadIconFromPath(drwLargePath)
-                If System.IO.File.Exists(drwSmallPath) Then smallIcon = LoadIconFromPath(drwSmallPath) Else smallIcon = largeIcon
+                configured = My.Settings.ImageFolder
             Catch
-                smallIcon = Nothing
-                largeIcon = Nothing
+                configured = Nothing
             End Try
 
+            Dim iconsFolder As String = Nothing
+            If Not String.IsNullOrWhiteSpace(configured) AndAlso System.IO.Directory.Exists(configured) Then
+                iconsFolder = System.IO.Path.Combine(configured, "Drawing")
+            Else
+                iconsFolder = System.IO.Path.Combine(assemblyFolder4, "Code addin inventor", "Images", "Drawing")
+            End If
+
+
+            Dim Dra1LargePath1 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath1 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath2 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath2 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath3 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath3 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath4 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath4 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath5 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath5 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath6 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath6 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath7 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath7 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath8 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath8 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath9 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath9 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath10 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath10 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath11 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath11 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath12 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath12 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath13 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath13 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath14 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath14 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath15 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath15 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath16 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath16 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath17 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath17 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath18 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath18 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath19 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath19 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath20 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath20 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath21 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath21 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath22 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath22 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath23 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath23 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath24 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath24 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath25 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath25 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath26 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath26 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath27 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+            Dim Dra1SmallPath27 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+            Dim Dra1LargePath28 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
+
+            ' Prepare IPictureDisp icons (use provided largeIcon/smallIcon as fallback)
+            Dim Dra1LargeIcon1 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath1), LoadIconFromPath(Dra1LargePath1), largeIcon)
+            Dim Dra1SmallIcon1 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath1), LoadIconFromPath(Dra1SmallPath1), smallIcon)
+            Dim Dra1LargeIcon5 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath5), LoadIconFromPath(Dra1LargePath5), largeIcon)
+            Dim Dra1SmallIcon5 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath5), LoadIconFromPath(Dra1SmallPath5), smallIcon)
+            Dim Dra1LargeIcon6 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath6), LoadIconFromPath(Dra1LargePath6), largeIcon)
+            Dim Dra1SmallIcon6 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath6), LoadIconFromPath(Dra1SmallPath6), smallIcon)
+            Dim Dra1LargeIcon7 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath7), LoadIconFromPath(Dra1LargePath7), largeIcon)
+            Dim Dra1SmallIcon7 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath7), LoadIconFromPath(Dra1SmallPath7), smallIcon)
+            Dim Dra1LargeIcon8 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath8), LoadIconFromPath(Dra1LargePath8), largeIcon)
+            Dim Dra1SmallIcon8 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath8), LoadIconFromPath(Dra1SmallPath8), smallIcon)
+            Dim Dra1LargeIcon9 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath9), LoadIconFromPath(Dra1LargePath9), largeIcon)
+            Dim Dra1SmallIcon9 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath9), LoadIconFromPath(Dra1SmallPath9), smallIcon)
+            Dim Dra1LargeIcon10 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath10), LoadIconFromPath(Dra1LargePath10), largeIcon)
+            Dim Dra1SmallIcon10 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath10), LoadIconFromPath(Dra1SmallPath10), smallIcon)
+            Dim Dra1LargeIcon11 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath11), LoadIconFromPath(Dra1LargePath11), largeIcon)
+            Dim Dra1SmallIcon11 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath11), LoadIconFromPath(Dra1SmallPath11), smallIcon)
+            Dim Dra1LargeIcon12 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath12), LoadIconFromPath(Dra1LargePath12), largeIcon)
+            Dim Dra1SmallIcon12 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath12), LoadIconFromPath(Dra1SmallPath12), smallIcon)
+            Dim Dra1LargeIcon13 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath13), LoadIconFromPath(Dra1LargePath13), largeIcon)
+            Dim Dra1SmallIcon13 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath13), LoadIconFromPath(Dra1SmallPath13), smallIcon)
+            Dim Dra1LargeIcon14 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath14), LoadIconFromPath(Dra1LargePath14), largeIcon)
+            Dim Dra1SmallIcon14 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath14), LoadIconFromPath(Dra1SmallPath14), smallIcon)
+            Dim Dra1LargeIcon15 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath15), LoadIconFromPath(Dra1LargePath15), largeIcon)
+            Dim Dra1SmallIcon15 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath15), LoadIconFromPath(Dra1SmallPath15), smallIcon)
+            Dim Dra1LargeIcon16 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath16), LoadIconFromPath(Dra1LargePath16), largeIcon)
+            Dim Dra1SmallIcon16 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath16), LoadIconFromPath(Dra1SmallPath16), smallIcon)
+            Dim Dra1LargeIcon17 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath17), LoadIconFromPath(Dra1LargePath17), largeIcon)
+            Dim Dra1SmallIcon17 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath17), LoadIconFromPath(Dra1SmallPath17), smallIcon)
+            Dim Dra1LargeIcon18 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath18), LoadIconFromPath(Dra1LargePath18), largeIcon)
+            Dim Dra1SmallIcon18 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath18), LoadIconFromPath(Dra1SmallPath18), smallIcon)
+            Dim Dra1LargeIcon19 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath19), LoadIconFromPath(Dra1LargePath19), largeIcon)
+            Dim Dra1SmallIcon19 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath19), LoadIconFromPath(Dra1SmallPath19), smallIcon)
+            Dim Dra1LargeIcon20 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath20), LoadIconFromPath(Dra1LargePath20), largeIcon)
+            Dim Dra1SmallIcon20 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath20), LoadIconFromPath(Dra1SmallPath20), smallIcon)
+            Dim Dra1LargeIcon21 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath21), LoadIconFromPath(Dra1LargePath21), largeIcon)
+            Dim Dra1SmallIcon21 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath21), LoadIconFromPath(Dra1SmallPath21), smallIcon)
+            Dim Dra1LargeIcon22 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath22), LoadIconFromPath(Dra1LargePath22), largeIcon)
+            Dim Dra1SmallIcon22 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath22), LoadIconFromPath(Dra1SmallPath22), smallIcon)
+            Dim Dra1LargeIcon23 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath23), LoadIconFromPath(Dra1LargePath23), largeIcon)
+            Dim Dra1SmallIcon23 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath23), LoadIconFromPath(Dra1SmallPath23), smallIcon)
+            Dim Dra1LargeIcon24 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath24), LoadIconFromPath(Dra1LargePath24), largeIcon)
+            Dim Dra1SmallIcon24 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath24), LoadIconFromPath(Dra1SmallPath24), smallIcon)
+            Dim Dra1LargeIcon25 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath25), LoadIconFromPath(Dra1LargePath25), largeIcon)
+            Dim Dra1SmallIcon25 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath25), LoadIconFromPath(Dra1SmallPath25), smallIcon)
+            Dim Dra1LargeIcon26 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath26), LoadIconFromPath(Dra1LargePath26), largeIcon)
+            Dim Dra1SmallIcon26 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath26), LoadIconFromPath(Dra1SmallPath26), smallIcon)
+            Dim Dra1LargeIcon27 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath27), LoadIconFromPath(Dra1LargePath27), largeIcon)
+            Dim Dra1SmallIcon27 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath27), LoadIconFromPath(Dra1SmallPath27), smallIcon)
+            Dim Dra1LargeIcon28 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath28), LoadIconFromPath(Dra1LargePath28), largeIcon)
+            Dim Dra1SmallPath28 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
+
             ' Create Drawing buttons explicitly (no loop) so each button can have distinct implementation
-            Dim drawingBtn1 As ButtonDefinition = controlDefs.AddButtonDefinition("Sửa số thập phân dim", "ThanhN_Drawing_Btn1", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim drawingBtn1 As ButtonDefinition = controlDefs.AddButtonDefinition("Sửa số thập phân dim", "ThanhN_Drawing_Btn1", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon1, Dra1LargeIcon1)
             AddHandler drawingBtn1.OnExecute, AddressOf Drawing.Buttons.Draw_1.OnExecute
             buttonsList.Add(drawingBtn1)
 
             Dim DrawingBtn2 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto dim hole", "ThanhN_Drawing_Btn2", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
-                                                                                   "Auto dim kích thước lỗ & lỗ ren", smallIcon, largeIcon)
+                                                                                   "Auto dim kích thước lỗ & lỗ ren", Dra1SmallPath2, Dra1LargePath2)
             AddHandler DrawingBtn2.OnExecute, AddressOf Drawing.Buttons.Draw_2.OnExecute
             buttonsList.Add(DrawingBtn2)
 
             Dim DrawingBtn3 As ButtonDefinition = controlDefs.AddButtonDefinition("Auo giãn cách dim", "ThanhN_Drawing_Btn3", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
-                                                                                   Nothing, smallIcon, largeIcon)
+                                                                                   Nothing, Dra1SmallPath3, Dra1LargePath3)
             AddHandler DrawingBtn3.OnExecute, AddressOf Drawing.Buttons.Draw_3.OnExecute
             buttonsList.Add(DrawingBtn3)
 
             Dim DrawingBtn4 As ButtonDefinition = controlDefs.AddButtonDefinition("Tìm Dim bị edit", "ThanhN_Drawing_Btn4", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
-                                                                                   "Kiểm tra kim bị edit rồi hiện màu đỏ những dim bị chỉnh sửa", smallIcon, largeIcon)
+                                                                                   "Kiểm tra kim bị edit rồi hiện màu đỏ những dim bị chỉnh sửa", Dra1SmallPath4, Dra1LargePath4)
             AddHandler DrawingBtn4.OnExecute, AddressOf Drawing.Buttons.Draw_4.OnExecute
             buttonsList.Add(DrawingBtn4)
 
-            Dim DrawingBtn5 As ButtonDefinition = controlDefs.AddButtonDefinition("Reset part list", "ThanhN_Drawing_Btn5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim DrawingBtn5 As ButtonDefinition = controlDefs.AddButtonDefinition("Reset part list", "ThanhN_Drawing_Btn5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon5, Dra1LargeIcon5)
             AddHandler DrawingBtn5.OnExecute, AddressOf Drawing.Buttons.Draw_5.OnExecute
             buttonsList.Add(DrawingBtn5)
 
-            Dim DrawingBtn6 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi thông tin vào Partlist", "ThanhN_Drawing_Btn6", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim DrawingBtn6 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi thông tin vào Partlist", "ThanhN_Drawing_Btn6", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon6, Dra1LargeIcon6)
             AddHandler DrawingBtn6.OnExecute, AddressOf Drawing.Buttons.Draw_6.OnExecute
             buttonsList.Add(DrawingBtn6)
 
-            Dim DrawingBtn7 As ButtonDefinition = controlDefs.AddButtonDefinition("Nút chuyển Sheet", "ThanhN_Drawing_Btn7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim DrawingBtn7 As ButtonDefinition = controlDefs.AddButtonDefinition("Nút chuyển Sheet", "ThanhN_Drawing_Btn7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon7, Dra1LargeIcon7)
             AddHandler DrawingBtn7.OnExecute, AddressOf Drawing.Buttons.Draw_7.OnExecute
             buttonsList.Add(DrawingBtn7)
 
-            Dim DrawingBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Đổi scale view", "ThanhN_Drawing_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim DrawingBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Đổi scale view", "ThanhN_Drawing_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon8, Dra1LargeIcon8)
             AddHandler DrawingBtn8.OnExecute, AddressOf Drawing.Buttons.Draw_8.OnExecute
             buttonsList.Add(DrawingBtn8)
 
-            Dim DrawingBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa Part,ASS trùng lặp", "ThanhN_Drawing_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim DrawingBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa Part,ASS trùng lặp", "ThanhN_Drawing_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon9, Dra1LargeIcon9)
             AddHandler DrawingBtn9.OnExecute, AddressOf Drawing.Buttons.Draw_9.OnExecute
             buttonsList.Add(DrawingBtn9)
 
-            Dim DrawingBtn10 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa centermark, centerline", "ThanhN_Drawing_Btn10", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim DrawingBtn10 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa centermark, centerline", "ThanhN_Drawing_Btn10", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon10, Dra1LargeIcon10)
             AddHandler DrawingBtn10.OnExecute, AddressOf Drawing.Buttons.Draw_10.OnExecute
             buttonsList.Add(DrawingBtn10)
 
-            Dim DrawingBtn11 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 11", "ThanhN_Drawing_Btn11", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim DrawingBtn11 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 11", "ThanhN_Drawing_Btn11", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon11, Dra1LargeIcon11)
             AddHandler DrawingBtn11.OnExecute, AddressOf Drawing.Buttons.Draw_11.OnExecute
             buttonsList.Add(DrawingBtn11)
 
-            Dim DrawingBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 12", "ThanhN_Drawing_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim DrawingBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 12", "ThanhN_Drawing_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon12, Dra1LargeIcon12)
             AddHandler DrawingBtn12.OnExecute, AddressOf Drawing.Buttons.Draw_12.OnExecute
             buttonsList.Add(DrawingBtn12)
 
-            Dim DrawingBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 13", "ThanhN_Drawing_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim DrawingBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 13", "ThanhN_Drawing_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon13, Dra1LargeIcon13)
             AddHandler DrawingBtn13.OnExecute, AddressOf Drawing.Buttons.Draw_13.OnExecute
             buttonsList.Add(DrawingBtn13)
 
-            Dim DrawingBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 14", "ThanhN_Drawing_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim DrawingBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 14", "ThanhN_Drawing_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon14, Dra1LargeIcon14)
             AddHandler DrawingBtn14.OnExecute, AddressOf Drawing.Buttons.Draw_14.OnExecute
             buttonsList.Add(DrawingBtn14)
 
-            Dim DrawingBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 15", "ThanhN_Drawing_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, smallIcon, largeIcon)
+            Dim DrawingBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 15", "ThanhN_Drawing_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon15, Dra1LargeIcon15)
             AddHandler DrawingBtn15.OnExecute, AddressOf Drawing.Buttons.Draw_15.OnExecute
             buttonsList.Add(DrawingBtn15)
 

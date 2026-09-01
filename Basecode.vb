@@ -24,7 +24,11 @@ Namespace ToolInventor2020
 #Region "ApplicationAddInServer Members"
 
         ' This method is called by Inventor when it loads the AddIn. The AddInSiteObject provides access  
+
+
         ' to the Inventor Application object. The FirstTime flag indicates if the AddIn is loaded for
+
+
         ' the first time. However, with the introduction of the ribbon this argument is always true.
         Public Sub Activate(ByVal addInSiteObject As Inventor.ApplicationAddInSite, ByVal firstTime As Boolean) Implements Inventor.ApplicationAddInServer.Activate
             ' Initialize AddIn members.
@@ -37,11 +41,30 @@ Namespace ToolInventor2020
             Dim controlDefs As Inventor.ControlDefinitions = g_inventorApplication.CommandManager.ControlDefinitions
 
             ' Load icons for buttons
-            Dim largeIcon As stdole.IPictureDisp = Nothing
-            Dim smallIcon As stdole.IPictureDisp = Nothing
+            Dim largeIcon As stdole.IPictureDisp '= Nothing
+            Dim smallIcon As stdole.IPictureDisp ' = Nothing
             Try
-                Dim largePath As String = "C:\Users\thanh\source\repos\ThanhN\Code addin inventor\Images\Button\Part\o3.bmp"
-                Dim smallPath As String = "C:\Users\thanh\source\repos\ThanhN\Code addin inventor\Images\Button\Part\o1.bmp"
+                ' Resolve image folder relative to the add-in assembly so installer relocation is supported.
+                ' Use the app's output directory so image files copied to output are found reliably
+                Dim assemblyFolder As String = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+
+                ' Allow an override folder (stored in My.Settings.ImageFolder). If set and exists,
+                ' load images from that folder; otherwise fall back to the add-in assembly Images folder.
+                Dim imagesFolder As String = Nothing
+                Try
+                    Dim configured As String = GetConfiguredImageFolder()
+
+                    If Not String.IsNullOrWhiteSpace(configured) AndAlso System.IO.Directory.Exists(configured) Then
+                        imagesFolder = configured
+                    Else
+                        imagesFolder = System.IO.Path.Combine(assemblyFolder, "Images", "Part")
+                    End If
+                Catch
+                    imagesFolder = System.IO.Path.Combine(assemblyFolder, "Images", "Part")
+                End Try
+
+                Dim largePath As String = System.IO.Path.Combine(imagesFolder, "i3.bmp")
+                Dim smallPath As String = System.IO.Path.Combine(imagesFolder, "i3 1.bmp")
                 If System.IO.File.Exists(largePath) Then
                     largeIcon = LoadAndResizeIcon(largePath, 32, 32)
                 Else
@@ -68,16 +91,16 @@ Namespace ToolInventor2020
             PartButtons.Register(controlDefs, AddInClientID, m_partButtons, largeIcon, smallIcon)
 
             ' Create Assembly buttons via helper class
-            AssemblyButtons.Register(controlDefs, AddInClientID, m_assemblyButtons)
+            AssemblyButtons.Register(controlDefs, AddInClientID, m_assemblyButtons, largeIcon, smallIcon)
 
 
             ' Create Drawing buttons via helper class
-            DrawingButtons.Register(controlDefs, AddInClientID, m_drawingButtons)
+            DrawingButtons.Register(controlDefs, AddInClientID, m_drawingButtons, largeIcon, smallIcon)
 
             ' Create Assembly buttons via helper class
-            Assembly2Buttons.Register(controlDefs, AddInClientID, m_assembly2Buttons)
+            Assembly2Buttons.Register(controlDefs, AddInClientID, m_assembly2Buttons, largeIcon, smallIcon)
             ' Create Assembly buttons via helper class
-            Assembly3Buttons.Register(controlDefs, AddInClientID, m_assembly3Buttons)
+            Assembly3Buttons.Register(controlDefs, AddInClientID, m_assembly3Buttons, largeIcon, smallIcon)
 
             ' Ensure the user interface is created when the add-in activates.
             ' Call AddToUserInterface unconditionally so the Assembly tab/panel is created
@@ -215,7 +238,7 @@ Namespace ToolInventor2020
 
         End Sub
 
-        Private Sub muievents_onresetribbonInterface(Context As NameValueMap) Handles m_uievents.OnResetRibbonInterface
+        Private Sub Muievents_onresetribbonInterface(Context As NameValueMap) Handles m_uievents.OnResetRibbonInterface
             ' The ribbon was reset, so add back the add-ins user-interface.
             AddToUserInterface()
         End Sub
