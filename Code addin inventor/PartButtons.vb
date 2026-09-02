@@ -216,10 +216,10 @@ Namespace ToolInventor2020
             AddHandler partBtn14.OnExecute, AddressOf Part.Buttons.Button14.OnExecute
             ' buttonsList.Add(partBtn14)
 
-            Dim partBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Part Action 15", "ToolInventor2020_Part_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                "Part Action 15" & vbCrLf & "Mô tả: (chỉnh sửa) Action 15 cho Part.",
-                                                                                "Tooltip: Part Action 15 (edit)", part15SmallIcon, part15LargeIcon)
-            AddHandler partBtn15.OnExecute, AddressOf Part.Buttons.Button15.OnExecute
+            Dim partBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Import_step_to_part", "ToolInventor2020_Part_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                "Import STEP to Part" & vbCrLf & "Mô tả: (chỉnh sửa) Import STEP file to Part.",
+                                                                                "Tooltip: Import STEP to Part ", part15SmallIcon, part15LargeIcon)
+            AddHandler partBtn15.OnExecute, AddressOf Assembly.Buttons.Import_step_to_part.OnExecute
             ' buttonsList.Add(partBtn15)
 
         End Sub
