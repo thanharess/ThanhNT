@@ -175,9 +175,21 @@ Namespace ToolInventor2020
                         If buttons IsNot Nothing Then
                             If Not usePulldownOnly Then
                                 ' Add each button directly to the panel
+                                Dim largeButtonIds As New System.Collections.Generic.HashSet(Of String) From {"ToolInventor2020_Assembly_Btna1", "ToolInventor2020_Assembly_Btna2", "ToolInventor2020_Assembly_Btna3", "ToolInventor2020_Assembly_Btna4",
+                                                     "ToolInventor2020_Part_Btn1", "ToolInventor2020_Part_Btn2", "ToolInventor2020_Part_Btn3", "ToolInventor2020_Part_Btn4", "ToolInventor2020_Part_Btn5",
+                                         "ToolInventor2020_Part_Btn6", "ToolInventor2020_Part_Btn7"
+                                                                                            }
+
+
+
                                 For Each bd As ButtonDefinition In buttons
                                     customPanel.CommandControls.AddButton(bd)
+
+                                    Dim useLargeIcon As Boolean = largeButtonIds.Contains(bd.InternalName)
+
+                                    '  customPanel.CommandControls.AddButton(bd, useLargeIcon, useLargeIcon)
                                 Next
+                                ' Next
                             Else
                                 ' Try to create a pulldown menu; if the API is unavailable, fall back to adding buttons directly
                                 Try
@@ -190,6 +202,11 @@ Namespace ToolInventor2020
                                     Try
                                         For Each bd As ButtonDefinition In buttons
                                             customPanel.CommandControls.AddButton(bd)
+                                            ' If bd.InternalName = "ToolInventor2020_Part_Btn5" Then
+                                            ' customPanel.CommandControls.AddButton(bd, True, True)
+                                            ' Else
+                                            ' customPanel.CommandControls.AddButton(bd)
+                                            '   End If
                                         Next
                                     Catch
                                     End Try
@@ -223,18 +240,18 @@ Namespace ToolInventor2020
             ' (The AddTabPanelButtons method is implemented as a Private Sub at class scope to allow Optional parameter.)
 
             ' Add to Assembly ribbon as a separate tab.
-            AddTabPanelButtons("Assembly", "ThanhN", "ThanhN_AssemblyTab", "Main", "ThanhN_AssemblyPanel", m_assemblyButtons, False)
+            AddTabPanelButtons("Assembly", "Tool Assembly", "ToolInventor2020_AssemblyTab", "Tool Assembly", "ToolInventor2020_AssemblyPanel", m_assemblyButtons, False)
 
             ' Add to Drawing ribbon as a separate tab.
-            AddTabPanelButtons("Drawing", "ThanhN", "ThanhN_DrawingTab", "Main", "ThanhN_DrawingPanel", m_drawingButtons, False)
+            AddTabPanelButtons("Drawing", "Tool Drawing", "ToolInventor2020_DrawingTab", "Tool Drawing", "ToolInventor2020_DrawingPanel", m_drawingButtons, False)
 
             ' Add to Part ribbon as a separate tab.
-            AddTabPanelButtons("Part", "ThanhN", "ThanhN_PartTab", "Main", "ThanhN_PartPanel", m_partButtons, False)
+            AddTabPanelButtons("Part", "Tool Part", "ToolInventor2020_PartTab", "Tool Part", "ToolInventor2020_PartPanel", m_partButtons, False)
 
             ' Add to Assembly ribbon as a separate tab.
-            AddTabPanelButtons("Assembly", "BOM ADDIN", "ToolInventor2020_AssemblyTab2", "Main2", "ToolInventor2020_AssemblyPanel2", m_assembly2Buttons, False)
+            AddTabPanelButtons("Assembly", "Tool Bom", "ToolInventor2020_AssemblyTab2", "Tool Assembly 2", "ToolInventor2020_AssemblyPanel2", m_assembly2Buttons, False)
             ' Panel visible; add buttons directly to the panel (no pulldown)
-            AddTabPanelButtons("Assembly", "BOM ADDIN2", "ToolInventor2020_Assembly3_Pulldown", "Main3", "Assembly3 Actions", m_assembly3Buttons, False)
+            ' AddTabPanelButtons("Assembly", "Tool Bom", "ToolInventor2020_AssemblyTab3", "Tool Assembly 2", "ToolInventor2020_AssemblyPanel3", m_assembly3Buttons, False)
 
         End Sub
 

@@ -159,144 +159,144 @@ Namespace ToolInventor2020
 
 
             ' Create Assembly buttons explicitly (no loop) so each button can have distinct implementation
-            Dim assemblyBtn1 As ButtonDefinition = controlDefs.AddButtonDefinition("Suppress & Unsuppress contrain all", "ThanhN_Assembly_Btn1", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn1 As ButtonDefinition = controlDefs.AddButtonDefinition("Suppress & Un contrain all", "ToolInventor2020_Assembly_Btn1", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
                                                                                    Nothing, ass1SmallIcon1, ass1LargeIcon1)
             AddHandler assemblyBtn1.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_1.OnExecute
             buttonsList.Add(assemblyBtn1)
 
-            Dim assemblyBtn2 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto contrain Keep position", "ThanhN_Assembly_Btn2", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn2 As ButtonDefinition = controlDefs.AddButtonDefinition("Contrain Keep position", "ToolInventor2020_Assembly_Btn2", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
                                                                                    "code giữ nguyên vị trí các cum & gán contrain tự động", ass1SmallIcon2, ass1LargeIcon2)
             AddHandler assemblyBtn2.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_2.OnExecute
             buttonsList.Add(assemblyBtn2)
 
-            Dim assemblyBtn3 As ButtonDefinition = controlDefs.AddButtonDefinition("Contrain về gốc tọa dộ 2 chi tiết", "ThanhN_Assembly_Btn3", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn3 As ButtonDefinition = controlDefs.AddButtonDefinition("Contrain về gốc tọa dộ 2 chi tiết", "ToolInventor2020_Assembly_Btn3", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing, "Contrain cụm chi tiết hoặc part về gốc tọa độ của nhau", ass1SmallIcon3, ass1LargeIcon3)
             AddHandler assemblyBtn3.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_3.OnExecute
             buttonsList.Add(assemblyBtn3)
 
-            Dim assemblyBtn4 As ButtonDefinition = controlDefs.AddButtonDefinition("Contrain all to select", "ThanhN_Assembly_Btn4", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn4 As ButtonDefinition = controlDefs.AddButtonDefinition("Contrain all to select", "ToolInventor2020_Assembly_Btn4", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
                                                                                    "Contrain cụm chi tiết & part tất cả về gốc tọa độ của chi tiết hoặc cụm chi tiết được chọn", ass1SmallIcon4, ass1LargeIcon4)
             AddHandler assemblyBtn4.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_4.OnExecute
             buttonsList.Add(assemblyBtn4)
 
-            Dim assemblyBtn5 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa Contrain & ground,.. ", "ThanhN_Assembly_Btn5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon5, ass1LargeIcon5)
+            Dim assemblyBtn5 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa Contrain & ground,.. ", "ToolInventor2020_Assembly_Btn5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon5, ass1LargeIcon5)
             AddHandler assemblyBtn5.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_5.OnExecute
             buttonsList.Add(assemblyBtn5)
 
-            Dim assemblyBtn6 As ButtonDefinition = controlDefs.AddButtonDefinition("Covert to sheetmetal", "ThanhN_Assembly_Btn6", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn6 As ButtonDefinition = controlDefs.AddButtonDefinition("Covert to sheetmetal", "ToolInventor2020_Assembly_Btn6", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
                                                                                    "Chuyển part thành sheet metal", ass1SmallIcon6, ass1LargeIcon6)
             AddHandler assemblyBtn6.OnExecute, AddressOf Assembly.Buttons.part.Ass_Part_1.OnExecute
             buttonsList.Add(assemblyBtn6)
 
-            Dim assemblyBtn7 As ButtonDefinition = controlDefs.AddButtonDefinition("Đổi đơn vị part & Cụm lắp", "ThanhN_Assembly_Btn7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon7, ass1LargeIcon7)
+            Dim assemblyBtn7 As ButtonDefinition = controlDefs.AddButtonDefinition("Đổi đơn vị", "ToolInventor2020_Assembly_Btn7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon7, ass1LargeIcon7)
             AddHandler assemblyBtn7.OnExecute, AddressOf Assembly.Buttons.part.Ass_Part_2.OnExecute
             buttonsList.Add(assemblyBtn7)
 
-            Dim assemblyBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Generic part to steel", "ThanhN_Assembly_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
+            Dim assemblyBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Generic to steel", "ToolInventor2020_Assembly_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
                                                                                    "Thay đổi vật liệu part từ generic sang steel", ass1SmallIcon8, ass1LargeIcon8)
             AddHandler assemblyBtn8.OnExecute, AddressOf Assembly.Buttons.part.Ass_Part_3.OnExecute
             buttonsList.Add(assemblyBtn8)
 
-            Dim assemblyBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Trải ALL Sheetmetal", "ThanhN_Assembly_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon9, ass1LargeIcon9)
+            Dim assemblyBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Trải ALL Sheetmetal", "ToolInventor2020_Assembly_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon9, ass1LargeIcon9)
             AddHandler assemblyBtn9.OnExecute, AddressOf Assembly.Buttons.part.Ass_Part_4.OnExecute
             buttonsList.Add(assemblyBtn9)
 
-            Dim assemblyBtn10 As ButtonDefinition = controlDefs.AddButtonDefinition("Tat ALL Adaptive cum LG", "ThanhN_Assembly_Btn10", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon10, ass1LargeIcon10)
+            Dim assemblyBtn10 As ButtonDefinition = controlDefs.AddButtonDefinition("Tat ALL Adaptive cum LG", "ToolInventor2020_Assembly_Btn10", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon10, ass1LargeIcon10)
             AddHandler assemblyBtn10.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_6.OnExecute
             buttonsList.Add(assemblyBtn10)
 
-            Dim assemblyBtn11 As ButtonDefinition = controlDefs.AddButtonDefinition("An all plane part", "ThanhN_Assembly_Btn11", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon11, ass1LargeIcon11)
+            Dim assemblyBtn11 As ButtonDefinition = controlDefs.AddButtonDefinition("An all plane part", "ToolInventor2020_Assembly_Btn11", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon11, ass1LargeIcon11)
             AddHandler assemblyBtn11.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_7.OnExecute
             buttonsList.Add(assemblyBtn11)
 
-            Dim assemblyBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Xoa mau ghi de len part", "ThanhN_Assembly_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon12, ass1LargeIcon12)
+            Dim assemblyBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Xoa mau ghi de len part", "ToolInventor2020_Assembly_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon12, ass1LargeIcon12)
             AddHandler assemblyBtn12.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_8.OnExecute
             buttonsList.Add(assemblyBtn12)
 
-            Dim assemblyBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Import step to part", "ThanhN_Assembly_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Import step to part", "ToolInventor2020_Assembly_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                     Nothing,
                                                                                     "Import all file to part tự lưu, xóa liên kết lưu file tự động", ass1SmallIcon13, ass1LargeIcon13)
             AddHandler assemblyBtn13.OnExecute, AddressOf Assembly.Buttons.Import_step_to_part.OnExecute
             buttonsList.Add(assemblyBtn13)
 
-            Dim assemblyBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Save coppy to replace part", "ThanhN_Assembly_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon14, ass1LargeIcon14)
+            Dim assemblyBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Save coppy to replace part", "ToolInventor2020_Assembly_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon14, ass1LargeIcon14)
             AddHandler assemblyBtn14.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_Frame_1.OnExecute
             buttonsList.Add(assemblyBtn14)
 
-            Dim assemblyBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Design Assitan", "ThanhN_Assembly_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon15, ass1LargeIcon15)
+            Dim assemblyBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Design Assitan", "ToolInventor2020_Assembly_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon15, ass1LargeIcon15)
             AddHandler assemblyBtn15.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_10.OnExecute
             buttonsList.Add(assemblyBtn15)
 
-            Dim assemblyBtn16 As ButtonDefinition = controlDefs.AddButtonDefinition("Btach PL trong Ass top LVer", "ThanhN_Assembly_Btn16", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn16 As ButtonDefinition = controlDefs.AddButtonDefinition("Btach PL trong Ass top LVer", "ToolInventor2020_Assembly_Btn16", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                     Nothing,
                                                                                     "Tạo, ghép các chi tiết shetmetal để Phuc cụ bóc tách top lever", ass1SmallIcon16, ass1LargeIcon16)
             AddHandler assemblyBtn16.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_11.OnExecute
             buttonsList.Add(assemblyBtn16)
 
-            Dim assemblyBtn17 As ButtonDefinition = controlDefs.AddButtonDefinition("Lọc các PL trong ASS ALL", "ThanhN_Assembly_Btn17", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn17 As ButtonDefinition = controlDefs.AddButtonDefinition("Lọc các PL trong ASS ALL", "ToolInventor2020_Assembly_Btn17", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                     Nothing, "Tạo, ghép shetmetal to assembly all lever - lọc đếm phân loại ko ộng dồn ko trùng partnumber", ass1SmallIcon17, ass1LargeIcon17)
             AddHandler assemblyBtn17.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_12.OnExecute
             buttonsList.Add(assemblyBtn17)
 
-            Dim assemblyBtn18 As ButtonDefinition = controlDefs.AddButtonDefinition("Tập hợp PL trong ASS ALL", "ThanhN_Assembly_Btn18", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn18 As ButtonDefinition = controlDefs.AddButtonDefinition("Tập hợp PL trong ASS ALL", "ToolInventor2020_Assembly_Btn18", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                     Nothing, "Tạo, ghép shetmetal to assembly all lever lấy tất cả các tấm kể cả trung tên partnumber", ass1SmallIcon18, ass1LargeIcon18)
             AddHandler assemblyBtn18.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_13.OnExecute
             buttonsList.Add(assemblyBtn18)
 
-            Dim assemblyBtn19 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghép shetmetal,mua,thư viện trong ASS ALL", "ThanhN_Assembly_Btn19", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn19 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghép PL,mua,thư viện trong ASS ALL", "ToolInventor2020_Assembly_Btn19", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing, "Tạo, ghép shetmetal,mua,thư viện to assembly all lever lấy tổng partnumber", ass1SmallIcon19, ass1LargeIcon19)
             AddHandler assemblyBtn19.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.ass_14.OnExecute
             buttonsList.Add(assemblyBtn19)
 
-            Dim assemblyBtn20 As ButtonDefinition = controlDefs.AddButtonDefinition("Lọc các loại tấm xuất hiện trong ASS ALL", "ThanhN_Assembly_Btn20", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn20 As ButtonDefinition = controlDefs.AddButtonDefinition("Lọc các loại tấm xuất hiện trong ASS ALL", "ToolInventor2020_Assembly_Btn20", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing, "", ass1SmallIcon20, ass1LargeIcon20)
             AddHandler assemblyBtn20.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.ass_15.OnExecute
             buttonsList.Add(assemblyBtn20)
 
-            Dim assemblyBtn21 As ButtonDefinition = controlDefs.AddButtonDefinition("UPDATE DESIGN STANDARD", "ThanhN_Assembly_Btn21", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn21 As ButtonDefinition = controlDefs.AddButtonDefinition("UPDATE DESIGN STANDARD", "ToolInventor2020_Assembly_Btn21", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing, "Up date cho các tool tinh toán tiêu chuẩn ví dụ như buloong, key,...", ass1SmallIcon21, ass1LargeIcon21)
             AddHandler assemblyBtn21.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.ass_16.OnExecute
             buttonsList.Add(assemblyBtn21)
 
-            Dim assemblyBtn22 As ButtonDefinition = controlDefs.AddButtonDefinition("Thông số part", "ThanhN_Assembly_Btn22", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn22 As ButtonDefinition = controlDefs.AddButtonDefinition("Thông số part", "ToolInventor2020_Assembly_Btn22", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing, "Up date cho các tool tinh toán tiêu chuẩn ví dụ như buloong, key,...", ass1SmallIcon22, ass1LargeIcon22)
             AddHandler assemblyBtn22.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.ass_17.OnExecute
             buttonsList.Add(assemblyBtn22)
 
-            Dim assemblyBtn23 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto drawing v8", "ThanhN_Assembly_Btn23", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn23 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto drawing v8", "ToolInventor2020_Assembly_Btn23", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                  Nothing, "Auto drawing cho ALL lever.", ass1SmallIcon23, ass1LargeIcon23)
             AddHandler assemblyBtn23.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.AutoDrawingV8.OnExecute
             buttonsList.Add(assemblyBtn23)
 
-            Dim assemblyBtn24 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto drawing ASS", "ThanhN_Assembly_Btn24", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn24 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto drawing ASS", "ToolInventor2020_Assembly_Btn24", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                             Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.", ass1SmallIcon24, ass1LargeIcon24)
             AddHandler assemblyBtn24.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.AutoDrawingASSTopLV.OnExecute
             buttonsList.Add(assemblyBtn24)
 
 
-            Dim assemblyBtn25 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto drawing ASS", "ThanhN_Assembly_Btn25", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn25 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto drawing ASS", "ToolInventor2020_Assembly_Btn25", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                             Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.", ass1SmallIcon25, ass1LargeIcon25)
             AddHandler assemblyBtn25.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.AutoDrawingASSpartTopLV.OnExecute
             buttonsList.Add(assemblyBtn25)
 
-            Dim assemblyBtn26 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame", "ThanhN_Assembly_Btn26", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn26 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame", "ToolInventor2020_Assembly_Btn26", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                           Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.", ass1SmallIcon26, ass1LargeIcon26)
             AddHandler assemblyBtn26.OnExecute, AddressOf Assembly.Buttons.Frame.Ass_Frame_1.OnExecute
             buttonsList.Add(assemblyBtn26)
 
-            Dim assemblyBtn27 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame2", "ThanhN_Assembly_Btn27", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn27 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame2", "ToolInventor2020_Assembly_Btn27", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                           Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.", ass1SmallIcon27, ass1LargeIcon27)
             AddHandler assemblyBtn27.OnExecute, AddressOf Assembly.Buttons.Frame.Ass_Frame_2.OnExecute
-            buttonsList.Add(assemblyBtn27)
+            '  buttonsList.Add(assemblyBtn27)
 
-            Dim assemblyBtn28 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame3", "ThanhN_Assembly_Btn28", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn28 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame3", "ToolInventor2020_Assembly_Btn28", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                           Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.", ass1SmallIcon28, ass1LargeIcon28)
             AddHandler assemblyBtn28.OnExecute, AddressOf Assembly.Buttons.Frame.Ass_Frame_3.OnExecute
-            buttonsList.Add(assemblyBtn28)
+            'buttonsList.Add(assemblyBtn28)
         End Sub
     End Class
 End Namespace

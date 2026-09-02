@@ -96,6 +96,12 @@ Namespace ToolInventor2020
             ' Prepare IPictureDisp icons (use provided largeIcon/smallIcon as fallback)
             Dim Dra1LargeIcon1 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath1), LoadIconFromPath(Dra1LargePath1), largeIcon)
             Dim Dra1SmallIcon1 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath1), LoadIconFromPath(Dra1SmallPath1), smallIcon)
+            Dim Dra1LargeIcon2 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath2), LoadIconFromPath(Dra1LargePath2), largeIcon)
+            Dim Dra1SmallIcon2 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath2), LoadIconFromPath(Dra1SmallPath2), smallIcon)
+            Dim Dra1LargeIcon3 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath3), LoadIconFromPath(Dra1LargePath3), largeIcon)
+            Dim Dra1SmallIcon3 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath3), LoadIconFromPath(Dra1SmallPath3), smallIcon)
+            Dim Dra1LargeIcon4 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath4), LoadIconFromPath(Dra1LargePath4), largeIcon)
+            Dim Dra1SmallIcon4 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath4), LoadIconFromPath(Dra1SmallPath4), smallIcon)
             Dim Dra1LargeIcon5 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath5), LoadIconFromPath(Dra1LargePath5), largeIcon)
             Dim Dra1SmallIcon5 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath5), LoadIconFromPath(Dra1SmallPath5), smallIcon)
             Dim Dra1LargeIcon6 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath6), LoadIconFromPath(Dra1LargePath6), largeIcon)
@@ -134,83 +140,71 @@ Namespace ToolInventor2020
             Dim Dra1SmallIcon22 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath22), LoadIconFromPath(Dra1SmallPath22), smallIcon)
             Dim Dra1LargeIcon23 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath23), LoadIconFromPath(Dra1LargePath23), largeIcon)
             Dim Dra1SmallIcon23 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath23), LoadIconFromPath(Dra1SmallPath23), smallIcon)
-            Dim Dra1LargeIcon24 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath24), LoadIconFromPath(Dra1LargePath24), largeIcon)
-            Dim Dra1SmallIcon24 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath24), LoadIconFromPath(Dra1SmallPath24), smallIcon)
-            Dim Dra1LargeIcon25 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath25), LoadIconFromPath(Dra1LargePath25), largeIcon)
-            Dim Dra1SmallIcon25 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath25), LoadIconFromPath(Dra1SmallPath25), smallIcon)
-            Dim Dra1LargeIcon26 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath26), LoadIconFromPath(Dra1LargePath26), largeIcon)
-            Dim Dra1SmallIcon26 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath26), LoadIconFromPath(Dra1SmallPath26), smallIcon)
-            Dim Dra1LargeIcon27 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath27), LoadIconFromPath(Dra1LargePath27), largeIcon)
-            Dim Dra1SmallIcon27 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath27), LoadIconFromPath(Dra1SmallPath27), smallIcon)
-            Dim Dra1LargeIcon28 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath28), LoadIconFromPath(Dra1LargePath28), largeIcon)
-            Dim Dra1SmallPath28 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
 
             ' Create Drawing buttons explicitly (no loop) so each button can have distinct implementation
-            Dim drawingBtn1 As ButtonDefinition = controlDefs.AddButtonDefinition("Sửa số thập phân dim", "ThanhN_Drawing_Btn1", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon1, Dra1LargeIcon1)
+            Dim drawingBtn1 As ButtonDefinition = controlDefs.AddButtonDefinition("Sửa số thập phân dim", "ToolInventor2020_Drawing_Btn1", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon1, Dra1LargeIcon1)
             AddHandler drawingBtn1.OnExecute, AddressOf Drawing.Buttons.Draw_1.OnExecute
             buttonsList.Add(drawingBtn1)
 
-            Dim DrawingBtn2 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto dim hole", "ThanhN_Drawing_Btn2", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                   Nothing,
-                                                                                   "Auto dim kích thước lỗ & lỗ ren", Dra1SmallPath2, Dra1LargePath2)
+            Dim DrawingBtn2 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto dim hole", "ToolInventor2020_Drawing_Btn2", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                   Nothing, "Auto dim kích thước lỗ & lỗ ren", Dra1SmallIcon2, Dra1LargeIcon2)
             AddHandler DrawingBtn2.OnExecute, AddressOf Drawing.Buttons.Draw_2.OnExecute
             buttonsList.Add(DrawingBtn2)
 
-            Dim DrawingBtn3 As ButtonDefinition = controlDefs.AddButtonDefinition("Auo giãn cách dim", "ThanhN_Drawing_Btn3", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim DrawingBtn3 As ButtonDefinition = controlDefs.AddButtonDefinition("Auo giãn cách dim", "ToolInventor2020_Drawing_Btn3", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
-                                                                                   Nothing, Dra1SmallPath3, Dra1LargePath3)
+                                                                                   Nothing, Dra1SmallIcon3, Dra1LargeIcon3)
             AddHandler DrawingBtn3.OnExecute, AddressOf Drawing.Buttons.Draw_3.OnExecute
             buttonsList.Add(DrawingBtn3)
 
-            Dim DrawingBtn4 As ButtonDefinition = controlDefs.AddButtonDefinition("Tìm Dim bị edit", "ThanhN_Drawing_Btn4", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                   Nothing,
-                                                                                   "Kiểm tra kim bị edit rồi hiện màu đỏ những dim bị chỉnh sửa", Dra1SmallPath4, Dra1LargePath4)
+            Dim DrawingBtn4 As ButtonDefinition = controlDefs.AddButtonDefinition("Tìm Dim bị edit", "ToolInventor2020_Drawing_Btn4", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                   Nothing, "Kiểm tra kim bị edit rồi hiện màu đỏ những dim bị chỉnh sửa", Dra1SmallIcon4, Dra1LargeIcon4)
             AddHandler DrawingBtn4.OnExecute, AddressOf Drawing.Buttons.Draw_4.OnExecute
             buttonsList.Add(DrawingBtn4)
 
-            Dim DrawingBtn5 As ButtonDefinition = controlDefs.AddButtonDefinition("Reset part list", "ThanhN_Drawing_Btn5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon5, Dra1LargeIcon5)
+            Dim DrawingBtn5 As ButtonDefinition = controlDefs.AddButtonDefinition("Reset part list", "ToolInventor2020_Drawing_Btn5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon5, Dra1LargeIcon5)
             AddHandler DrawingBtn5.OnExecute, AddressOf Drawing.Buttons.Draw_5.OnExecute
             buttonsList.Add(DrawingBtn5)
 
-            Dim DrawingBtn6 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi thông tin vào Partlist", "ThanhN_Drawing_Btn6", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon6, Dra1LargeIcon6)
+            Dim DrawingBtn6 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi thông tin vào Partlist", "ToolInventor2020_Drawing_Btn6", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon6, Dra1LargeIcon6)
             AddHandler DrawingBtn6.OnExecute, AddressOf Drawing.Buttons.Draw_6.OnExecute
             buttonsList.Add(DrawingBtn6)
 
-            Dim DrawingBtn7 As ButtonDefinition = controlDefs.AddButtonDefinition("Nút chuyển Sheet", "ThanhN_Drawing_Btn7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon7, Dra1LargeIcon7)
+            Dim DrawingBtn7 As ButtonDefinition = controlDefs.AddButtonDefinition("Nút chuyển Sheet", "ToolInventor2020_Drawing_Btn7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon7, Dra1LargeIcon7)
             AddHandler DrawingBtn7.OnExecute, AddressOf Drawing.Buttons.Draw_7.OnExecute
             buttonsList.Add(DrawingBtn7)
 
-            Dim DrawingBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Đổi scale view", "ThanhN_Drawing_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon8, Dra1LargeIcon8)
+            Dim DrawingBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Đổi scale view", "ToolInventor2020_Drawing_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon8, Dra1LargeIcon8)
             AddHandler DrawingBtn8.OnExecute, AddressOf Drawing.Buttons.Draw_8.OnExecute
             buttonsList.Add(DrawingBtn8)
 
-            Dim DrawingBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa Part,ASS trùng lặp", "ThanhN_Drawing_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon9, Dra1LargeIcon9)
+            Dim DrawingBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa Part,ASS trùng lặp", "ToolInventor2020_Drawing_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon9, Dra1LargeIcon9)
             AddHandler DrawingBtn9.OnExecute, AddressOf Drawing.Buttons.Draw_9.OnExecute
             buttonsList.Add(DrawingBtn9)
 
-            Dim DrawingBtn10 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa centermark, centerline", "ThanhN_Drawing_Btn10", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon10, Dra1LargeIcon10)
+            Dim DrawingBtn10 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa centermark, centerline", "ToolInventor2020_Drawing_Btn10", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon10, Dra1LargeIcon10)
             AddHandler DrawingBtn10.OnExecute, AddressOf Drawing.Buttons.Draw_10.OnExecute
             buttonsList.Add(DrawingBtn10)
-
-            Dim DrawingBtn11 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 11", "ThanhN_Drawing_Btn11", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon11, Dra1LargeIcon11)
+            '
+            Dim DrawingBtn11 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 11", "ToolInventor2020_Drawing_Btn11", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon11, Dra1LargeIcon11)
             AddHandler DrawingBtn11.OnExecute, AddressOf Drawing.Buttons.Draw_11.OnExecute
-            buttonsList.Add(DrawingBtn11)
+            ' buttonsList.Add(DrawingBtn11)
 
-            Dim DrawingBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 12", "ThanhN_Drawing_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon12, Dra1LargeIcon12)
+            Dim DrawingBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 12", "ToolInventor2020_Drawing_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon12, Dra1LargeIcon12)
             AddHandler DrawingBtn12.OnExecute, AddressOf Drawing.Buttons.Draw_12.OnExecute
-            buttonsList.Add(DrawingBtn12)
+            '  buttonsList.Add(DrawingBtn12)
 
-            Dim DrawingBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 13", "ThanhN_Drawing_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon13, Dra1LargeIcon13)
+            Dim DrawingBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 13", "ToolInventor2020_Drawing_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon13, Dra1LargeIcon13)
             AddHandler DrawingBtn13.OnExecute, AddressOf Drawing.Buttons.Draw_13.OnExecute
-            buttonsList.Add(DrawingBtn13)
+            '  buttonsList.Add(DrawingBtn13)
 
-            Dim DrawingBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 14", "ThanhN_Drawing_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon14, Dra1LargeIcon14)
+            Dim DrawingBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 14", "ToolInventor2020_Drawing_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon14, Dra1LargeIcon14)
             AddHandler DrawingBtn14.OnExecute, AddressOf Drawing.Buttons.Draw_14.OnExecute
-            buttonsList.Add(DrawingBtn14)
+            ' buttonsList.Add(DrawingBtn14)
 
-            Dim DrawingBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 15", "ThanhN_Drawing_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon15, Dra1LargeIcon15)
+            Dim DrawingBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 15", "ToolInventor2020_Drawing_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon15, Dra1LargeIcon15)
             AddHandler DrawingBtn15.OnExecute, AddressOf Drawing.Buttons.Draw_15.OnExecute
-            buttonsList.Add(DrawingBtn15)
+            ' buttonsList.Add(DrawingBtn15)
 
         End Sub
     End Class

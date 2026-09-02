@@ -172,55 +172,55 @@ Namespace ToolInventor2020
                                                                                "Part Action 7" & vbCrLf & "Mô tả: (chỉnh sửa) Action 7 cho Part.",
                                                                                "Tooltip: Part Action 7 (edit)", part7SmallIcon, part7LargeIcon)
             AddHandler partBtn7.OnExecute, AddressOf Part.Buttons.Button7.OnExecute
-            buttonsList.Add(partBtn7)
+            '   buttonsList.Add(partBtn7)
 
             Dim partBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Part Action 8", "ToolInventor2020_Part_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                "Part Action 8" & vbCrLf & "Mô tả: (chỉnh sửa) Action 8 cho Part.",
                                                                                "Tooltip: Part Action 8 (edit)", part8SmallIcon, part8LargeIcon)
             AddHandler partBtn8.OnExecute, AddressOf Part.Buttons.Button8.OnExecute
-            buttonsList.Add(partBtn8)
+            '  buttonsList.Add(partBtn8)
 
             Dim partBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Part Action 9", "ToolInventor2020_Part_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                "Part Action 9" & vbCrLf & "Mô tả: (chỉnh sửa) Action 9 cho Part.",
                                                                                "Tooltip: Part Action 9 (edit)", part9SmallIcon, part9LargeIcon)
             AddHandler partBtn9.OnExecute, AddressOf Part.Buttons.Button9.OnExecute
-            buttonsList.Add(partBtn9)
+            '   buttonsList.Add(partBtn9)
 
             Dim partBtn10 As ButtonDefinition = controlDefs.AddButtonDefinition("Part Action 10", "ToolInventor2020_Part_Btn10", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                  "Part Action 10" & vbCrLf & "Mô tả: (chỉnh sửa) Action 10 cho Part.",
                                                                                  "Tooltip: Part Action 10 (edit)", part10SmallIcon, part10LargeIcon)
             AddHandler partBtn10.OnExecute, AddressOf Part.Buttons.Button10.OnExecute
-            buttonsList.Add(partBtn10)
+            ' buttonsList.Add(partBtn10)
 
             Dim partBtn11 As ButtonDefinition = controlDefs.AddButtonDefinition("Part Action 11", "ToolInventor2020_Part_Btn11", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                 "Part Action 11" & vbCrLf & "Mô tả: (chỉnh sửa) Action 11 cho Part.",
                                                                                 "Tooltip: Part Action 11 (edit)", part11SmallIcon, part11LargeIcon)
             AddHandler partBtn11.OnExecute, AddressOf Part.Buttons.Button11.OnExecute
-            buttonsList.Add(partBtn11)
+            '  buttonsList.Add(partBtn11)
 
             Dim partBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Part Action 12", "ToolInventor2020_Part_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                 "Part Action 12" & vbCrLf & "Mô tả: (chỉnh sửa) Action 12 cho Part.",
                                                                                 "Tooltip: Part Action 12 (edit)", part12SmallIcon, part12LargeIcon)
             AddHandler partBtn12.OnExecute, AddressOf Part.Buttons.Button12.OnExecute
-            buttonsList.Add(partBtn12)
+            '  buttonsList.Add(partBtn12)
 
             Dim partBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Part Action 13", "ToolInventor2020_Part_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                 "Part Action 13" & vbCrLf & "Mô tả: (chỉnh sửa) Action 13 cho Part.",
                                                                                 "Tooltip: Part Action 13 (edit)", part13SmallIcon, part13LargeIcon)
             AddHandler partBtn13.OnExecute, AddressOf Part.Buttons.Button13.OnExecute
-            buttonsList.Add(partBtn13)
+            '  buttonsList.Add(partBtn13)
 
             Dim partBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Part Action 14", "ToolInventor2020_Part_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                 "Part Action 14" & vbCrLf & "Mô tả: (chỉnh sửa) Action 14 cho Part.",
                                                                                 "Tooltip: Part Action 14 (edit)", part14SmallIcon, part14LargeIcon)
             AddHandler partBtn14.OnExecute, AddressOf Part.Buttons.Button14.OnExecute
-            buttonsList.Add(partBtn14)
+            ' buttonsList.Add(partBtn14)
 
             Dim partBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Part Action 15", "ToolInventor2020_Part_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                 "Part Action 15" & vbCrLf & "Mô tả: (chỉnh sửa) Action 15 cho Part.",
                                                                                 "Tooltip: Part Action 15 (edit)", part15SmallIcon, part15LargeIcon)
             AddHandler partBtn15.OnExecute, AddressOf Part.Buttons.Button15.OnExecute
-            buttonsList.Add(partBtn15)
+            ' buttonsList.Add(partBtn15)
 
         End Sub
     End Class

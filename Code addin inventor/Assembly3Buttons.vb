@@ -212,11 +212,11 @@ tối đa 3 lever & không copy vào cụm lắp. chỉ copy part", Ass3SmallIco
 
             Dim assemblyBtnb14 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 14", "ToolInventor2020_Assembly_Btnb14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass3SmallIcon14, Ass3LargeIcon14)
             AddHandler assemblyBtnb14.OnExecute, AddressOf Assembly3.Buttons.Button14.OnExecute
-            buttonsList.Add(assemblyBtnb14)
+            ' buttonsList.Add(assemblyBtnb14)
 
             Dim assemblyBtnb15 As ButtonDefinition = controlDefs.AddButtonDefinition("11111111111111111111", "ToolInventor2020_Assembly_Btnb15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass3SmallIcon15, Ass3LargeIcon15)
             AddHandler assemblyBtnb15.OnExecute, AddressOf Assembly3.Buttons.Button15.OnExecute
-            buttonsList.Add(assemblyBtnb15)
+            '  buttonsList.Add(assemblyBtnb15)
 
             ' --- Temporary test buttons in case pulldown is missing ---
             '  Dim assemblyTest1 As ButtonDefinition = controlDefs.AddButtonDefinition("Test Action 1 (Assembly3)", "ToolInventor2020_Assembly_Test1", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, "Temporary test button", Ass3SmallIcon16, Ass3LargeIcon16)
