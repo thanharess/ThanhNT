@@ -170,8 +170,8 @@ Namespace ToolInventor2020
             buttonsList.Add(assemblyBtna4)
 
             Dim assemblyBtna5 As ButtonDefinition = controlDefs.AddButtonDefinition("2", "ToolInventor2020_Assembly_Btna5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass2SmallIcon5, Ass2LargeIcon5)
-            AddHandler assemblyBtna5.OnExecute, AddressOf Part.Buttons.Button15.OnExecute 'Assembly2.Buttons.BOMcode.Ass_Bom_5.OnExecute
-            buttonsList.Add(assemblyBtna5)
+            AddHandler assemblyBtna5.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_5.OnExecute
+            'buttonsList.Add(assemblyBtna5)
 
             Dim assemblyBtna6 As ButtonDefinition = controlDefs.AddButtonDefinition("3", "ToolInventor2020_Assembly_Btna6", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass2SmallIcon6, Ass2LargeIcon6)
             AddHandler assemblyBtna6.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_6.OnExecute

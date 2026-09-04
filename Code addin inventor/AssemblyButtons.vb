@@ -217,10 +217,11 @@ Namespace ToolInventor2020
             AddHandler assemblyBtn12.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_8.OnExecute
             buttonsList.Add(assemblyBtn12)
 
-            Dim assemblyBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Import step to part", "ToolInventor2020_Assembly_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim assemblyBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Import,EX step & part", "ToolInventor2020_Assembly_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                     Nothing,
-                                                                                    "Import all file to part tự lưu, xóa liên kết lưu file tự động", ass1SmallIcon13, ass1LargeIcon13)
-            AddHandler assemblyBtn13.OnExecute, AddressOf Assembly.Buttons.Import_step_to_part.OnExecute
+                                                                                    "1, Import all file to part tự lưu, xóa liên kết lưu file tự động " & vbCrLf & "2, Export từ Cụm lắp sang file step" & vbCrLf &
+                                                                                      "Có thể chọn nhiều file 1 lúc", ass1SmallIcon13, ass1LargeIcon13)
+            AddHandler assemblyBtn13.OnExecute, AddressOf Assembly.Buttons.Im_EX_step_part.OnExecute
             buttonsList.Add(assemblyBtn13)
 
             Dim assemblyBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Save coppy to replace part", "ToolInventor2020_Assembly_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon14, ass1LargeIcon14)

@@ -2,10 +2,11 @@
 Option Explicit On
 Option Strict Off
 
-Imports Inventor
-Imports System.Windows.Forms
 Imports System.Collections.Generic
 Imports System.Globalization
+Imports System.Windows.Forms
+Imports Inventor
+Imports ToolInventor2020.ToolInventor2020.Assembly.Buttons
 
 Namespace ToolInventor2020.Drawing.Buttons
     Public Module Draw_6
@@ -65,6 +66,18 @@ Namespace ToolInventor2020.Drawing.Buttons
                 matDefault = matDefault.Trim()
 
                 '=================================================
+                ' 2b. XỬ LÝ VẬT LIỆU PURCHASED (Yes/No)
+                '=================================================
+                Dim result As DialogResult = MessageBox.Show(
+                   "Xóa vật liệu của vật tư mua (Purchased)?" & vbCrLf &
+                      "Yes = Xóa" & vbCrLf &
+                          "No  = Để nguyên",
+                    "Vật liệu Purchased",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question)
+
+                Dim clearPurchasedMaterial As Boolean = (result = DialogResult.Yes)
+                '=================================================
                 ' 3. PHẠM VI
                 '=================================================
                 Dim scopeIdx As Integer =
@@ -114,9 +127,8 @@ Namespace ToolInventor2020.Drawing.Buttons
                         End If
 
 
-                        ProcessOnePartsList(oPartList, nameMode, matDefault, colSTT, colTen, colTen2,
-                            colDonVi, colVL, colUnitQty)
-
+                        ProcessOnePartsList(oPartList, nameMode, matDefault, clearPurchasedMaterial,
+                    colSTT, colTen, colTen2, colDonVi, colVL, colUnitQty)
 
                         processed += 1
 
@@ -146,7 +158,7 @@ Namespace ToolInventor2020.Drawing.Buttons
                             End If
 
 
-                            ProcessOnePartsList(oPartList, nameMode, matDefault, colSTT, colTen, colTen2, colDonVi, colVL, colUnitQty)
+                            ProcessOnePartsList(oPartList, nameMode, matDefault, clearPurchasedMaterial, colSTT, colTen, colTen2, colDonVi, colVL, colUnitQty)
 
 
                             processed += 1
@@ -188,7 +200,7 @@ Namespace ToolInventor2020.Drawing.Buttons
                                     End If
 
 
-                                    ProcessOnePartsList(oPartList, nameMode, matDefault, colSTT, colTen, colTen2, colDonVi, colVL, colUnitQty)
+                                    ProcessOnePartsList(oPartList, nameMode, matDefault, clearPurchasedMaterial, colSTT, colTen, colTen2, colDonVi, colVL, colUnitQty)
 
 
                                     processed += 1
@@ -227,12 +239,16 @@ Namespace ToolInventor2020.Drawing.Buttons
                 '=================================================
                 ' THÔNG BÁO
                 '=================================================
-                MessageBox.Show("Hoàn tất!" & vbCrLf & "Parts List đã xử lý: " & processed.ToString() &
-                    vbCrLf & "Chế độ tên: " & nameMode.ToString() &
-                    vbCrLf & "Nguồn tên: " & If(nameMode = 3, "Stock Number / đồng bộ từ Part Number",
-                        If(nameMode = 4, "Không sửa", "Part Number")) &
-                    vbCrLf & "VL mặc định: " & If(matDefault = "", "(không dùng)", matDefault),
-                    "Override Parts List", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                MessageBox.Show("Hoàn tất!" & vbCrLf &
+    "Parts List đã xử lý: " & processed.ToString() &
+    vbCrLf & "Chế độ tên: " & nameMode.ToString() &
+    vbCrLf & "Nguồn tên: " & If(nameMode = 3, "Stock Number / đồng bộ từ Part Number",
+        If(nameMode = 4, "Không sửa", "Part Number")) &
+    vbCrLf & "VL mặc định: " & If(matDefault = "", "(không dùng)", matDefault) &
+    vbCrLf & "VL Purchased: " & If(clearPurchasedMaterial, "Xóa", "Để nguyên"),
+    "Override Parts List",
+    MessageBoxButtons.OK,
+    MessageBoxIcon.Information)
 
 
             Catch ex As Exception
@@ -248,16 +264,16 @@ Namespace ToolInventor2020.Drawing.Buttons
         ' XỬ LÝ 1 PARTS LIST
         '=========================================================
         Private Sub ProcessOnePartsList(
-            oPartList As Inventor.PartsList,
-            nameMode As Integer,
-            matDefault As String,
-            colSTT As String,
-            colTen As String,
-            colTen2 As String,
-            colDonVi As String,
-            colVL As String,
-            colUnitQty As String)
-
+    oPartList As Inventor.PartsList,
+    nameMode As Integer,
+    matDefault As String,
+    clearPurchasedMaterial As Boolean,          ' ← thêm dòng này
+    colSTT As String,
+    colTen As String,
+    colTen2 As String,
+    colDonVi As String,
+    colVL As String,
+    colUnitQty As String)
 
             '=====================================================
             ' TÌM CỘT
@@ -413,16 +429,31 @@ Namespace ToolInventor2020.Drawing.Buttons
                     ' PART TỰ CHẾ:
                     '   GHI ĐÈ
                     '=================================================
-                    If isPart AndAlso Not isPurchased Then
+                    '    If isPart AndAlso Not isPurchased Then
 
+                    '        If matDefault <> "" Then
+
+                    '  SetCell(row, cVL, matDefault)
+
+                    '           End If
+                    '           End If
+
+                    If isAsm Then
+                        ' không đụng
+
+                    ElseIf isPurchased Then
+                        If clearPurchasedMaterial Then
+                            ClearCell(row, cVL)          ' Yes → Xóa
+                        End If
+                        ' No → Để nguyên
+
+                    ElseIf isPart Then
                         If matDefault <> "" Then
-
                             SetCell(row, cVL, matDefault)
-
                         End If
                     End If
                 Catch
-                    'Bỏ qua row lỗi
+                    '        'Bỏ qua row lỗi
                 End Try
 
             Next
@@ -430,88 +461,88 @@ Namespace ToolInventor2020.Drawing.Buttons
             ' UPDATE PARTS LIST TRƯỚC
             '=====================================================
             Try
-                oPartList.Parent.Update()
-
-            Catch
-            End Try
-
-            Try
-                oPartList.Update()
-            Catch
-            End Try
-            '=====================================================
-            ' UNIT QTY
-            '
-            ' <= 1 -> XÓA
-            ' > 1  -> GIỮ
-            '=====================================================
-            If cUnitQty <> "" Then
-
-                For qtyIdx As Integer = 1 To oPartList.PartsListRows.Count
-
-                    Try
-                        Dim qtyRow As Inventor.PartsListRow = oPartList.PartsListRows.Item(qtyIdx)
-                        Dim qtyText As String = GetCellValue(qtyRow, cUnitQty)
-
-                        If qtyText <> "" Then
-                            Dim qty As Double = 0
-                            If TryParseNumber(qtyText, qty) Then
-                                If qty <= 1 Then
-                                    ClearCell(qtyRow, cUnitQty)
-                                End If
-                            End If
-
-                        End If
+                        oPartList.Parent.Update()
 
                     Catch
-                        'Bỏ qua row lỗi
                     End Try
 
-                Next
+                    Try
+                        oPartList.Update()
+                    Catch
+                    End Try
+                    '=====================================================
+                    ' UNIT QTY
+                    '
+                    ' <= 1 -> XÓA
+                    ' > 1  -> GIỮ
+                    '=====================================================
+                    If cUnitQty <> "" Then
 
-            End If
+                        For qtyIdx As Integer = 1 To oPartList.PartsListRows.Count
 
-            '=====================================================
-            ' SAVE OVERRIDE
-            '=====================================================
-            Try
+                            Try
+                                Dim qtyRow As Inventor.PartsListRow = oPartList.PartsListRows.Item(qtyIdx)
+                                Dim qtyText As String = GetCellValue(qtyRow, cUnitQty)
 
-                oPartList.SaveItemOverridesToBOM()
+                                If qtyText <> "" Then
+                                    Dim qty As Double = 0
+                                    If TryParseNumber(qtyText, qty) Then
+                                        If qty <= 1 Then
+                                            ClearCell(qtyRow, cUnitQty)
+                                        End If
+                                    End If
 
-            Catch
-            End Try
+                                End If
 
-            '=====================================================
-            ' STT
-            '
-            ' CỤM → PART → PURCHASED
-            '=====================================================
-            Dim stt As Integer = 1
+                            Catch
+                                'Bỏ qua row lỗi
+                            End Try
 
-            stt = NumberRows(oPartList, cSTT, stt, True, False)
-            stt = NumberRows(oPartList, cSTT, stt, False, False)
-            stt = NumberRows(oPartList, cSTT, stt, False, True)
+                        Next
+
+                    End If
+
+                    '=====================================================
+                    ' SAVE OVERRIDE
+                    '=====================================================
+                    Try
+
+                        oPartList.SaveItemOverridesToBOM()
+
+                    Catch
+                    End Try
+
+                    '=====================================================
+                    ' STT
+                    '
+                    ' CỤM → PART → PURCHASED
+                    '=====================================================
+                    Dim stt As Integer = 1
+
+                    stt = NumberRows(oPartList, cSTT, stt, True, False)
+                    stt = NumberRows(oPartList, cSTT, stt, False, False)
+                    stt = NumberRows(oPartList, cSTT, stt, False, True)
 
 
-            '=====================================================
-            ' SORT
-            '=====================================================
-            Try
-                oPartList.Sort(cSTT)
-            Catch
-                Try
-                    oPartList.Sort("Item")
-                Catch
-                End Try
+                    '=====================================================
+                    ' SORT
+                    '=====================================================
+                    Try
+                        oPartList.Sort(cSTT)
+                    Catch
+                        Try
+                            oPartList.Sort("Item")
+                        Catch
+                        End Try
 
-            End Try
-            '=====================================================
-            ' SAVE LẦN CUỐI
-            '=====================================================
-            Try
-                oPartList.SaveItemOverridesToBOM()
-            Catch
-            End Try
+                    End Try
+                    '=====================================================
+                    ' SAVE LẦN CUỐI
+                    '=====================================================
+                    Try
+                        oPartList.SaveItemOverridesToBOM()
+                    Catch
+                    End Try
 
         End Sub
 
@@ -1343,59 +1374,80 @@ Namespace ToolInventor2020.Drawing.Buttons
         '
         ' nên phải kiểm tra PropertyType của PartsListColumn.
         '=========================================================
+        '    Private Function FindUnitQtyColumn(pl As Inventor.PartsList) As String
+
+        '    Try
+
+        '    For Each col As Inventor.PartsListColumn In
+        '               pl.PartsListColumns
+
+        '   Try
+        '=================================================
+        ' UNIT QUANTITY PROPERTY
+        '=================================================
+        '  If col.PropertyType = Inventor.PropertyTypeEnum.kUnitQuantityPartsListProperty Then
+
+        '  Return col.Title
+
+        '  End If
+        ' Catch
+        'End Try
+
+        'Next
+
+        'Catch
+        'End Try
+
+        '=========================================================
+        ' TÌM CỘT UNIT QTY THEO PROPERTY GỐC
+        ' CHỈ LẤY kUnitQuantityPartsListProperty
+        ' KHÔNG FALLBACK sang Item Quantity
+        '=========================================================
         Private Function FindUnitQtyColumn(pl As Inventor.PartsList) As String
-
             Try
-
-                For Each col As Inventor.PartsListColumn In
-                    pl.PartsListColumns
-
+                For Each col As Inventor.PartsListColumn In pl.PartsListColumns
                     Try
-                        '=================================================
-                        ' UNIT QUANTITY PROPERTY
-                        '=================================================
                         If col.PropertyType = Inventor.PropertyTypeEnum.kUnitQuantityPartsListProperty Then
-
                             Return col.Title
-
                         End If
                     Catch
                     End Try
-
-                Next
-
-            Catch
-            End Try
-
-
-            '=========================================================
-            ' FALLBACK:
-            ' Một số cấu hình Inventor có thể trả về Item Quantity
-            ' cho cột mà người dùng đang dùng làm UNIT QTY.
-            '=========================================================
-            Try
-
-                For Each col As Inventor.PartsListColumn In
-                    pl.PartsListColumns
-
-                    Try
-
-                        If col.PropertyType = Inventor.PropertyTypeEnum.kItemQuantityPartsListProperty Then
-
-                            Return col.Title
-
-                        End If
-
-                    Catch
-                    End Try
-
                 Next
             Catch
             End Try
 
+            ' Không tìm thấy → trả về rỗng (không đụng Item Quantity)
             Return ""
-
         End Function
+
+        '=========================================================
+        ' FALLBACK:
+        ' Một số cấu hình Inventor có thể trả về Item Quantity
+        ' cho cột mà người dùng đang dùng làm UNIT QTY.
+        '=========================================================
+        '  Try
+
+        '        For Each col As Inventor.PartsListColumn In
+        '         pl.PartsListColumns
+
+        '           Try
+
+        'If col.PropertyType = Inventor.PropertyTypeEnum.kItemQuantityPartsListProperty Then
+
+        'Return col.Title
+
+        'End If
+
+        ' Catch
+        '          End Try
+
+        '  Next
+        'Catch
+        'End Try
+
+        'Return ""
+
+        ' End Function
 
     End Module
 

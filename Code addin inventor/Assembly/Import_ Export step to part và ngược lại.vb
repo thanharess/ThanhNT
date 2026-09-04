@@ -3,28 +3,32 @@ Imports System.Linq
 Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
 Imports Inventor
-Imports IO = System.IO
 
-Namespace ToolInventor2020.Part.Buttons
-    Public Module button15
-
+Namespace ToolInventor2020.Assembly.Buttons
+    Public Module Im_EX_step_part
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
             Dim invApp As Inventor.Application = CType(Marshal.GetActiveObject("Inventor.Application"), Inventor.Application)
 
             '=====================================================
-            ' CHỌN CHỨC NĂNG (1 nút chung)
+            ' CHỌN CHỨC NĂNG (Yes / No / Cancel)
             '=====================================================
-            Dim choice As String = InputBox(
-                "Chọn chức năng:" & vbCrLf & vbCrLf &
-                "1 = Import nhiều STEP → Part" & vbCrLf &
-                "2 = Export Selected (Part/Sub-Asm) → STEP AP214",
-                "STEP Tool - Inventor 2020", "1")
+            Dim result As DialogResult = MessageBox.Show(
+        "Chọn chức năng:" & vbCrLf & vbCrLf &
+        "YES  = Import nhiều STEP → Part" & vbCrLf &
+        "NO   = Export Selected → STEP AP214" & vbCrLf &
+        "CANCEL = Thoát",
+        "STEP Tool - Inventor 2020",
+        MessageBoxButtons.YesNoCancel,
+        MessageBoxIcon.Question)
 
-            If choice = "1" Then
+            If result = DialogResult.Yes Then
                 Call DoImportSTEP(invApp)
-            ElseIf choice = "2" Then
+            ElseIf result = DialogResult.No Then
                 Call DoExportSelectedSTEP(invApp)
+            Else
+                ' Cancel → thoát
+                Exit Sub
             End If
 
         End Sub

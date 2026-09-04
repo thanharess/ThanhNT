@@ -8,32 +8,31 @@ Namespace ToolInventor2020.Drawing.Buttons
     Public Module Draw_5
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
-            ' Lấy ứng dụng Inventor đang chạy
             Dim invApp As Inventor.Application = System.Runtime.InteropServices.Marshal.GetActiveObject("Inventor.Application")
-
-            ' Lấy tài liệu Drawing hiện tại
             Dim oDrawDoc As DrawingDocument = CType(invApp.ActiveDocument, DrawingDocument)
 
-            ' Hộp thoại cho người dùng chọn
-            Dim choice As String = InputBox("Nhập lựa chọn:" & vbCrLf &
-                                        "1 = Reset Active Sheet" & vbCrLf &
-                                        "2 = Reset All Sheets", "Reset Parts List")
+            Dim choice As MsgBoxResult
+            choice = MsgBox("Yes = Reset Active Sheet" & vbCrLf &
+                    "No = Reset All Sheets" & vbCrLf &
+                    "Cancel = Thoát",
+                    MsgBoxStyle.YesNoCancel + MsgBoxStyle.Question,
+                    "Reset Parts List")
 
-            If choice = "1" Then
-                ' Reset Active Sheet
-                Dim oSheet As Sheet = oDrawDoc.ActiveSheet
-                ResetPartsListOnSheet(oSheet)
-
-            ElseIf choice = "2" Then
-                ' Reset tất cả các Sheet
-                For Each oSheet As Sheet In oDrawDoc.Sheets
+            Select Case choice
+                Case MsgBoxResult.Yes
+                    Dim oSheet As Sheet = oDrawDoc.ActiveSheet
                     ResetPartsListOnSheet(oSheet)
-                Next
 
-            Else
-                MsgBox("Bạn chỉ được nhập 1 hoặc 2!", vbExclamation, "Lựa chọn không hợp lệ")
-            End If
-            MsgBox("Xong")
+                Case MsgBoxResult.No
+                    For Each oSheet As Sheet In oDrawDoc.Sheets
+                        ResetPartsListOnSheet(oSheet)
+                    Next
+
+                Case MsgBoxResult.Cancel
+                    Exit Sub
+            End Select
+
+            ' MsgBox("Xong")
         End Sub
 
         Private Sub ResetPartsListOnSheet(oSheet As Sheet)

@@ -168,11 +168,11 @@ Namespace ToolInventor2020
             AddHandler partBtn6.OnExecute, AddressOf Part.Buttons.solid.Part_Solid_6.OnExecute
             buttonsList.Add(partBtn6)
 
-            Dim partBtn7 As ButtonDefinition = controlDefs.AddButtonDefinition("Part Action 7", "ToolInventor2020_Part_Btn7", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                               "Part Action 7" & vbCrLf & "Mô tả: (chỉnh sửa) Action 7 cho Part.",
-                                                                               "Tooltip: Part Action 7 (edit)", part7SmallIcon, part7LargeIcon)
-            AddHandler partBtn7.OnExecute, AddressOf Part.Buttons.Button7.OnExecute
-            '   buttonsList.Add(partBtn7)
+            Dim partBtn7 As ButtonDefinition = controlDefs.AddButtonDefinition("Import step to part", "ToolInventor2020_Part_Btn7", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                              "1, Import all file to part tự lưu, xóa liên kết lưu file tự động " & vbCrLf &
+                                                                               "Có thể chọn nhiều file 1 lúc",, part7SmallIcon, part7LargeIcon)
+            AddHandler partBtn7.OnExecute, AddressOf Assembly.Buttons.Im_EX_step_part.OnExecute
+            buttonsList.Add(partBtn7)
 
             Dim partBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Part Action 8", "ToolInventor2020_Part_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                "Part Action 8" & vbCrLf & "Mô tả: (chỉnh sửa) Action 8 cho Part.",
@@ -219,7 +219,7 @@ Namespace ToolInventor2020
             Dim partBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Import_step_to_part", "ToolInventor2020_Part_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                 "Import STEP to Part" & vbCrLf & "Mô tả: (chỉnh sửa) Import STEP file to Part.",
                                                                                 "Tooltip: Import STEP to Part ", part15SmallIcon, part15LargeIcon)
-            AddHandler partBtn15.OnExecute, AddressOf Assembly.Buttons.Import_step_to_part.OnExecute
+            ' AddHandler partBtn15.OnExecute, AddressOf Assembly.Buttons.Im_EX_step_part.OnExecute
             ' buttonsList.Add(partBtn15)
 
         End Sub
