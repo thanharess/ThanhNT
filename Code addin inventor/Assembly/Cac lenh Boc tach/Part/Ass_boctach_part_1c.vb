@@ -1,9 +1,11 @@
+Option Explicit On
+Option Strict Off
 Imports System.Collections.Generic
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
-    Public Module Ass_13
+Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
+    Public Module Ass_boctach_part_1c
 
 
 
@@ -137,14 +139,50 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
                 '
                 '=====================================================
 
+
+
+                ' Collect sheet metal parts using Parts-Only BOM totals (aggregate actual quantities)
                 Dim sheetMetalParts As New List(Of String)
+                Try
+                    Dim oBOM As BOM = oOrigAsmDoc.ComponentDefinition.BOM
+                    Try : oBOM.PartsOnlyViewEnabled = True : Catch : End Try
+                    Try : oBOM.Update() : Catch : End Try
+                    Dim partsView As BOMView = Nothing
+                    Try
+                        partsView = oBOM.BOMViews.Item("Parts Only")
+                    Catch
+                        partsView = Nothing
+                    End Try
 
-                Dim visitedAssemblies As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
-
-                CollectSheetMetalParts(
-                    oOrigAsmDoc.ComponentDefinition,
-                    sheetMetalParts,
-                    visitedAssemblies)
+                    If partsView IsNot Nothing Then
+                        For Each row As BOMRow In partsView.BOMRows
+                            Try
+                                If row Is Nothing OrElse row.ComponentDefinitions Is Nothing OrElse row.ComponentDefinitions.Count = 0 Then Continue For
+                                Dim doc As Document = row.ComponentDefinitions.Item(1).Document
+                                If doc Is Nothing Then Continue For
+                                If doc.DocumentType <> DocumentTypeEnum.kPartDocumentObject Then Continue For
+                                Dim part As PartDocument = CType(doc, PartDocument)
+                                Dim sm As SheetMetalComponentDefinition = TryCast(part.ComponentDefinition, SheetMetalComponentDefinition)
+                                If sm Is Nothing Then Continue For
+                                ' TotalQuantity gives aggregated quantity across assembly
+                                Dim qty As Integer = 1
+                                Try
+                                    qty = CInt(System.Math.Round(CDbl(row.TotalQuantity), 0))
+                                Catch
+                                    qty = 1
+                                End Try
+                                For i As Integer = 1 To Math.Max(1, qty)
+                                    sheetMetalParts.Add(part.FullFileName)
+                                Next
+                            Catch
+                            End Try
+                        Next
+                    End If
+                Catch
+                    ' fallback to original occurrence-based collection
+                    Dim visitedAssemblies As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+                    CollectSheetMetalParts(oOrigAsmDoc.ComponentDefinition, sheetMetalParts, visitedAssemblies)
+                End Try
 
 
                 '=====================================================

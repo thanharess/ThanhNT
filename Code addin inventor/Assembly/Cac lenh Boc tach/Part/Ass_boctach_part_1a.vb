@@ -2,8 +2,8 @@ Imports System.Collections.Generic
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
-    Public Module Ass_11
+Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
+    Public Module Ass_boctach_part_1a
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
             Dim oApp As Inventor.Application = g_inventorApplication

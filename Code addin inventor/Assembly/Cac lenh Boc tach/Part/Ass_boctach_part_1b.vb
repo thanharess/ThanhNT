@@ -2,8 +2,8 @@ Imports System.Collections.Generic
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
-    Public Module Ass_12
+Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
+    Public Module Ass_boctach_part_1b
 
 
 

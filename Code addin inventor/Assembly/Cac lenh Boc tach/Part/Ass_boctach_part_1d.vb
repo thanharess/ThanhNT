@@ -1,14 +1,15 @@
 
 Option Explicit On
 
-Imports Inventor
-Imports System.Windows.Forms
 Imports System.Collections.Generic
+Imports System.Windows.Forms
+Imports System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip
+Imports Inventor
 Imports IO = System.IO
 
-Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
+Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
 
-    Public Module ass_14
+    Public Module Ass_boctach_part_1d
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
@@ -100,15 +101,76 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
 
                 End If
 
+                ' Collect unique top-level occurrences by part name (model-structure, do not sum quantities)
                 Dim parts As New List(Of Tuple(Of String, String))
+                Try
+                    Dim seen As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+                    For Each occ As ComponentOccurrence In sourceDoc.ComponentDefinition.Occurrences
+                        Try
+                            If occ.Suppressed Then Continue For
+                            Dim doc As Document = Nothing
+                            If occ.ReferencedDocumentDescriptor IsNot Nothing Then
+                                Try
+                                    doc = occ.ReferencedDocumentDescriptor.ReferencedDocument
+                                Catch
+                                    doc = Nothing
+                                End Try
+                            Else
+                                Try
+                                    doc = occ.Definition.Document
+                                Catch
+                                    doc = Nothing
+                                End Try
+                            End If
+                            If doc Is Nothing Then Continue For
+                            If doc.DocumentType <> DocumentTypeEnum.kPartDocumentObject Then Continue For
 
-                Dim visitedAssemblies As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+                            Dim include As Boolean = False
+                            Dim partNum As String = ""
+                            Try
+                                partNum = CStr(doc.PropertySets("Design Tracking Properties").Item("Part Number").Value).Trim()
+                            Catch
+                                partNum = ""
+                            End Try
 
-                CollectParts(
-                    sourceDoc.ComponentDefinition,
-                    parts,
-                    partType,
-                    visitedAssemblies)
+                            Select Case partType
+                                Case 1
+                                    Dim part As PartDocument = TryCast(doc, PartDocument)
+                                    Dim sm As SheetMetalComponentDefinition = TryCast(part.ComponentDefinition, SheetMetalComponentDefinition)
+                                    include = (sm IsNot Nothing AndAlso sm.Features.Count > 0)
+                                Case 2
+                                    include = (occ.BOMStructure = BOMStructureEnum.kPurchasedBOMStructure)
+                                Case 3
+                                    Dim pnU As String = partNum.ToUpperInvariant()
+                                    include = (pnU.Contains("ISO") OrElse pnU.Contains("DIN") OrElse pnU.Contains("SKF"))
+                                Case 4
+                                    Dim pnU As String = partNum.ToUpperInvariant()
+                                    Dim purchased As Boolean = (occ.BOMStructure = BOMStructureEnum.kPurchasedBOMStructure)
+                                    Dim library As Boolean = (pnU.Contains("ISO") OrElse pnU.Contains("DIN") OrElse pnU.Contains("SKF") OrElse pnU.Contains("SS") OrElse pnU.Contains("GB") OrElse pnU.Contains("JIS"))
+                                    include = (purchased OrElse library)
+                                Case Else
+                                    include = False
+                            End Select
+
+                            If Not include Then Continue For
+
+                            Dim name As String = partNum
+                            If String.IsNullOrWhiteSpace(name) Then
+                                name = IO.Path.GetFileNameWithoutExtension(doc.FullFileName)
+                            End If
+
+                            If Not seen.Contains(name) Then
+                                seen.Add(name)
+                                parts.Add(Tuple.Create(doc.FullFileName, name))
+                            End If
+                        Catch
+                        End Try
+                    Next
+                Catch
+                    ' fallback to original behavior
+                    Dim visitedAssemblies As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+                    CollectParts(sourceDoc.ComponentDefinition, parts, partType, visitedAssemblies)
+                End Try
 
                 If parts.Count = 0 Then
 
@@ -653,28 +715,37 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
         End Function
 
         Private Sub CollectParts(
-            asmDef As AssemblyComponentDefinition,
-            ByRef parts As List(Of Tuple(Of String, String)),
-            partType As Integer,
-            ByRef visitedAssemblies As HashSet(Of String))
+    asmDef As AssemblyComponentDefinition,
+    ByRef parts As List(Of Tuple(Of String, String)),
+    partType As Integer,
+    ByRef visitedAssemblies As HashSet(Of String))
 
             For Each occ As ComponentOccurrence In asmDef.Occurrences
 
                 Try
 
+                    '==========================================================
+                    ' BỎ QUA SUPPRESS
+                    '==========================================================
                     If occ.Suppressed Then
                         Continue For
                     End If
 
+
+                    '==========================================================
+                    ' LẤY DOCUMENT
+                    '==========================================================
                     Dim doc As Document = Nothing
 
-                    If occ.ReferencedDocumentDescriptor IsNot Nothing Then
-                        Try
+                    Try
+                        If occ.ReferencedDocumentDescriptor IsNot Nothing Then
                             doc = occ.ReferencedDocumentDescriptor.ReferencedDocument
-                        Catch
-                            doc = Nothing
-                        End Try
-                    Else
+                        End If
+                    Catch
+                        doc = Nothing
+                    End Try
+
+                    If doc Is Nothing Then
                         Try
                             doc = occ.Definition.Document
                         Catch
@@ -686,17 +757,11 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
                         Continue For
                     End If
 
-                    Dim refFullName As String = String.Empty
-                    Try
-                        refFullName = doc.FullFileName
-                    Catch
-                        refFullName = String.Empty
-                    End Try
 
-                    If String.IsNullOrEmpty(refFullName) Then
-                        Continue For
-                    End If
-
+                    '==========================================================
+                    '==========================================================
+                    ' PART
+                    '==========================================================
                     If doc.DocumentType =
                        DocumentTypeEnum.kPartDocumentObject Then
 
@@ -707,7 +772,10 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
                             Continue For
                         End If
 
-                        Dim selected As Boolean = False
+
+                        '======================================================
+                        ' LẤY PART NUMBER
+                        '======================================================
                         Dim partNum As String = ""
 
                         Try
@@ -716,16 +784,55 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
                                 CStr(
                                     part.PropertySets(
                                         "Design Tracking Properties").
-                                    Item("Part Number").Value).Trim()
+                                    Item("Part Number").Value
+                                ).Trim()
 
                         Catch
+                            partNum = ""
                         End Try
 
+
+                        '======================================================
+                        ' TÊN DÙNG ĐỂ HIỂN THỊ / SORT
+                        '======================================================
+                        Dim name As String = partNum
+
+                        If String.IsNullOrWhiteSpace(name) Then
+
+                            Try
+
+                                name =
+                                    IO.Path.GetFileNameWithoutExtension(
+                                        part.FullFileName)
+
+                            Catch
+
+                                name = ""
+
+                            End Try
+
+                        End If
+
+
+                        '======================================================
+                        ' CHUẨN HÓA PART NUMBER
+                        '======================================================
                         Dim pn As String =
-                            partNum.ToUpperInvariant()
+                            If(partNum, "").Trim()
+
+
+                        '======================================================
+                        ' BIẾN LỌC
+                        '======================================================
+                        Dim selected As Boolean = False
+
 
                         Select Case partType
 
+
+                    '==================================================
+                    ' 1 - SHEET METAL
+                    '==================================================
                             Case 1
 
                                 Dim sm As SheetMetalComponentDefinition =
@@ -737,57 +844,168 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
                                     sm IsNot Nothing AndAlso
                                     sm.Features.Count > 0
 
+
+                    '==================================================
+                    ' 2 - PURCHASED
+                    '==================================================
                             Case 2
 
                                 selected =
                                     occ.BOMStructure =
-                                    BOMStructureEnum.
-                                    kPurchasedBOMStructure
+                                    BOMStructureEnum.kPurchasedBOMStructure
 
+
+                    '==================================================
+                    ' 3 - STANDARD LIBRARY
+                    '==================================================
                             Case 3
 
-                                selected =
-                                    pn.Contains("ISO") OrElse
-                                    pn.Contains("DIN") OrElse
-                                    pn.Contains("SKF")
+                                Dim bearing As Boolean = False
+                                Dim fastener As Boolean = False
+                                Dim standard As Boolean = False
 
+
+                                '----------------------------------------------
+                                ' Bearing
+                                ' Giữ nguyên CommonKeywords
+                                '----------------------------------------------
+                                Try
+                                    bearing =
+                                        ToolInventor2020.CommonKeywords.IsBearing(pn)
+                                Catch
+                                    bearing = False
+                                End Try
+
+
+                                '----------------------------------------------
+                                ' Fastener
+                                ' Giữ nguyên CommonKeywords
+                                '----------------------------------------------
+                                Try
+                                    fastener =
+                                        ToolInventor2020.CommonKeywords.IsFastener(pn)
+                                Catch
+                                    fastener = False
+                                End Try
+
+
+                                '----------------------------------------------
+                                ' Standard
+                                '
+                                ' KHÔNG dùng CommonKeywords.IsStandardKeyword
+                                ' vì file Common đang được dùng chung.
+                                '
+                                ' Kiểm tra riêng tại code này bằng StartsWith.
+                                '----------------------------------------------
+                                standard =
+                                    IsLocalStandardPart(pn)
+
+
+                                selected =
+                                    bearing OrElse
+                                    fastener OrElse
+                                    standard
+
+
+                    '==================================================
+                    ' 4 - PURCHASED + LIBRARY
+                    '==================================================
                             Case 4
 
                                 Dim purchased As Boolean =
                                     occ.BOMStructure =
-                                    BOMStructureEnum.
-                                    kPurchasedBOMStructure
+                                    BOMStructureEnum.kPurchasedBOMStructure
+
+
+                                Dim bearing As Boolean = False
+                                Dim fastener As Boolean = False
+                                Dim standard As Boolean = False
+
+
+                                '----------------------------------------------
+                                ' Bearing
+                                '----------------------------------------------
+                                Try
+                                    bearing =
+                                        ToolInventor2020.CommonKeywords.IsBearing(pn)
+                                Catch
+                                    bearing = False
+                                End Try
+
+
+                                '----------------------------------------------
+                                ' Fastener
+                                '----------------------------------------------
+                                Try
+                                    fastener =
+                                        ToolInventor2020.CommonKeywords.IsFastener(pn)
+                                Catch
+                                    fastener = False
+                                End Try
+
+
+                                '----------------------------------------------
+                                ' Standard - kiểm tra local
+                                '----------------------------------------------
+                                standard =
+                                    IsLocalStandardPart(pn)
+
 
                                 Dim library As Boolean =
-                                    pn.Contains("ISO") OrElse
-                                    pn.Contains("DIN") OrElse
-                                    pn.Contains("SKF") OrElse
-                                    pn.Contains("SS") OrElse
-                                    pn.Contains("GB") OrElse
-                                    pn.Contains("JIS") OrElse
-                                    pn.Contains("ANSI") OrElse
-                                    pn.Contains("BSI") OrElse
-                                    pn.Contains("GOST") OrElse
-                                    pn.Contains("ASTM")
+                                    bearing OrElse
+                                    fastener OrElse
+                                    standard
+
 
                                 selected =
-                                    purchased OrElse library
+                                    purchased OrElse
+                                    library
+
+
+                            Case Else
+
+                                selected = False
 
                         End Select
 
-                        If selected Then
 
-                            Dim name As String =
-                                partNum
+                        '======================================================
+                        ' KHÔNG PHÙ HỢP
+                        '======================================================
+                        If Not selected Then
+                            Continue For
+                        End If
 
-                            If String.IsNullOrWhiteSpace(name) Then
 
-                                name =
-                                    IO.Path.
-                                    GetFileNameWithoutExtension(
-                                        part.FullFileName)
+                        '======================================================
+                        ' CHỈ NHẬN FILE PART
+                        '======================================================
+                        If String.IsNullOrWhiteSpace(part.FullFileName) Then
+                            Continue For
+                        End If
+
+
+                        '======================================================
+                        ' KHÔNG LẤY TRÙNG PART
+                        '======================================================
+                        Dim duplicate As Boolean = False
+
+                        For Each oldPart As Tuple(Of String, String) In parts
+
+                            If String.Equals(
+                                oldPart.Item2,
+                                name,
+                                StringComparison.OrdinalIgnoreCase) Then
+
+                                duplicate = True
+                                Exit For
 
                             End If
+
+                        Next
+
+
+                        If Not duplicate Then
 
                             parts.Add(
                                 Tuple.Create(
@@ -796,46 +1014,124 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
 
                         End If
 
+
+                        '==========================================================
+                        ' ASSEMBLY
+                        '
+                        ' KHÔNG THÊM ASSEMBLY.
+                        '
+                        ' Chỉ đi xuống Assembly con để tìm PART.
+                        '==========================================================
                     ElseIf doc.DocumentType =
-                           DocumentTypeEnum.
-                           kAssemblyDocumentObject Then
+                           DocumentTypeEnum.kAssemblyDocumentObject Then
 
                         Dim subAsm As AssemblyDocument =
                             TryCast(doc, AssemblyDocument)
 
-                        If subAsm IsNot Nothing Then
-
-                            Try
-                                Dim subAsmFullName As String = String.Empty
-                                Try
-                                    subAsmFullName = doc.FullFileName
-                                Catch
-                                    subAsmFullName = String.Empty
-                                End Try
-
-                                If Not String.IsNullOrWhiteSpace(subAsmFullName) Then
-                                    If Not visitedAssemblies.Contains(subAsmFullName) Then
-                                        visitedAssemblies.Add(subAsmFullName)
-                                        CollectParts(
-                                            subAsm.ComponentDefinition,
-                                            parts,
-                                            partType,
-                                            visitedAssemblies)
-                                    End If
-                                End If
-                            Catch
-                            End Try
-
+                        If subAsm Is Nothing Then
+                            Continue For
                         End If
+
+
+                        '======================================================
+                        ' LẤY ĐƯỜNG DẪN ASSEMBLY CON
+                        '======================================================
+                        Dim subAsmFullName As String = ""
+
+                        Try
+                            subAsmFullName = subAsm.FullFileName
+                        Catch
+                            subAsmFullName = ""
+                        End Try
+
+
+                        If String.IsNullOrWhiteSpace(subAsmFullName) Then
+                            Continue For
+                        End If
+
+
+                        '======================================================
+                        ' CHỐNG VÒNG LẶP
+                        '======================================================
+                        If visitedAssemblies.Contains(subAsmFullName) Then
+                            Continue For
+                        End If
+
+                        visitedAssemblies.Add(subAsmFullName)
+
+
+                        '======================================================
+                        ' ĐI XUỐNG ASSEMBLY CON
+                        '======================================================
+                        Try
+
+                            CollectParts(
+                                subAsm.ComponentDefinition,
+                                parts,
+                                partType,
+                                visitedAssemblies)
+
+                        Catch
+                        End Try
 
                     End If
 
                 Catch
+                    ' Bỏ qua component lỗi
                 End Try
 
             Next
 
         End Sub
+
+
+        '======================================================================
+        ' STANDARD KEYWORD RIÊNG CHO CODE NÀY
+        '
+        ' KHÔNG SỬA CommonKeywords
+        '
+        ' Chỉ nhận keyword ở KÝ TỰ ĐẦU TIÊN.
+        '======================================================================
+        Private Function IsLocalStandardPart(
+            ByVal partNum As String) As Boolean
+
+            If String.IsNullOrWhiteSpace(partNum) Then
+                Return False
+            End If
+
+
+            Dim pn As String =
+                partNum.Trim()
+
+
+            '==========================================================
+            ' DANH SÁCH STANDARD
+            '
+            ' Giữ theo CommonKeywords hiện tại
+            '==========================================================
+            Dim standardKeywords As String() = ToolInventor2020.CommonKeywords.StandardKeywords
+
+
+            '==========================================================
+            ' CHỈ KIỂM TRA TỪ KÝ TỰ ĐẦU TIÊN
+            '==========================================================
+            For Each kw As String In standardKeywords
+
+                If pn.StartsWith(
+                    kw,
+                    StringComparison.OrdinalIgnoreCase) Then
+
+                    Return True
+
+                End If
+
+            Next
+
+
+            Return False
+
+        End Function
+
 
     End Module
 

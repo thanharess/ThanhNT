@@ -113,23 +113,24 @@
     <Compile Include="Code addin inventor\Assembly3Buttons.vb" />
     <Compile Include="Code addin inventor\Assembly2Buttons.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Auto Creating Drawing\Auto drawing ASS,Part top LV.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_1 - Copy.vb" />
+    <Compile Include="Code addin inventor\Assembly\Cac lenh Boc tach\Part\Ass_boctach_part_1.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_1.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_14.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_13.vb" />
+    <Compile Include="Code addin inventor\Assembly\Cac lenh Boc tach\Part\Ass_boctach_part_1d.vb" />
+    <Compile Include="Code addin inventor\Assembly\Cac lenh Boc tach\Part\Ass_boctach_part_1c.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_17.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_16.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_15.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_12.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_11.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_5c.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_5b.vb" />
+    <Compile Include="Code addin inventor\Assembly\Cac lenh Boc tach\Part\Ass_boctach_part_1b.vb" />
+    <Compile Include="Code addin inventor\Assembly\Cac lenh Boc tach\Part\Ass_boctach_part_1a.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_6.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_7.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_8.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Frame\Ass_Frame_3.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Frame\Ass_Frame_2.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Frame\Ass_Frame_1.vb" />
+    <Compile Include="Code addin inventor\Assembly\Cac lenh Boc tach\Part\Ass_boctach_part_1e.vb" />
+    <Compile Include="Code addin inventor\Assembly\Cac lenh Boc tach\Part\Ass_boctach_part_1f - Copy.vb" />
+    <Compile Include="Code addin inventor\Assembly\Cac lenh Boc tach\Part\Ass_boctach_part_1f.vb" />
     <Compile Include="Code addin inventor\Assembly\Import_ Export step to part và ngược lại.vb" />
     <Compile Include="Code addin inventor\Bản code quan trọng cần lưu giữ\Xóa Contrain &amp; ground,...vb" />
     <Compile Include="Code addin inventor\Bản code quan trọng cần lưu giữ\Suppress &amp; Un contrain all.vb" />
@@ -139,13 +140,13 @@
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_2.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_3.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_4.vb" />
-    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_5a.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Part\Ass_Part_1.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Part\Ass_Part_2.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Part\Ass_Part_3.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Part\Ass_Part_4.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Auto Creating Drawing\Auto drawing V8.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Auto Creating Drawing\Auto drawing ASS top LV.vb" />
+    <Compile Include="Code addin inventor\CommonKeywords.vb" />
     <Compile Include="Code addin inventor\DrawingButtons.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_1.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_10.vb" />
@@ -249,6 +250,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Code addin inventor\Drawing\Buttons\Draw_7.resx">
       <DependentUpon>Draw_7.vb</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
