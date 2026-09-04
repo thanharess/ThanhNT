@@ -102,10 +102,13 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
 
                 Dim parts As New List(Of Tuple(Of String, String))
 
+                Dim visitedAssemblies As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+
                 CollectParts(
                     sourceDoc.ComponentDefinition,
                     parts,
-                    partType)
+                    partType,
+                    visitedAssemblies)
 
                 If parts.Count = 0 Then
 
@@ -652,7 +655,8 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
         Private Sub CollectParts(
             asmDef As AssemblyComponentDefinition,
             ByRef parts As List(Of Tuple(Of String, String)),
-            partType As Integer)
+            partType As Integer,
+            ByRef visitedAssemblies As HashSet(Of String))
 
             For Each occ As ComponentOccurrence In asmDef.Occurrences
 
@@ -664,26 +668,32 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
 
                     Dim doc As Document = Nothing
 
-                    Try
-                        doc =
-                            occ.ReferencedDocumentDescriptor.
-                            ReferencedDocument
-                    Catch
-
+                    If occ.ReferencedDocumentDescriptor IsNot Nothing Then
+                        Try
+                            doc = occ.ReferencedDocumentDescriptor.ReferencedDocument
+                        Catch
+                            doc = Nothing
+                        End Try
+                    Else
                         Try
                             doc = occ.Definition.Document
                         Catch
+                            doc = Nothing
                         End Try
-
-                    End Try
+                    End If
 
                     If doc Is Nothing Then
                         Continue For
                     End If
 
-                    If String.IsNullOrEmpty(
-                        doc.FullFileName) Then
+                    Dim refFullName As String = String.Empty
+                    Try
+                        refFullName = doc.FullFileName
+                    Catch
+                        refFullName = String.Empty
+                    End Try
 
+                    If String.IsNullOrEmpty(refFullName) Then
                         Continue For
                     End If
 
@@ -795,10 +805,26 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
 
                         If subAsm IsNot Nothing Then
 
-                            CollectParts(
-                                subAsm.ComponentDefinition,
-                                parts,
-                                partType)
+                            Try
+                                Dim subAsmFullName As String = String.Empty
+                                Try
+                                    subAsmFullName = doc.FullFileName
+                                Catch
+                                    subAsmFullName = String.Empty
+                                End Try
+
+                                If Not String.IsNullOrWhiteSpace(subAsmFullName) Then
+                                    If Not visitedAssemblies.Contains(subAsmFullName) Then
+                                        visitedAssemblies.Add(subAsmFullName)
+                                        CollectParts(
+                                            subAsm.ComponentDefinition,
+                                            parts,
+                                            partType,
+                                            visitedAssemblies)
+                                    End If
+                                End If
+                            Catch
+                            End Try
 
                         End If
 

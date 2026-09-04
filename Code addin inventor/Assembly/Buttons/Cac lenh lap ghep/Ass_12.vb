@@ -147,9 +147,12 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
                         StringComparer.OrdinalIgnoreCase)
 
 
+                Dim visitedAssemblies As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+
                 CollectSheetMetalParts(
                         oOrigAsmDoc.ComponentDefinition,
-                        sheetMetalParts)
+                        sheetMetalParts,
+                        visitedAssemblies)
 
 
                 '=====================================================
@@ -580,7 +583,8 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
 
         Private Sub CollectSheetMetalParts(
                 ByVal asmDef As AssemblyComponentDefinition,
-                ByRef sheetMetalParts As HashSet(Of String))
+                ByRef sheetMetalParts As HashSet(Of String),
+                ByRef visitedAssemblies As HashSet(Of String))
 
 
             For Each oOcc As ComponentOccurrence
@@ -605,38 +609,38 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
                     Dim oRefDoc As Document = Nothing
 
 
-                    Try
-
-                        oRefDoc =
-                                oOcc.ReferencedDocumentDescriptor.
-                                ReferencedDocument
-
-                    Catch
-
+                    ' Prefer safe null checks to avoid repeated NullReferenceExceptions
+                    If oOcc.ReferencedDocumentDescriptor IsNot Nothing Then
                         Try
-
+                            oRefDoc =
+                                    oOcc.ReferencedDocumentDescriptor.
+                                    ReferencedDocument
+                        Catch
+                            oRefDoc = Nothing
+                        End Try
+                    Else
+                        Try
                             oRefDoc =
                                     oOcc.Definition.Document
-
                         Catch
-
                             oRefDoc = Nothing
-
                         End Try
-
-                    End Try
-
+                    End If
 
                     If oRefDoc Is Nothing Then
                         Continue For
                     End If
 
+                    ' Access FullFileName inside Try/Catch because COM properties can throw
+                    Dim refFullName As String = String.Empty
+                    Try
+                        refFullName = oRefDoc.FullFileName
+                    Catch
+                        refFullName = String.Empty
+                    End Try
 
-                    If String.IsNullOrWhiteSpace(
-                            oRefDoc.FullFileName) Then
-
+                    If String.IsNullOrWhiteSpace(refFullName) Then
                         Continue For
-
                     End If
 
 
@@ -701,13 +705,30 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
 
                         If oSubAsmDef IsNot Nothing Then
 
-                            '-----------------------------------------
-                            ' Đệ quy xuống Level tiếp theo
-                            '-----------------------------------------
+                            ' Prevent infinite recursion by checking visited assemblies
+                            Try
+                                Dim subAsmFullName As String = String.Empty
+                                Try
+                                    subAsmFullName = oRefDoc.FullFileName
+                                Catch
+                                    subAsmFullName = String.Empty
+                                End Try
 
-                            CollectSheetMetalParts(
-                                    oSubAsmDef,
-                                    sheetMetalParts)
+                                If Not String.IsNullOrWhiteSpace(subAsmFullName) Then
+                                    If Not visitedAssemblies.Contains(subAsmFullName) Then
+                                        visitedAssemblies.Add(subAsmFullName)
+                                        '-----------------------------------------
+                                        ' Đệ quy xuống Level tiếp theo
+                                        '-----------------------------------------
+                                        CollectSheetMetalParts(
+                                                oSubAsmDef,
+                                                sheetMetalParts,
+                                                visitedAssemblies)
+                                    End If
+                                End If
+                            Catch
+                                ' ignore recursion errors per original behavior
+                            End Try
 
                         End If
 
