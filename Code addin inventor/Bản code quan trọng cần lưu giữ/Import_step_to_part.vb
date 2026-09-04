@@ -3,8 +3,8 @@ Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ToolInventor2020.Assembly.Buttons
-    Public Module OLD1 'Import_step_to_part '|bản gốc|
+Namespace ToolInventor2020.OLD
+    Public Module OLD1 'Import_step_to_part '|bản gốc| bản lưu trữ không liên kết vào trong code
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
             ' Lấy ứng dụng Inventor đang chạy

@@ -128,7 +128,9 @@
     <Compile Include="Code addin inventor\Assembly\Buttons\Frame\Ass_Frame_2.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Frame\Ass_Frame_1.vb" />
     <Compile Include="Code addin inventor\Assembly\Import_ Export step to part và ngược lại.vb" />
-    <Compile Include="Code addin inventor\Bản code quan trọng cần giữ\Import_step_to_part.vb" />
+    <Compile Include="Code addin inventor\Bản code quan trọng cần lưu giữ\Xóa Contrain &amp; ground,...vb" />
+    <Compile Include="Code addin inventor\Bản code quan trọng cần lưu giữ\Suppress &amp; Un contrain all.vb" />
+    <Compile Include="Code addin inventor\Bản code quan trọng cần lưu giữ\Import_step_to_part.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_9.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_10.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_2.vb" />

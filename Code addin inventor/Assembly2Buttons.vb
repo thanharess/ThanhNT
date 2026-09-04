@@ -169,17 +169,17 @@ Namespace ToolInventor2020
             AddHandler assemblyBtna4.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_4.OnExecute
             buttonsList.Add(assemblyBtna4)
 
-            Dim assemblyBtna5 As ButtonDefinition = controlDefs.AddButtonDefinition("2", "ToolInventor2020_Assembly_Btna5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass2SmallIcon5, Ass2LargeIcon5)
+            Dim assemblyBtna5 As ButtonDefinition = controlDefs.AddButtonDefinition("aCT1", "ToolInventor2020_Assembly_Btna5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass2SmallIcon5, Ass2LargeIcon5)
             AddHandler assemblyBtna5.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_5.OnExecute
-            'buttonsList.Add(assemblyBtna5)
+            buttonsList.Add(assemblyBtna5)
 
-            Dim assemblyBtna6 As ButtonDefinition = controlDefs.AddButtonDefinition("3", "ToolInventor2020_Assembly_Btna6", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass2SmallIcon6, Ass2LargeIcon6)
+            Dim assemblyBtna6 As ButtonDefinition = controlDefs.AddButtonDefinition("Xếp Model Browser ASS", "ToolInventor2020_Assembly_Btna6", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass2SmallIcon6, Ass2LargeIcon6)
             AddHandler assemblyBtna6.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_6.OnExecute
-            ' buttonsList.Add(assemblyBtna6)
+            buttonsList.Add(assemblyBtna6)
 
             Dim assemblyBtna7 As ButtonDefinition = controlDefs.AddButtonDefinition("4", "ToolInventor2020_Assembly_Btna7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass2SmallIcon7, Ass2LargeIcon7)
             AddHandler assemblyBtna7.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_7.OnExecute
-            ' buttonsList.Add(assemblyBtna7)
+            buttonsList.Add(assemblyBtna7)
 
             Dim assemblyBtna8 As ButtonDefinition = controlDefs.AddButtonDefinition("5", "ToolInventor2020_Assembly_Btna8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, "Code này sẽ thay tên stocknumber 
 theo kích thước bao sau khi trải ", Ass2SmallIcon8, Ass2LargeIcon8)

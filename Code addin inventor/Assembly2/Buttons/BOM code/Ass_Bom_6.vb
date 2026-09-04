@@ -1,331 +1,195 @@
 Imports System.Collections.Generic
 Imports System.Windows.Forms
 Imports Inventor
-Imports Microsoft.VisualBasic
 
 Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
 
-    Public Module Ass_Bom_6
+    Public Module ass_bom_6
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
+            Dim invApp As Inventor.Application = System.Runtime.InteropServices.Marshal.GetActiveObject("Inventor.Application")
+
             Try
-
-                '==================================================
-                ' KIỂM TRA DOCUMENT
-                '==================================================
-                Dim oAsm As AssemblyDocument =
-                    TryCast(g_inventorApplication.ActiveDocument, AssemblyDocument)
-
-                If oAsm Is Nothing Then
-                    MessageBox.Show(
-                        "Rule này chỉ chạy trong Assembly.",
-                        "iLogic")
+                If invApp.ActiveDocumentType <> DocumentTypeEnum.kAssemblyDocumentObject Then
+                    MessageBox.Show("Chỉ chạy trên Assembly!", "Browser Rearranger", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     Exit Sub
                 End If
 
+                Dim oDoc As AssemblyDocument = CType(invApp.ActiveDocument, AssemblyDocument)
+                Dim oPane As BrowserPane = oDoc.BrowserPanes.Item("AmBrowserArrangement")
+                Dim oTopNode As BrowserNode = oPane.TopNode
 
-                '==================================================
-                ' BOM
-                '==================================================
-                Dim oBOM As BOM =
-                    oAsm.ComponentDefinition.BOM
+                ' 1. Xóa folder trống
+                DeleteEmptyFolders(oTopNode)
 
-                oBOM.StructuredViewEnabled = True
-                oBOM.StructuredViewFirstLevelOnly = False
+                ' 2. Gom Content Center / Purchased
+                GroupContentCenter(oDoc, oPane)
 
-                Dim oBOMView As BOMView =
-                    oBOM.BOMViews.Item("Structured")
+                ' 3. Sắp xếp
+                SortBrowserCorrectly(oDoc, oPane)
 
-
-                '==================================================
-                ' LẤY VÀ SẮP XẾP CÁC DÒNG TOP-LEVEL
-                '==================================================
-                Dim topRows As List(Of BOMRow) =
-                    SortRows(oBOMView.BOMRows)
-
-
-                '==================================================
-                ' ĐÁNH STT
-                '==================================================
-                Dim i As Integer = 1
-
-                For Each row As BOMRow In topRows
-
-                    ' Đánh Item Number trong BOM
-                    row.ItemNumber = CStr(i)
-
-
-                    ' Lấy Document
-                    Dim refDoc As Document = Nothing
-
-                    Try
-
-                        refDoc =
-                            row.ComponentDefinitions.Item(1).Document
-
-                    Catch
-
-                        i += 1
-                        Continue For
-
-                    End Try
-
-
-                    ' Ghi property item1
-                    AddOrUpdateSTT(
-                        refDoc,
-                        CStr(i))
-
-
-                    i += 1
-
-                Next
-
-
-                MessageBox.Show(
-                    "Hoàn tất." & vbCrLf &
-                    "Đã sắp xếp và đánh STT cho các đối tượng TOP-LEVEL.",
-                    "Assembly BOM")
-
+                MessageBox.Show("Đã sắp xếp xong!" & vbCrLf &
+                                "1. Cụm lắp (chữ cái + tên ngắn ưu tiên)" & vbCrLf &
+                                "2. Part (chữ cái + tên ngắn ưu tiên)" & vbCrLf &
+                                "3. Vật tư mua / Content Center",
+                                "Browser Rearranger", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
             Catch ex As Exception
-
-                MessageBox.Show(
-                    "Có lỗi khi thực hiện:" & vbCrLf &
-                    ex.Message,
-                    "Assembly BOM",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error)
-
+                MessageBox.Show("Lỗi: " & ex.Message, "Browser Rearranger", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
 
         End Sub
 
+        '=========================================================
+        ' XÓA FOLDER TRỐNG
+        '=========================================================
+        Private Sub DeleteEmptyFolders(oNode As BrowserNode)
+            For i As Integer = oNode.BrowserNodes.Count To 1 Step -1
+                Dim child As BrowserNode = oNode.BrowserNodes.Item(i)
 
-        '==========================================================
-        ' SẮP XẾP BOM
-        '
-        ' Thứ tự:
-        '   1. SUB-ASSEMBLY
-        '   2. PART
-        '   3. PURCHASED
-        '==========================================================
-        Private Function SortRows(
-            ByVal bomRows As BOMRowsEnumerator) _
-            As List(Of BOMRow)
-
-            Dim subAsm As New List(Of BOMRow)
-            Dim parts As New List(Of BOMRow)
-            Dim purchased As New List(Of BOMRow)
-
-
-            For Each row As BOMRow In bomRows
-
-                Dim refDoc As Document = Nothing
-
-                Try
-
-                    refDoc =
-                        row.ComponentDefinitions.Item(1).Document
-
-                Catch
-
-                    Continue For
-
-                End Try
-
-
-                Dim partNum As String =
-                    GetPartNumber(row)
-
-
-                '----------------------------------------------
-                ' ASSEMBLY
-                '----------------------------------------------
-                If refDoc.DocumentType =
-                    DocumentTypeEnum.kAssemblyDocumentObject Then
-
-                    subAsm.Add(row)
-
-
-                    '----------------------------------------------
-                    ' PART
-                    '----------------------------------------------
-                ElseIf refDoc.DocumentType =
-                    DocumentTypeEnum.kPartDocumentObject Then
-
-                    If IsPurchased(partNum) Then
-
-                        purchased.Add(row)
-
+                If TypeOf child.NativeObject Is BrowserFolder Then
+                    If child.BrowserNodes.Count = 0 Then
+                        Try
+                            Dim oFolder As BrowserFolder = CType(child.NativeObject, BrowserFolder)
+                            oFolder.Delete()
+                        Catch
+                        End Try
                     Else
-
-                        parts.Add(row)
-
+                        DeleteEmptyFolders(child)
                     End If
-
                 End If
+            Next
+        End Sub
 
+        '=========================================================
+        ' GOM CONTENT CENTER / PURCHASED
+        '=========================================================
+        Private Sub GroupContentCenter(oDoc As AssemblyDocument, oPane As BrowserPane)
+            Dim oTopNode As BrowserNode = oPane.TopNode
+            Dim ccFolder As BrowserFolder = Nothing
+
+            For Each n As BrowserNode In oTopNode.BrowserNodes
+                If TypeOf n.NativeObject Is BrowserFolder Then
+                    If n.BrowserNodeDefinition.Label = "Content Center" Then
+                        ccFolder = CType(n.NativeObject, BrowserFolder)
+                        Exit For
+                    End If
+                End If
             Next
 
-
-            '==================================================
-            ' SORT THEO PART NUMBER
-            '==================================================
-            subAsm.Sort(
-                Function(a, b)
-                    Return String.Compare(
-                        GetPartNumber(a),
-                        GetPartNumber(b),
-                        True)
-                End Function)
-
-
-            parts.Sort(
-                Function(a, b)
-                    Return String.Compare(
-                        GetPartNumber(a),
-                        GetPartNumber(b),
-                        True)
-                End Function)
-
-
-            purchased.Sort(
-                Function(a, b)
-                    Return String.Compare(
-                        GetPartNumber(a),
-                        GetPartNumber(b),
-                        True)
-                End Function)
-
-
-            '==================================================
-            ' GHÉP THỨ TỰ
-            '==================================================
-            Dim orderedRows As New List(Of BOMRow)
-
-            orderedRows.AddRange(subAsm)
-            orderedRows.AddRange(parts)
-            orderedRows.AddRange(purchased)
-
-
-            Return orderedRows
-
-        End Function
-
-
-        '==========================================================
-        ' KIỂM TRA PURCHASED
-        '==========================================================
-        Private Function IsPurchased(
-            ByVal partNum As String) As Boolean
-
-            If String.IsNullOrEmpty(partNum) Then
-                Return False
+            If ccFolder Is Nothing Then
+                Try
+                    ccFolder = oTopNode.BrowserFolders.Add("Content Center")
+                Catch
+                    Exit Sub
+                End Try
             End If
 
-
-            Dim s As String =
-                partNum.ToUpper()
-
-
-            If s.Contains("ISO") Then Return True
-            If s.Contains("DIN") Then Return True
-            If s.Contains("SKF") Then Return True
-            If s.Contains("PURCHASED") Then Return True
-
-
-            Return False
-
-        End Function
-
-
-        '==========================================================
-        ' LẤY PART NUMBER
-        '==========================================================
-        Private Function GetPartNumber(
-            ByVal row As BOMRow) As String
-
-            Try
-
-                Return CStr(
-                    row.ComponentDefinitions.Item(1).Document.
-                    PropertySets.Item("Design Tracking Properties").
-                    Item("Part Number").Value)
-
-            Catch
-
-                Return ""
-
-            End Try
-
-        End Function
-
-
-        '==========================================================
-        ' TẠO / CẬP NHẬT PROPERTY "item1"
-        '==========================================================
-        Private Sub AddOrUpdateSTT(
-            ByVal doc As Document,
-            ByVal value As String)
-
-            Try
-
-                If Not doc.IsModifiable Then
-                    Exit Sub
-                End If
-
-
-                Dim userProps As PropertySet =
-                    doc.PropertySets.Item(
-                        "Inventor User Defined Properties")
-
-
-                Dim sttProp As Inventor.Property = Nothing
-
-
-                '----------------------------------------------
-                ' TÌM ITEM1
-                '----------------------------------------------
-                For Each p As Inventor.Property In userProps
-
-                    If p.Name.ToLower() = "item1" Then
-
-                        sttProp = p
-                        Exit For
-
+            For Each occ As ComponentOccurrence In oDoc.ComponentDefinition.Occurrences
+                Try
+                    If occ.IsContentMember OrElse IsPurchased(occ) Then
+                        Dim oNode As BrowserNode = oPane.GetBrowserNodeFromObject(occ)
+                        If oNode IsNot Nothing Then
+                            ccFolder.Add(oNode)
+                        End If
                     End If
+                Catch
+                End Try
+            Next
+        End Sub
 
-                Next
+        Private Function IsPurchased(occ As ComponentOccurrence) As Boolean
+            Try
+                Dim desc As String = occ.Definition.Document.PropertySets _
+                    .Item("Design Tracking Properties").Item("Description").Value.ToString().ToLower()
 
-
-                '----------------------------------------------
-                ' CHƯA CÓ → TẠO
-                '----------------------------------------------
-                If sttProp Is Nothing Then
-
-                    userProps.Add(
-                        value,
-                        "item1")
-
-
-                    '----------------------------------------------
-                    ' ĐÃ CÓ → CẬP NHẬT
-                    '----------------------------------------------
-                Else
-
-                    sttProp.Value = value
-
+                If desc.Contains("purchased") OrElse desc.Contains("content center") OrElse desc.Contains("standard") Then
+                    Return True
                 End If
-
             Catch
-
-                ' Không làm dừng toàn bộ chương trình
-                ' nếu một document không ghi được property
-
             End Try
+            Return False
+        End Function
 
+        '=========================================================
+        ' HÀM SO SÁNH TÊN NÂNG CAO
+        ' 1. Theo chữ cái đầu (A-Z)
+        ' 2. Cùng chữ cái đầu → tên ngắn hơn ưu tiên
+        ' 3. Cùng độ dài → so sánh đầy đủ
+        '=========================================================
+        Private Function CompareNameAdvanced(name1 As String, name2 As String) As Integer
+            name1 = name1.Trim()
+            name2 = name2.Trim()
+
+            If name1 = "" AndAlso name2 = "" Then Return 0
+            If name1 = "" Then Return -1
+            If name2 = "" Then Return 1
+
+            Dim first1 As String = name1.Substring(0, 1).ToUpper()
+            Dim first2 As String = name2.Substring(0, 1).ToUpper()
+
+            Dim cmpFirst As Integer = String.Compare(first1, first2, True)
+            If cmpFirst <> 0 Then Return cmpFirst
+
+            ' Cùng chữ cái đầu → ưu tiên tên ngắn hơn
+            If name1.Length < name2.Length Then Return -1
+            If name1.Length > name2.Length Then Return 1
+
+            ' Cùng độ dài → so sánh đầy đủ
+            Return String.Compare(name1, name2, True)
+        End Function
+
+        '=========================================================
+        ' SẮP XẾP CHÍNH
+        '=========================================================
+        Private Sub SortBrowserCorrectly(oDoc As AssemblyDocument, oPane As BrowserPane)
+            Dim oTopNode As BrowserNode = oPane.TopNode
+
+            Dim asmList As New List(Of BrowserNode)
+            Dim partList As New List(Of BrowserNode)
+
+            ' Phân loại
+            For Each n As BrowserNode In oTopNode.BrowserNodes
+                If TypeOf n.NativeObject Is ComponentOccurrence Then
+                    Dim occ As ComponentOccurrence = CType(n.NativeObject, ComponentOccurrence)
+
+                    If occ.DefinitionDocumentType = DocumentTypeEnum.kAssemblyDocumentObject Then
+                        asmList.Add(n)
+                    ElseIf occ.DefinitionDocumentType = DocumentTypeEnum.kPartDocumentObject Then
+                        partList.Add(n)
+                    End If
+                End If
+            Next
+
+            ' Sắp xếp nâng cao
+            asmList.Sort(Function(a, b) CompareNameAdvanced(a.BrowserNodeDefinition.Label, b.BrowserNodeDefinition.Label))
+            partList.Sort(Function(a, b) CompareNameAdvanced(a.BrowserNodeDefinition.Label, b.BrowserNodeDefinition.Label))
+
+            ' Tìm node Origin
+            Dim originNode As BrowserNode = Nothing
+            For Each n As BrowserNode In oTopNode.BrowserNodes
+                If n.BrowserNodeDefinition.Label = "Origin" Then
+                    originNode = n
+                    Exit For
+                End If
+            Next
+            If originNode Is Nothing Then Exit Sub
+
+            ' Đưa lên theo thứ tự ngược để giữ đúng thứ tự đã sort
+            For i As Integer = partList.Count - 1 To 0 Step -1
+                Try
+                    oPane.Reorder(originNode, False, partList(i))
+                Catch
+                End Try
+            Next
+
+            For i As Integer = asmList.Count - 1 To 0 Step -1
+                Try
+                    oPane.Reorder(originNode, False, asmList(i))
+                Catch
+                End Try
+            Next
         End Sub
 
     End Module
