@@ -167,29 +167,38 @@ Namespace ToolInventor2020
             '''' Lệnh lắp ghép ===============
 #Region "Lệnh lắp ghép"
 
+
+            '============================== Constrain các cụm chi tiết & part về gốc tọa độ của cụm chi tiết đầu tiên chọn ==============
+            Dim assemblyBtn28 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame3", "ToolInventor2020_Assembly_Btn28", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                          Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.", ass1SmallIcon28, ass1LargeIcon28)
+            AddHandler assemblyBtn28.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.constraint.ass_LG_1.OnExecute
+            buttonsList.Add(assemblyBtn28)
+
             Dim assemblyBtn1 As ButtonDefinition = controlDefs.AddButtonDefinition("Suppress,contrain,Ground", "ToolInventor2020_Assembly_Btn1", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
                                                                                    Nothing, ass1SmallIcon1, ass1LargeIcon1)
-            AddHandler assemblyBtn1.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_LG_1a.OnExecute
+            AddHandler assemblyBtn1.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.constraint.Ass_LG_1a.OnExecute
             buttonsList.Add(assemblyBtn1)
 
             Dim assemblyBtn2 As ButtonDefinition = controlDefs.AddButtonDefinition("Contrain Keep position", "ToolInventor2020_Assembly_Btn2", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
                                                                                    "Code giữ nguyên vị trí các cum & gán contrain tự động" & vbLf &
                                                                                   "Không áp dùng cho cụm hàn", ass1SmallIcon2, ass1LargeIcon2)
-            AddHandler assemblyBtn2.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_LG_1b.OnExecute
+            AddHandler assemblyBtn2.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.constraint.Ass_LG_1b.OnExecute
             buttonsList.Add(assemblyBtn2)
 
             Dim assemblyBtn3 As ButtonDefinition = controlDefs.AddButtonDefinition("Contrain về gốc 2 chi tiết", "ToolInventor2020_Assembly_Btn3", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing, "Contrain cụm chi tiết hoặc part về gốc tọa độ của chi tiết hoặc cụm chi tiết đầu tiên chọn", ass1SmallIcon3, ass1LargeIcon3)
-            AddHandler assemblyBtn3.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_LG_1c.OnExecute
+            AddHandler assemblyBtn3.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.constraint.Ass_LG_1c.OnExecute
             buttonsList.Add(assemblyBtn3)
 
             Dim assemblyBtn4 As ButtonDefinition = controlDefs.AddButtonDefinition("Contrain all to select", "ToolInventor2020_Assembly_Btn4", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
                                                                                    "Contrain tất cả cụm chi tiết & part về gốc tọa độ của chi tiết hoặc cụm chi tiết được chọn", ass1SmallIcon4, ass1LargeIcon4)
-            AddHandler assemblyBtn4.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_LG_1d.OnExecute
+            AddHandler assemblyBtn4.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.constraint.Ass_LG_1d.OnExecute
             buttonsList.Add(assemblyBtn4)
+
+            '==============================
 
             Dim assemblyBtn27 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa all Constrain lỗi", "ToolInventor2020_Assembly_Btn27", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                           Nothing, "Xóa tất cả các constrain lỗi trong Assembly.", ass1SmallIcon27, ass1LargeIcon27)
@@ -352,10 +361,7 @@ Namespace ToolInventor2020
 
 
 
-            Dim assemblyBtn28 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame3", "ToolInventor2020_Assembly_Btn28", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                          Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.", ass1SmallIcon28, ass1LargeIcon28)
-            AddHandler assemblyBtn28.OnExecute, AddressOf Assembly.Buttons.Frame.Ass_Frame_3.OnExecute
-            'buttonsList.Add(assemblyBtn28)
+
 #End Region
         End Sub
     End Class

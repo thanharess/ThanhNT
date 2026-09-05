@@ -1,12 +1,13 @@
 Option Explicit On
 Option Strict Off
+Imports System.Diagnostics.Contracts
 Imports System.IO
 Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
 Imports Inventor
 Imports ToolInventor2020.ToolInventor2020.Assembly.Buttons.caclenhboctach.part
 
-Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
+Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep.constraint
 
 
     'Gán module này cho một nút Inventor. Các Ass_11, Ass_12, Ass_13 vẫn giữ nguyên.
@@ -46,11 +47,11 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
                 form.Controls.Add(title)
 
                 form.Tag = 0
-                AddMenuButton(form, "Contrain Keep position", 45, 1) 'ok
-                AddMenuButton(form, "Contrain về gốc 2 chi tiết", 95, 2) 'ok
-                AddMenuButton(form, "Contrain all to select", 145, 3) 'ok
-                AddMenuButton(form, "Xóa all Constrain lỗi", 195, 4) 'ok
-
+                AddMenuButton(form, "Suppress, contrain, Ground", 45, 1) 'ok
+                AddMenuButton(form, "Contrain Keep position", 95, 2) 'ok
+                AddMenuButton(form, "Contrain về gốc 2 chi tiết", 145, 3) 'ok
+                AddMenuButton(form, "Contrain all to select", 195, 4) 'ok
+                '  AddMenuButton(form, "Xóa all Constrain lỗi", 195, 4) 'ok
 
                 Dim cancelButton As New Button() With {
                         .Text = "HỦY", .Left = 20, .Top = 445, .Width = 500, .Height = 32
