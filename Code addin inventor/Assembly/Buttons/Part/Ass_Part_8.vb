@@ -7,9 +7,9 @@ Imports System.Windows.Forms
 Imports Inventor
 Imports IO = System.IO
 
-Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
+Namespace ToolInventor2020.Assembly.Buttons.Part
 
-    Public Module ass_17
+    Public Module Ass_Part_8
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
 

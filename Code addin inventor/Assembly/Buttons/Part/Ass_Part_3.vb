@@ -2,7 +2,7 @@ Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ToolInventor2020.Assembly.Buttons.part
+Namespace ToolInventor2020.Assembly.Buttons.Part
     Public Module Ass_Part_3
 
 

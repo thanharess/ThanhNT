@@ -2,8 +2,8 @@ Imports System.Collections.Generic
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
-    Public Module Ass_10
+Namespace ToolInventor2020.Assembly.Buttons.Lenhngoaicumlap
+    Public Module Design_Assistant
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
 

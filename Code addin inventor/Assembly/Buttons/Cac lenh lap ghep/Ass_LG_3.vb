@@ -4,7 +4,7 @@ Imports System.Windows.Forms
 Imports Inventor
 
 Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
-    Public Module Ass_3
+    Public Module Ass_LG_3
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Try

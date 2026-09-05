@@ -2,8 +2,8 @@ Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
-    Public Module Ass_8
+Namespace ToolInventor2020.Assembly.Buttons.Part
+    Public Module Ass_Part_6
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Try
                 g_inventorApplication.UserInterfaceManager.UserInteractionManager.PostStatus("Executed Assembly Action 12")

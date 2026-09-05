@@ -4,7 +4,7 @@ Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ToolInventor2020.Assembly.Buttons
+Namespace ToolInventor2020.Assembly.Buttons.Lenhngoaicumlap
     Public Module Im_EX_step_part
         Public Sub OnExecute(ByVal Context As NameValueMap)
 

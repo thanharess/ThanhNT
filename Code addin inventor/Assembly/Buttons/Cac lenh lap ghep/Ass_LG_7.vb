@@ -8,7 +8,7 @@ Imports IO = System.IO
 
 Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
 
-    Public Module ass_16
+    Public Module Ass_LG_7
 
 
         Public Sub OnExecute(ByVal Context As NameValueMap)

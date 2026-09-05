@@ -2,7 +2,7 @@ Imports System.Windows.Forms
 Imports Inventor
 
 Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
-    Public Module Ass_1
+    Public Module Ass_LG_1
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Try
                 Dim asmDoc As AssemblyDocument = TryCast(g_inventorApplication.ActiveDocument, AssemblyDocument)

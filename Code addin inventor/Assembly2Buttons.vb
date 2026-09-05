@@ -35,7 +35,7 @@ Namespace ToolInventor2020
             Else
                 iconsFolder = System.IO.Path.Combine(assemblyFolder3, "Code addin inventor", "Images", "Assembly")
             End If
-
+#Region "button"
             Dim Ass2LargePath1 As String = System.IO.Path.Combine(iconsFolder, "i18.bmp")
             Dim Ass2SmallPath1 As String = System.IO.Path.Combine(iconsFolder, "i18 1.bmp")
             Dim Ass2LargePath2 As String = System.IO.Path.Combine(iconsFolder, "i18.bmp")
@@ -151,6 +151,9 @@ Namespace ToolInventor2020
             Dim Ass2SmallIcon27 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass2SmallPath27), LoadIconFromPath(Ass2SmallPath27), smallIcon)
             Dim Ass2LargeIcon28 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass2LargePath28), LoadIconFromPath(Ass2LargePath28), largeIcon)
             Dim Ass2SmallIcon28 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass2SmallPath28), LoadIconFromPath(Ass2SmallPath28), smallIcon)
+#End Region
+
+
 
             ' Create Assembly buttons explicitly (no loop) so each button can have distinct implementation
             Dim assemblyBtna1 As ButtonDefinition = controlDefs.AddButtonDefinition("Thay tên ,STT BOM", "ToolInventor2020_Assembly_Btna1", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass2SmallIcon1, Ass2LargeIcon1)
@@ -169,17 +172,20 @@ Namespace ToolInventor2020
             AddHandler assemblyBtna4.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_4.OnExecute
             buttonsList.Add(assemblyBtna4)
 
-            Dim assemblyBtna5 As ButtonDefinition = controlDefs.AddButtonDefinition("aCT1", "ToolInventor2020_Assembly_Btna5", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass2SmallIcon5, Ass2LargeIcon5)
+            Dim assemblyBtna6 As ButtonDefinition = controlDefs.AddButtonDefinition("Xếp Model Browser ASS", "ToolInventor2020_Assembly_Btna6", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass2SmallIcon6, Ass2LargeIcon6)
+            AddHandler assemblyBtna6.OnExecute, AddressOf Assembly2.Buttons.BOMcode.ass_bom_6.OnExecute
+            buttonsList.Add(assemblyBtna6)
+
+            Dim assemblyBtna5 As ButtonDefinition = controlDefs.AddButtonDefinition("Hiện gốc tọa độ để Constrain", "ToolInventor2020_Assembly_Btna5", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                    Nothing, "ấn chọn file part hoặc Assembly để hiện gốc tọa độ" & vbCrLf &
+                                                                                   " tiếp theo dùng lệnh Constrain để lắp ghép với nhau." & vbCrLf &
+                                                                                    "Nếu ấn ok thì sẽ ẩn hết các mặt phẳng & trục gốc tọa độ vừa ấn hiện", Ass2SmallIcon5, Ass2LargeIcon5)
             AddHandler assemblyBtna5.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_5.OnExecute
             buttonsList.Add(assemblyBtna5)
 
-            Dim assemblyBtna6 As ButtonDefinition = controlDefs.AddButtonDefinition("Xếp Model Browser ASS", "ToolInventor2020_Assembly_Btna6", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass2SmallIcon6, Ass2LargeIcon6)
-            AddHandler assemblyBtna6.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_6.OnExecute
-            buttonsList.Add(assemblyBtna6)
-
             Dim assemblyBtna7 As ButtonDefinition = controlDefs.AddButtonDefinition("4", "ToolInventor2020_Assembly_Btna7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass2SmallIcon7, Ass2LargeIcon7)
             AddHandler assemblyBtna7.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_7.OnExecute
-            buttonsList.Add(assemblyBtna7)
+            ' buttonsList.Add(assemblyBtna7)
 
             Dim assemblyBtna8 As ButtonDefinition = controlDefs.AddButtonDefinition("5", "ToolInventor2020_Assembly_Btna8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, "Code này sẽ thay tên stocknumber 
 theo kích thước bao sau khi trải ", Ass2SmallIcon8, Ass2LargeIcon8)
@@ -225,6 +231,8 @@ tối đa 3 lever & không copy vào cụm lắp. chỉ copy part", Ass2SmallIco
             Dim assemblyBtna17 As ButtonDefinition = controlDefs.AddButtonDefinition("Assembly Action 17", "ToolInventor2020_Assembly_Btna17", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass2SmallIcon17, Ass2LargeIcon17)
             'AddHandler assemblyBtna17.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_17.OnExecute
             ' buttonsList.Add(assemblyBtna17)
+
+
 
         End Sub
     End Class
