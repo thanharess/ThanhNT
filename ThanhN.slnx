@@ -10,6 +10,11 @@
     <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/sap xep BOM theo sub asembly roi toi part tao iproperty r coppy lever top.txt" />
     <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/STT ().iLogicVb" />
     <File Path="F:/Desktop/Template/CODE 3D/CODE/2 Lap ghep/BOM/sắp sếp lại stt theo cây thư mục của bảng BOM.iLogicVb" />
+    <Project Path="../Setup inventor 2020/Setup inventor 2020.vdproj" Type="Installer">
+      <Build />
+    </Project>
   </Folder>
-  <Project Path="Tool Inventor 2020.vbproj" Id="e3133b87-5830-4eca-a611-be8cabd0d3ef" />
+  <Project Path="Tool Inventor 2020.vbproj" Id="e3133b87-5830-4eca-a611-be8cabd0d3ef">
+    <BuildType Project="Release" />
+  </Project>
 </Solution>

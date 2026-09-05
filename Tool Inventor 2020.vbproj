@@ -44,7 +44,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\..\..\..\..\ProgramData\Autodesk\Inventor 2020\Addins\ToolInventor2020\</OutputPath>
     <DocumentationFile>.xml</DocumentationFile>
     <DebugSymbols>false</DebugSymbols>
     <DefineDebug>false</DefineDebug>

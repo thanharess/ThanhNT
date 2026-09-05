@@ -80,6 +80,41 @@ Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
                 If levelIdx < 0 Then Exit Sub
                 Dim isAllLevel As Boolean = (levelIdx = 1)
 
+
+
+                '===== CHỌN SẮP XẾP RIÊNG CHO CỤM LẮP VÀ PART =====
+                Dim sortAsmIdx As Integer = PickFromList(
+    "Sắp xếp CỤM LẮP (Assembly)",
+    New String() {
+        "1 - Khối lượng lớn → bé",
+        "2 - Khối lượng bé → lớn",
+        "3 - Tên ngắn → dài",
+        "4 - Tên dài → ngắn",
+        "5 - Chữ cái A → Z",
+        "6 - Chữ cái Z → A"
+    }, 0)
+                If sortAsmIdx < 0 Then Exit Sub
+
+                Dim sortPartIdx As Integer = PickFromList(
+    "Sắp xếp PART",
+    New String() {
+        "1 - Khối lượng lớn → bé",
+        "2 - Khối lượng bé → lớn",
+        "3 - Tên ngắn → dài",
+        "4 - Tên dài → ngắn",
+        "5 - Chữ cái A → Z",
+        "6 - Chữ cái Z → A"
+    }, 0)
+                If sortPartIdx < 0 Then Exit Sub
+
+                Dim sortModeAsm As Integer = sortAsmIdx
+                Dim sortModePart As Integer = sortPartIdx
+
+
+
+
+
+
                 Dim baseText As String = InputBox(
                     "Nhập chữ dùng cho Part Number / Stock Number." & vbCrLf & vbCrLf &
                     "Để trống = chỉ Sort + đánh STT (không sửa PN/SN).",
@@ -158,11 +193,20 @@ Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
                 Dim listDocs As New List(Of Document)
 
                 If isAllLevel Then
+                    '  ProcessLevelWithPNCheck(oBOMView.BOMRows, baseText, mode, applyPN, applySN,
+                    'changedPN, changedSN, totalRows, listDocs, oAsm)
+
+
+                    ' ProcessLevelWithPNCheck(oBOMView.BOMRows, baseText, mode, applyPN, applySN,
+                    'changedPN, changedSN, totalRows, listDocs, oAsm, sortMode)
                     ProcessLevelWithPNCheck(oBOMView.BOMRows, baseText, mode, applyPN, applySN,
-                                            changedPN, changedSN, totalRows, listDocs, oAsm)
+                        changedPN, changedSN, totalRows, listDocs, oAsm,
+                        sortModeAsm, sortModePart)
                 Else
                     ' Top-level only
-                    Dim sortedRows As List(Of BOMRow) = SortRows(oBOMView.BOMRows)
+                    ' Dim sortedRows As List(Of BOMRow) = SortRows(oBOMView.BOMRows)'''''''''''''''' sua lan 1
+                    ' Dim sortedRows As List(Of BOMRow) = SortRows(oBOMView.BOMRows, sortMode) '' sưa lan 2
+                    Dim sortedRows As List(Of BOMRow) = SortRows(oBOMView.BOMRows, sortModeAsm, sortModePart)
                     Dim stt As Integer = 1
                     Dim pnToStt As New Dictionary(Of String, Integer)(StringComparer.OrdinalIgnoreCase)
 
@@ -256,16 +300,18 @@ Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
 
         ' All-level: mỗi cấp đánh số riêng + kiểm tra PN trùng trong cấp
         Private Sub ProcessLevelWithPNCheck(rows As BOMRowsEnumerator,
-                                            baseText As String, mode As Integer,
-                                            applyPN As Boolean, applySN As Boolean,
-                                            ByRef changedPN As Integer, ByRef changedSN As Integer,
-                                            ByRef totalRows As Integer,
-                                            listDocs As List(Of Document),
-                                            oAsm As AssemblyDocument)
+                                    baseText As String, mode As Integer,
+                                    applyPN As Boolean, applySN As Boolean,
+                                    ByRef changedPN As Integer, ByRef changedSN As Integer,
+                                    ByRef totalRows As Integer,
+                                    listDocs As List(Of Document),
+                                    oAsm As AssemblyDocument,
+                                    Optional sortModeAsm As Integer = 0,
+                                    Optional sortModePart As Integer = 0)
 
             If rows Is Nothing Then Exit Sub
 
-            Dim sortedRows As List(Of BOMRow) = SortRows(rows)
+            Dim sortedRows As List(Of BOMRow) = SortRows(rows, sortModeAsm, sortModePart)
             If sortedRows Is Nothing OrElse sortedRows.Count = 0 Then Exit Sub
 
             Dim stt As Integer = 1
@@ -343,8 +389,14 @@ Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
                         End Try
 
                         If subView IsNot Nothing Then
+                            '   ProcessLevelWithPNCheck(subView.BOMRows, baseText, mode, applyPN, applySN,
+                            'changedPN, changedSN, totalRows, listDocs, oAsm)
+
+                            '  ProcessLevelWithPNCheck(subView.BOMRows, baseText, mode, applyPN, applySN,
+                            ' changedPN, changedSN, totalRows, listDocs, oAsm, sortMode)
                             ProcessLevelWithPNCheck(subView.BOMRows, baseText, mode, applyPN, applySN,
-                                                    changedPN, changedSN, totalRows, listDocs, oAsm)
+                            changedPN, changedSN, totalRows, listDocs, oAsm,
+                            sortModeAsm, sortModePart)
                         End If
                     Catch
                     End Try
@@ -436,14 +488,16 @@ Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
             Next
             Return False
         End Function
+        Private Function SortRows(ByVal bomRows As BOMRowsEnumerator,
+                          Optional ByVal sortModeAsm As Integer = 0,
+                          Optional ByVal sortModePart As Integer = 0) As List(Of BOMRow)
 
-        Private Function SortRows(ByVal bomRows As BOMRowsEnumerator) As List(Of BOMRow)
-            Dim normalAsm As New List(Of Tuple(Of BOMRow, Double))
+            Dim normalAsm As New List(Of Tuple(Of BOMRow, Double, String))
             Dim purchasedAsm As New List(Of Tuple(Of BOMRow, Integer, String))
-            Dim normalPart As New List(Of Tuple(Of BOMRow, Double))
+            Dim normalPart As New List(Of Tuple(Of BOMRow, Double, String))
             Dim purchasedPart As New List(Of Tuple(Of BOMRow, Integer, String))
-            Dim phantomAsm As New List(Of Tuple(Of BOMRow, Double))
-            Dim phantomPart As New List(Of Tuple(Of BOMRow, Double))
+            Dim phantomAsm As New List(Of Tuple(Of BOMRow, Double, String))
+            Dim phantomPart As New List(Of Tuple(Of BOMRow, Double, String))
             Dim reference As New List(Of BOMRow)
 
             If bomRows Is Nothing Then Return New List(Of BOMRow)
@@ -476,6 +530,8 @@ Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
                 Dim searchText As String = GetSearchText(row)
                 Dim isFast As Boolean = IsFastener(searchText)
                 Dim isBear As Boolean = IsBearing(searchText)
+                Dim pn As String = GetPartNumber(row)
+                If String.IsNullOrEmpty(pn) Then pn = ""
 
                 If row.BOMStructure = BOMStructureEnum.kReferenceBOMStructure Then
                     reference.Add(row)
@@ -485,9 +541,9 @@ Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
                 If row.BOMStructure = BOMStructureEnum.kPhantomBOMStructure Then
                     Dim m As Double = GetMass(doc)
                     If isAsm Then
-                        phantomAsm.Add(Tuple.Create(row, m))
+                        phantomAsm.Add(Tuple.Create(row, m, pn))
                     ElseIf isPart Then
-                        phantomPart.Add(Tuple.Create(row, m))
+                        phantomPart.Add(Tuple.Create(row, m, pn))
                     Else
                         reference.Add(row)
                     End If
@@ -498,7 +554,6 @@ Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
                     Dim prio As Integer = 0
                     If isFast Then prio = 2
                     If isBear Then prio = 1
-                    Dim pn As String = GetPartNumber(row)
                     If isAsm Then
                         purchasedAsm.Add(Tuple.Create(row, prio, pn))
                     Else
@@ -507,26 +562,233 @@ Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
                     Continue For
                 End If
 
+                Dim mass As Double = GetMass(doc)
                 If isAsm Then
-                    normalAsm.Add(Tuple.Create(row, GetMass(doc)))
+                    normalAsm.Add(Tuple.Create(row, mass, pn))
                 ElseIf isPart Then
-                    normalPart.Add(Tuple.Create(row, GetMass(doc)))
+                    normalPart.Add(Tuple.Create(row, mass, pn))
                 Else
                     reference.Add(row)
                 End If
             Next
 
-            normalAsm.Sort(Function(a, b) b.Item2.CompareTo(a.Item2))
-            normalPart.Sort(Function(a, b) b.Item2.CompareTo(a.Item2))
-            phantomAsm.Sort(Function(a, b) b.Item2.CompareTo(a.Item2))
-            phantomPart.Sort(Function(a, b) b.Item2.CompareTo(a.Item2))
+            '===== SẮP XẾP RIÊNG CỤM LẮP =====
+            ApplySort(normalAsm, sortModeAsm)
+            ApplySort(phantomAsm, sortModeAsm)
 
+            '===== SẮP XẾP RIÊNG PART =====
+            ApplySort(normalPart, sortModePart)
+            ApplySort(phantomPart, sortModePart)
+
+            ' Purchased giữ logic cũ (Bearing → Fastener → còn lại)
             purchasedAsm.Sort(Function(a, b)
                                   Dim c = a.Item2.CompareTo(b.Item2)
                                   If c <> 0 Then Return c
                                   Return String.Compare(a.Item3, b.Item3, StringComparison.OrdinalIgnoreCase)
                               End Function)
+            purchasedPart.Sort(Function(a, b)
+                                   Dim c = a.Item2.CompareTo(b.Item2)
+                                   If c <> 0 Then Return c
+                                   Return String.Compare(a.Item3, b.Item3, StringComparison.OrdinalIgnoreCase)
+                               End Function)
 
+            reference.Sort(Function(a, b) String.Compare(GetPartNumber(a), GetPartNumber(b), StringComparison.OrdinalIgnoreCase))
+
+            Dim result As New List(Of BOMRow)
+            For Each x In normalAsm : result.Add(x.Item1) : Next
+            For Each x In purchasedAsm : result.Add(x.Item1) : Next
+            For Each x In normalPart : result.Add(x.Item1) : Next
+            For Each x In purchasedPart : result.Add(x.Item1) : Next
+            For Each x In phantomAsm : result.Add(x.Item1) : Next
+            For Each x In phantomPart : result.Add(x.Item1) : Next
+            For Each x In reference : result.Add(x) : Next
+
+            Return result
+        End Function
+
+        ' Hàm hỗ trợ sort theo mode
+        Private Sub ApplySort(list As List(Of Tuple(Of BOMRow, Double, String)), mode As Integer)
+            Select Case mode
+                Case 1  ' Mass ASC (bé → lớn)
+                    list.Sort(Function(a, b) a.Item2.CompareTo(b.Item2))
+
+                Case 2  ' Tên ngắn → dài (theo độ dài, rồi A→Z)
+                    list.Sort(Function(a, b)
+                                  Dim c = a.Item3.Length.CompareTo(b.Item3.Length)
+                                  If c <> 0 Then Return c
+                                  Return String.Compare(a.Item3, b.Item3, StringComparison.OrdinalIgnoreCase)
+                              End Function)
+
+                Case 3  ' Tên dài → ngắn (theo độ dài, rồi Z→A)
+                    list.Sort(Function(a, b)
+                                  Dim c = b.Item3.Length.CompareTo(a.Item3.Length)
+                                  If c <> 0 Then Return c
+                                  Return String.Compare(b.Item3, a.Item3, StringComparison.OrdinalIgnoreCase)
+                              End Function)
+
+                Case 4  ' Chữ cái A → Z
+                    list.Sort(Function(a, b) String.Compare(a.Item3, b.Item3, StringComparison.OrdinalIgnoreCase))
+
+                Case 5  ' Chữ cái Z → A
+                    list.Sort(Function(a, b) String.Compare(b.Item3, a.Item3, StringComparison.OrdinalIgnoreCase))
+
+                Case Else  ' 0 = Mass DESC (lớn → bé) - mặc định
+                    list.Sort(Function(a, b) b.Item2.CompareTo(a.Item2))
+            End Select
+        End Sub
+        Private Function SortRows1(ByVal bomRows As BOMRowsEnumerator,
+                          Optional ByVal sortMode As Integer = 0) As List(Of BOMRow)
+
+            Dim normalAsm As New List(Of Tuple(Of BOMRow, Double, String))
+            Dim purchasedAsm As New List(Of Tuple(Of BOMRow, Integer, String))
+            Dim normalPart As New List(Of Tuple(Of BOMRow, Double, String))
+            Dim purchasedPart As New List(Of Tuple(Of BOMRow, Integer, String))
+            Dim phantomAsm As New List(Of Tuple(Of BOMRow, Double, String))
+            Dim phantomPart As New List(Of Tuple(Of BOMRow, Double, String))
+            Dim reference As New List(Of BOMRow)
+
+            If bomRows Is Nothing Then Return New List(Of BOMRow)
+
+            For Each row As BOMRow In bomRows
+                If row Is Nothing Then Continue For
+
+                Dim doc As Document = Nothing
+                Try
+                    If row.ComponentDefinitions Is Nothing OrElse row.ComponentDefinitions.Count = 0 Then
+                        If row.BOMStructure = BOMStructureEnum.kReferenceBOMStructure Then
+                            reference.Add(row)
+                        End If
+                        Continue For
+                    End If
+                    doc = row.ComponentDefinitions.Item(1).Document
+                Catch
+                    Continue For
+                End Try
+                If doc Is Nothing Then Continue For
+
+                Dim isAsm As Boolean = False
+                Dim isPart As Boolean = False
+                Try
+                    isAsm = (doc.DocumentType = DocumentTypeEnum.kAssemblyDocumentObject)
+                    isPart = (doc.DocumentType = DocumentTypeEnum.kPartDocumentObject)
+                Catch
+                End Try
+
+                Dim searchText As String = GetSearchText(row)
+                Dim isFast As Boolean = IsFastener(searchText)
+                Dim isBear As Boolean = IsBearing(searchText)
+                Dim pn As String = GetPartNumber(row)
+                If String.IsNullOrEmpty(pn) Then pn = ""
+
+                If row.BOMStructure = BOMStructureEnum.kReferenceBOMStructure Then
+                    reference.Add(row)
+                    Continue For
+                End If
+
+                If row.BOMStructure = BOMStructureEnum.kPhantomBOMStructure Then
+                    Dim m As Double = GetMass(doc)
+                    If isAsm Then
+                        phantomAsm.Add(Tuple.Create(row, m, pn))
+                    ElseIf isPart Then
+                        phantomPart.Add(Tuple.Create(row, m, pn))
+                    Else
+                        reference.Add(row)
+                    End If
+                    Continue For
+                End If
+
+                If row.BOMStructure = BOMStructureEnum.kPurchasedBOMStructure Then
+                    Dim prio As Integer = 0
+                    If isFast Then prio = 2
+                    If isBear Then prio = 1
+                    If isAsm Then
+                        purchasedAsm.Add(Tuple.Create(row, prio, pn))
+                    Else
+                        purchasedPart.Add(Tuple.Create(row, prio, pn))
+                    End If
+                    Continue For
+                End If
+
+                Dim mass As Double = GetMass(doc)
+                If isAsm Then
+                    normalAsm.Add(Tuple.Create(row, mass, pn))
+                ElseIf isPart Then
+                    normalPart.Add(Tuple.Create(row, mass, pn))
+                Else
+                    reference.Add(row)
+                End If
+            Next
+
+            '===== SẮP XẾP THEO sortMode =====
+            ' 0 = Mass DESC (lớn → bé)
+            ' 1 = Mass ASC  (bé → lớn)
+            ' 2 = Name ASC  (ngắn → dài, rồi A→Z)
+            ' 3 = Name DESC (dài → ngắn, rồi Z→A)
+
+            Select Case sortMode
+                Case 1  ' Mass ASC
+                    normalAsm.Sort(Function(a, b) a.Item2.CompareTo(b.Item2))
+                    normalPart.Sort(Function(a, b) a.Item2.CompareTo(b.Item2))
+                    phantomAsm.Sort(Function(a, b) a.Item2.CompareTo(b.Item2))
+                    phantomPart.Sort(Function(a, b) a.Item2.CompareTo(b.Item2))
+
+                Case 2  ' Name short → long
+                    normalAsm.Sort(Function(a, b)
+                                       Dim c = a.Item3.Length.CompareTo(b.Item3.Length)
+                                       If c <> 0 Then Return c
+                                       Return String.Compare(a.Item3, b.Item3, StringComparison.OrdinalIgnoreCase)
+                                   End Function)
+                    normalPart.Sort(Function(a, b)
+                                        Dim c = a.Item3.Length.CompareTo(b.Item3.Length)
+                                        If c <> 0 Then Return c
+                                        Return String.Compare(a.Item3, b.Item3, StringComparison.OrdinalIgnoreCase)
+                                    End Function)
+                    phantomAsm.Sort(Function(a, b)
+                                        Dim c = a.Item3.Length.CompareTo(b.Item3.Length)
+                                        If c <> 0 Then Return c
+                                        Return String.Compare(a.Item3, b.Item3, StringComparison.OrdinalIgnoreCase)
+                                    End Function)
+                    phantomPart.Sort(Function(a, b)
+                                         Dim c = a.Item3.Length.CompareTo(b.Item3.Length)
+                                         If c <> 0 Then Return c
+                                         Return String.Compare(a.Item3, b.Item3, StringComparison.OrdinalIgnoreCase)
+                                     End Function)
+
+                Case 3  ' Name long → short
+                    normalAsm.Sort(Function(a, b)
+                                       Dim c = b.Item3.Length.CompareTo(a.Item3.Length)
+                                       If c <> 0 Then Return c
+                                       Return String.Compare(b.Item3, a.Item3, StringComparison.OrdinalIgnoreCase)
+                                   End Function)
+                    normalPart.Sort(Function(a, b)
+                                        Dim c = b.Item3.Length.CompareTo(a.Item3.Length)
+                                        If c <> 0 Then Return c
+                                        Return String.Compare(b.Item3, a.Item3, StringComparison.OrdinalIgnoreCase)
+                                    End Function)
+                    phantomAsm.Sort(Function(a, b)
+                                        Dim c = b.Item3.Length.CompareTo(a.Item3.Length)
+                                        If c <> 0 Then Return c
+                                        Return String.Compare(b.Item3, a.Item3, StringComparison.OrdinalIgnoreCase)
+                                    End Function)
+                    phantomPart.Sort(Function(a, b)
+                                         Dim c = b.Item3.Length.CompareTo(a.Item3.Length)
+                                         If c <> 0 Then Return c
+                                         Return String.Compare(b.Item3, a.Item3, StringComparison.OrdinalIgnoreCase)
+                                     End Function)
+
+                Case Else  ' 0 = Mass DESC (mặc định cũ)
+                    normalAsm.Sort(Function(a, b) b.Item2.CompareTo(a.Item2))
+                    normalPart.Sort(Function(a, b) b.Item2.CompareTo(a.Item2))
+                    phantomAsm.Sort(Function(a, b) b.Item2.CompareTo(a.Item2))
+                    phantomPart.Sort(Function(a, b) b.Item2.CompareTo(a.Item2))
+            End Select
+
+            ' Purchased vẫn ưu tiên Bearing → Fastener → còn lại (giữ nguyên logic cũ)
+            purchasedAsm.Sort(Function(a, b)
+                                  Dim c = a.Item2.CompareTo(b.Item2)
+                                  If c <> 0 Then Return c
+                                  Return String.Compare(a.Item3, b.Item3, StringComparison.OrdinalIgnoreCase)
+                              End Function)
             purchasedPart.Sort(Function(a, b)
                                    Dim c = a.Item2.CompareTo(b.Item2)
                                    If c <> 0 Then Return c

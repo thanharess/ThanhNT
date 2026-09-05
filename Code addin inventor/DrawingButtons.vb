@@ -36,7 +36,7 @@ Namespace ToolInventor2020
                 iconsFolder = System.IO.Path.Combine(assemblyFolder4, "Code addin inventor", "Images", "Drawing")
             End If
 
-
+#Region "Prepare icon paths"
             Dim Dra1LargePath1 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
             Dim Dra1SmallPath1 As String = System.IO.Path.Combine(iconsFolder, "i34 1.bmp")
             Dim Dra1LargePath2 As String = System.IO.Path.Combine(iconsFolder, "i34.bmp")
@@ -140,6 +140,8 @@ Namespace ToolInventor2020
             Dim Dra1SmallIcon22 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath22), LoadIconFromPath(Dra1SmallPath22), smallIcon)
             Dim Dra1LargeIcon23 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1LargePath23), LoadIconFromPath(Dra1LargePath23), largeIcon)
             Dim Dra1SmallIcon23 As stdole.IPictureDisp = If(System.IO.File.Exists(Dra1SmallPath23), LoadIconFromPath(Dra1SmallPath23), smallIcon)
+#End Region
+
 
             ' Create Drawing buttons explicitly (no loop) so each button can have distinct implementation
             Dim drawingBtn1 As ButtonDefinition = controlDefs.AddButtonDefinition("Sửa số thập phân dim", "ToolInventor2020_Drawing_Btn1", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon1, Dra1LargeIcon1)
@@ -205,6 +207,8 @@ Namespace ToolInventor2020
             Dim DrawingBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 15", "ToolInventor2020_Drawing_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon15, Dra1LargeIcon15)
             AddHandler DrawingBtn15.OnExecute, AddressOf Drawing.Buttons.Draw_15.OnExecute
             ' buttonsList.Add(DrawingBtn15)
+
+
 
         End Sub
     End Class
