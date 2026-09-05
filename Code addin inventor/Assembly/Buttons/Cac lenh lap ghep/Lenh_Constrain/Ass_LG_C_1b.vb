@@ -7,7 +7,7 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep.constraint
 
 
 
-    Public Module Ass_LG_1b
+    Public Module Ass_LG_C_1b
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Try
                 AutoConstrainComponents()

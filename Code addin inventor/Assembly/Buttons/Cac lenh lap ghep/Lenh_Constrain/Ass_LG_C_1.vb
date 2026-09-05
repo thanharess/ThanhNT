@@ -11,20 +11,21 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep.constraint
 
 
     'Gán module này cho một nút Inventor. Các Ass_11, Ass_12, Ass_13 vẫn giữ nguyên.
-    Public Module ass_LG_1
+    Public Module Ass_LG_C_1
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Select Case ShowSheetMetalMenu()
 
                 Case 1
-                    Ass_LG_1a.OnExecute(Context)
+                    Ass_LG_C_1a.OnExecute(Context)
                 Case 2
-                    Ass_LG_1b.OnExecute(Context)
+                    Ass_LG_C_1b.OnExecute(Context)
                 Case 3
-                    Ass_LG_1c.OnExecute(Context)
+                    Ass_LG_C_1c.OnExecute(Context)
                 Case 4
-                    Ass_LG_1d.OnExecute(Context)
-
+                    Ass_LG_C_1d.OnExecute(Context)
+                Case 5
+                    Ass_LG_C_1e.OnExecute(Context)
             End Select
         End Sub
 
@@ -32,9 +33,9 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep.constraint
             Dim result As Integer = 0
 
             Using form As New Form()
-                form.Text = ""
-                form.Width = 550
-                form.Height = 540
+                form.Text = "Constraints Assembly"
+                form.Width = 500
+                form.Height = 410
                 form.StartPosition = FormStartPosition.CenterScreen
                 form.FormBorderStyle = FormBorderStyle.FixedDialog
                 form.MaximizeBox = False
@@ -42,7 +43,7 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep.constraint
 
                 Dim title As New Label() With {
                         .Text = "Constraints", .Left = 20, .Top = 15,
-                        .Width = 500, .Height = 28
+                        .Width = 450, .Height = 28
                     }
                 form.Controls.Add(title)
 
@@ -51,10 +52,10 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep.constraint
                 AddMenuButton(form, "Contrain Keep position", 95, 2) 'ok
                 AddMenuButton(form, "Contrain về gốc 2 chi tiết", 145, 3) 'ok
                 AddMenuButton(form, "Contrain all to select", 195, 4) 'ok
-                '  AddMenuButton(form, "Xóa all Constrain lỗi", 195, 4) 'ok
+                AddMenuButton(form, "Xóa all Constrain lỗi", 245, 5) 'ok
 
                 Dim cancelButton As New Button() With {
-                        .Text = "HỦY", .Left = 20, .Top = 445, .Width = 500, .Height = 32
+                        .Text = "HỦY", .Left = 20, .Top = 310, .Width = 450, .Height = 32
                     }
                 AddHandler cancelButton.Click, Sub() form.Close()
                 form.Controls.Add(cancelButton)
@@ -68,7 +69,7 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep.constraint
 
         Private Sub AddMenuButton(ByVal form As Form, ByVal text As String, ByVal top As Integer, ByVal value As Integer)
             Dim button As New Button() With {
-                    .Text = text, .Left = 20, .Top = top, .Width = 500, .Height = 42
+                    .Text = text, .Left = 20, .Top = top, .Width = 450, .Height = 42
                 }
             AddHandler button.Click, Sub()
                                          form.Tag = value

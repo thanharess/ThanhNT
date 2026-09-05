@@ -2,8 +2,8 @@
 Imports System.Windows.Forms
 Imports Inventor
 
-Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
-    Public Module ass_LG_6
+Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep.constraint
+    Public Module Ass_LG_C_1e
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Dim oApp As Inventor.Application = g_inventorApplication
