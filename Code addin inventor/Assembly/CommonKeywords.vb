@@ -3,8 +3,9 @@ Option Explicit On
 Option Strict Off
 
 Imports System
+Imports System.Runtime.InteropServices
 
-Namespace ToolInventor2020
+Namespace ToolInventor2020.Assembly
 
     Public Module CommonKeywords
 
@@ -13,28 +14,24 @@ Namespace ToolInventor2020
         '==========================================================
         Public ReadOnly BearingKeywords As String() = {
             "vòng bi", "vong bi", "bearing", "motor", "gối bi", "goi bi", "gối đỡ", "goi do", "pillow",
-            "plummer", "ucp", "ucf", "ucfl", "khóa trục", "khoa truc"}
+            "plummer", "ucp", "ucf", "ucfl", "khóa trục", "khoa truc", "ntn", "mortor", "mottor", "UCT"}
         '==========================================================
         ' FASTENER
         '==========================================================
         Public ReadOnly FastenerKeywords As String() = {
             "bulong",
             "bu lông", "bu long", "ốc", "oc", "đai ốc", "dai oc", "vít", "vit", "ecu",
-            "êcu", "then", "then chốt",
-            "long đen", "lông đền", "long den", "washer",
-            "iso", "din",
-            "jis", "m3", "m4", "m5", "m6", "m8", "lock collar",
-            "locknut", "lock nut", "m10", "m12", "m16",
-            "m20", "m24", "m30", "m36", "m42",
-            "m48",
-            "ss 2", "iso 4", "din 125", "din 127",
+            "êcu", "then", "then chốt", "long đen", "lông đền", "long den", "washer",
+            "iso", "din", "jis", "m3", "m4", "m5", "m6", "m8", "lock collar",
+            "locknut", "lock nut", "m10", "m12", "m16", "then hoa",
+            "m20", "m24", "m30", "m36", "m42", "m48", "ss 2", "iso 4", "din 125", "din 127",
             "din 933", "din 934", "din 6912"}
 
         '==========================================================
         ' STANDARD
         '==========================================================
         Public ReadOnly StandardKeywords As String() = {
-            "ISO", "DIN", "SKF", "SS", "GB", "JIS", "ANSI", "BSI", "GOST", "ASTM"}
+            "ISO", "DIN", "SKF", "SS", "GB", "JIS", "ANSI", "BSI", "GOST", "ASTM", "UPE"}
 
         '==========================================================
         ' BEARING

@@ -4,7 +4,6 @@ Imports System.Collections.Generic
 Imports System.Windows.Forms
 Imports Inventor
 Imports IO = System.IO
-Imports ToolInventor2020   ' CommonKeywords
 
 Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
     Public Module Ass_boctach_part_1e
@@ -44,33 +43,34 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
                     openedByCode = True
                 End If
 
-                ' Chọn loại chi tiết
                 Dim partType As Integer = SimpleSelectPartType()
                 If partType = 0 Then
                     If openedByCode Then oOrigAsmDoc.Close(False)
                     Exit Sub
                 End If
 
-                ' Tạo Assembly đích
                 Dim targetDoc As AssemblyDocument = CType(oApp.Documents.Add(DocumentTypeEnum.kAssemblyDocumentObject), AssemblyDocument)
                 Dim baseName As String = IO.Path.GetFileNameWithoutExtension(selectedFile)
-                Dim displayName As String = baseName & "_Aggregated_Parts"
-                targetDoc.DisplayName = displayName
+                targetDoc.DisplayName = baseName & "_TopLevel_WithQty"
 
-                ' Parts Only BOM
+                '=====================================================
+                ' SỬ DỤNG STRUCTURED BOM - FIRST LEVEL ONLY
+                ' ĐỂ CHỈ LẤY TOP LEVEL
+                '=====================================================
                 Dim oBOM As BOM = oOrigAsmDoc.ComponentDefinition.BOM
-                Try : oBOM.PartsOnlyViewEnabled = True : Catch : End Try
+                Try : oBOM.StructuredViewEnabled = True : Catch : End Try
+                Try : oBOM.StructuredViewFirstLevelOnly = True : Catch : End Try
                 Try : oBOM.Update() : Catch : End Try
 
-                Dim partsView As BOMView = Nothing
+                Dim view As BOMView = Nothing
                 Try
-                    partsView = oBOM.BOMViews.Item("Parts Only")
+                    view = oBOM.BOMViews.Item("Structured")
                 Catch
-                    partsView = Nothing
+                    view = Nothing
                 End Try
 
-                If partsView Is Nothing Then
-                    MessageBox.Show("Không lấy được Parts-Only BOM view.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                If view Is Nothing Then
+                    MessageBox.Show("Cannot get Structured BOM view.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     If openedByCode Then oOrigAsmDoc.Close(False)
                     targetDoc.Close(False)
                     Exit Sub
@@ -80,172 +80,94 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
                 Dim oMatrix As Matrix = oTG.CreateMatrix()
                 Dim added As Integer = 0
 
-                '==========================================================
-                ' UPDATE ASSEMBLY ĐÍCH + HIỆN ITEM QTY TRONG BOM
-                '==========================================================
-                Try
-                    targetDoc.Update2(True)
-                Catch
-                End Try
+                ' Dictionary để theo dõi số lượng của mỗi document (part + assembly)
+                Dim docQuantities As New Dictionary(Of String, Integer)(StringComparer.OrdinalIgnoreCase)
 
-                Try
-                    Dim targetBOM As BOM = targetDoc.ComponentDefinition.BOM
-
-                    '------------------------------------------------------
-                    ' BẬT PARTS ONLY
-                    '------------------------------------------------------
-                    Try
-                        targetBOM.PartsOnlyViewEnabled = True
-                    Catch
-                    End Try
-
-                    Try
-                        targetBOM.Update()
-                    Catch
-                    End Try
-
-                    '------------------------------------------------------
-                    ' LẤY PARTS ONLY VIEW
-                    '------------------------------------------------------
-                    Dim targetPartsView As BOMView = Nothing
-
-                    Try
-                        targetPartsView = targetBOM.BOMViews.Item("Parts Only")
-                    Catch
-                        targetPartsView = Nothing
-                    End Try
-
-                    '------------------------------------------------------
-                    ' HIỆN CỘT QTY
-                    ' KHÔNG DÙNG BOMColumn
-                    '------------------------------------------------------
-                    If targetPartsView IsNot Nothing Then
-
-                        Try
-                            Dim cols As Object = targetPartsView.BOMColumns
-
-                            For i As Integer = 1 To cols.Count
-
-                                Dim col As Object = Nothing
-
-                                Try
-                                    col = cols.Item(i)
-                                Catch
-                                    col = Nothing
-                                End Try
-
-                                If col Is Nothing Then Continue For
-
-                                Dim title As String = ""
-                                Dim propName As String = ""
-
-                                Try
-                                    title = CStr(col.Title)
-                                Catch
-                                    title = ""
-                                End Try
-
-                                Try
-                                    propName = CStr(col.PropertyName)
-                                Catch
-                                    propName = ""
-                                End Try
-
-                                '------------------------------------------
-                                ' QTY / ITEM QTY / QUANTITY
-                                '------------------------------------------
-                                If String.Equals(title.Trim(), "QTY", StringComparison.OrdinalIgnoreCase) OrElse
-                   String.Equals(title.Trim(), "Item Qty", StringComparison.OrdinalIgnoreCase) OrElse
-                   String.Equals(title.Trim(), "Quantity", StringComparison.OrdinalIgnoreCase) OrElse
-                   String.Equals(propName.Trim(), "Quantity", StringComparison.OrdinalIgnoreCase) Then
-
-                                    Try
-                                        col.Visible = True
-                                    Catch
-                                    End Try
-
-                                End If
-
-                            Next
-
-                        Catch
-                        End Try
-
-                    End If
-
-                Catch
-                    ' Không để lỗi BOM làm dừng chương trình
-                End Try
-
-                MessageBox.Show(
-    "Done." & vbCrLf &
-    "Added occurrences: " & added.ToString(),
-    "Info",
-    MessageBoxButtons.OK,
-    MessageBoxIcon.Information
-)
-
-
-
-                For Each row As BOMRow In partsView.BOMRows
+                For Each row As BOMRow In view.BOMRows
                     Try
                         If row Is Nothing OrElse row.ComponentDefinitions Is Nothing OrElse row.ComponentDefinitions.Count = 0 Then Continue For
-
                         Dim doc As Document = row.ComponentDefinitions.Item(1).Document
                         If doc Is Nothing Then Continue For
 
                         Dim include As Boolean = False
 
-                        ' Lấy Part Number (dùng chung cho filter 3 & 4)
-                        Dim pn As String = ""
-                        Try
-                            pn = GetProperty(doc, "Part Number")
-                        Catch
-                        End Try
-
-                        Select Case partType
-                            Case 1   ' SHEET METAL
-                                If doc.DocumentType = DocumentTypeEnum.kPartDocumentObject Then
-                                    Dim part As PartDocument = CType(doc, PartDocument)
-                                    Dim sm As SheetMetalComponentDefinition = TryCast(part.ComponentDefinition, SheetMetalComponentDefinition)
-                                    include = (sm IsNot Nothing AndAlso sm.Features.Count > 0)
-                                End If
-
-                            Case 2   ' PURCHASED
-                                include = (row.BOMStructure = BOMStructureEnum.kPurchasedBOMStructure)
-
-                            Case 3   ' STANDARD LIBRARY  (Bearing + Fastener + Standard)
-                                include = IsLibraryPart(pn)
-
-                            Case 4   ' PURCHASED + LIBRARY
-                                Dim purchased As Boolean = (row.BOMStructure = BOMStructureEnum.kPurchasedBOMStructure)
-                                include = purchased OrElse IsLibraryPart(pn)
-                        End Select
+                        ' Xử lý theo loại được chọn
+                        If partType = 1 Then
+                            ' SHEET METAL - chỉ áp dụng cho Part
+                            If doc.DocumentType = DocumentTypeEnum.kPartDocumentObject Then
+                                Dim part As PartDocument = CType(doc, PartDocument)
+                                Dim sm As SheetMetalComponentDefinition = TryCast(part.ComponentDefinition, SheetMetalComponentDefinition)
+                                include = (sm IsNot Nothing AndAlso sm.Features.Count > 0)
+                            End If
+                        ElseIf partType = 2 Then
+                            ' PURCHASED - áp dụng cho cả Part và Assembly
+                            include = (row.BOMStructure = BOMStructureEnum.kPurchasedBOMStructure)
+                        ElseIf partType = 3 Then
+                            ' STANDARD LIBRARY - áp dụng cho cả Part và Assembly
+                            Dim pn As String = GetProperty(doc, "Part Number")
+                            If pn Is Nothing Then pn = ""
+                            pn = pn.Trim().ToUpperInvariant()
+                            include = IsLibraryPart(pn)
+                        ElseIf partType = 4 Then
+                            ' PURCHASED + LIBRARY - áp dụng cho cả Part và Assembly
+                            Dim pn As String = GetProperty(doc, "Part Number")
+                            If pn Is Nothing Then pn = ""
+                            pn = pn.Trim().ToUpperInvariant()
+                            Dim purchased As Boolean = (row.BOMStructure = BOMStructureEnum.kPurchasedBOMStructure)
+                            Dim library As Boolean = IsLibraryPart(pn)
+                            include = (purchased OrElse library)
+                        End If
 
                         If Not include Then Continue For
 
+                        ' Lấy số lượng từ BOM row
                         Dim qty As Integer = 1
                         Try
-                            qty = CInt(row.ItemQuantity)
+                            qty = CInt(Math.Round(CDbl(row.ItemQuantity), 0))
+                            If qty < 1 Then qty = 1
                         Catch
                             qty = 1
                         End Try
 
+                        ' Lấy key của document
+                        Dim key As String = GetDocKey(doc)
 
-                        For i As Integer = 1 To Math.Max(1, qty)
+                        ' Cộng dồn số lượng
+                        If docQuantities.ContainsKey(key) Then
+                            docQuantities(key) += qty
+                        Else
+                            docQuantities.Add(key, qty)
+                        End If
+
+                    Catch ex As Exception
+                        ' Bỏ qua row lỗi
+                    End Try
+                Next
+
+                '=====================================================
+                ' THÊM DOCUMENTS VỚI SỐ LƯỢNG ĐÃ CỘNG DỒN
+                '=====================================================
+                For Each kvp As KeyValuePair(Of String, Integer) In docQuantities
+                    Try
+                        Dim docFullName As String = kvp.Key
+                        Dim qty As Integer = kvp.Value
+
+                        ' Thêm occurrence với số lượng đã cộng dồn
+                        For i As Integer = 1 To qty
                             Try
-                                targetDoc.ComponentDefinition.Occurrences.Add(doc.FullFileName, oMatrix)
+                                targetDoc.ComponentDefinition.Occurrences.Add(docFullName, oMatrix)
                                 added += 1
                             Catch
+                                ' Bỏ qua nếu không thêm được
                             End Try
                         Next
 
-                    Catch
+                    Catch ex As Exception
+                        ' Bỏ qua document lỗi
                     End Try
                 Next
 
                 targetDoc.Update2(True)
-
                 MessageBox.Show("Done. Added occurrences: " & added.ToString(), "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
                 If openedByCode Then oOrigAsmDoc.Close(False)
@@ -255,61 +177,6 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
             End Try
         End Sub
 
-        '=====================================================
-        ' Kiểm tra chi tiết thuộc thư viện tiêu chuẩn
-        ' BearingKeywords + FastenerKeywords + StandardKeywords
-        '=====================================================
-        '  Private Function IsLibraryPart(pn As String) As Boolean
-        ' If String.IsNullOrEmpty(pn) Then Return False
-        'Return CommonKeywords.IsBearing(pn) OrElse
-        '          CommonKeywords.IsFastener(pn) OrElse
-        '         CommonKeywords.IsStandardKeyword(pn)
-        'End Function
-
-
-
-
-        '==========================================================
-        ' KIỂM TRA KEYWORD TỪ KÝ TỰ ĐẦU TIÊN
-        ' SO SÁNH TỪ TRÁI SANG PHẢI
-        '==========================================================
-        Private Function IsLibraryPart(ByVal pn As String) As Boolean
-
-            If String.IsNullOrWhiteSpace(pn) Then
-                Return False
-            End If
-
-            pn = pn.Trim().ToUpperInvariant()
-
-            Try
-                If ToolInventor2020.CommonKeywords.IsBearing(pn) Then
-                    Return True
-                End If
-            Catch
-            End Try
-
-            Try
-                If ToolInventor2020.CommonKeywords.IsFastener(pn) Then
-                    Return True
-                End If
-            Catch
-            End Try
-
-            Try
-                If ToolInventor2020.CommonKeywords.IsStandardKeyword(pn) Then
-                    Return True
-                End If
-            Catch
-            End Try
-
-            Return False
-
-        End Function
-
-
-        '=====================================================
-        ' Dialog chọn loại
-        '=====================================================
         Private Function SimpleSelectPartType() As Integer
             Dim result As Integer = 0
 
@@ -379,5 +246,50 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
             End Try
         End Function
 
+        Private Function GetDocKey(doc As Document) As String
+            Try
+                If doc Is Nothing Then Return ""
+                Return doc.FullFileName.ToLowerInvariant()
+            Catch
+                Return ""
+            End Try
+        End Function
+
+        '==========================================================
+        ' KIỂM TRA KEYWORD TỪ KÝ TỰ ĐẦU TIÊN
+        ' SO SÁNH TỪ TRÁI SANG PHẢI
+        '==========================================================
+        Private Function IsLibraryPart(ByVal pn As String) As Boolean
+
+            If String.IsNullOrWhiteSpace(pn) Then
+                Return False
+            End If
+
+            pn = pn.Trim().ToUpperInvariant()
+
+            Try
+                If ToolInventor2020.Assembly.CommonKeywords.IsBearing(pn) Then
+                    Return True
+                End If
+            Catch
+            End Try
+
+            Try
+                If ToolInventor2020.Assembly.CommonKeywords.IsFastener(pn) Then
+                    Return True
+                End If
+            Catch
+            End Try
+
+            Try
+                If ToolInventor2020.Assembly.CommonKeywords.IsStandardKeyword(pn) Then
+                    Return True
+                End If
+            Catch
+            End Try
+
+            Return False
+
+        End Function
     End Module
 End Namespace

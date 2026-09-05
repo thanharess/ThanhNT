@@ -1,38 +1,21 @@
-Option Explicit On
-Option Strict Off
 Imports System.Collections.Generic
 Imports System.Windows.Forms
 Imports Inventor
 
 Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
     Public Module Ass_boctach_part_1c
-
-
-
-
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
             Dim oApp As Inventor.Application = g_inventorApplication
-
             Dim selectedFile As String = ""
-            Dim activeDoc As Document = Nothing
 
             Try
 
                 '=====================================================
-                ' LẤY DOCUMENT ĐANG ACTIVE
+                ' BƯỚC 1: CHỌN FILE ASSEMBLY
                 '=====================================================
 
-                Try
-                    activeDoc = oApp.ActiveDocument
-                Catch
-                    activeDoc = Nothing
-                End Try
-
-
-                '=====================================================
-                ' BƯỚC 1: CHỌN ASSEMBLY
-                '=====================================================
+                Dim activeDoc As Document = oApp.ActiveDocument
 
                 If activeDoc IsNot Nothing AndAlso
                    activeDoc.DocumentType =
@@ -47,20 +30,17 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
 
                     If result = DialogResult.Yes Then
 
-                        selectedFile =
-                            activeDoc.FullFileName
+                        selectedFile = activeDoc.FullFileName
 
                     Else
 
-                        selectedFile =
-                            SelectAssemblyFile()
+                        selectedFile = SelectAssemblyFile(oApp)
 
                     End If
 
                 Else
 
-                    selectedFile =
-                        SelectAssemblyFile()
+                    selectedFile = SelectAssemblyFile(oApp)
 
                 End If
 
@@ -79,8 +59,6 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
                 '=====================================================
 
                 Dim oOrigAsmDoc As AssemblyDocument = Nothing
-                Dim openedByCode As Boolean = False
-
 
                 If activeDoc IsNot Nothing AndAlso
                    String.Equals(
@@ -100,8 +78,6 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
                                 False),
                             AssemblyDocument)
 
-                    openedByCode = True
-
                 End If
 
 
@@ -112,14 +88,19 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
                 Dim oNewAsmDoc As AssemblyDocument =
                     CType(
                         oApp.Documents.Add(
-                            DocumentTypeEnum.kAssemblyDocumentObject),
+                            DocumentTypeEnum.kAssemblyDocumentObject,
+                            "",
+                            True),
                         AssemblyDocument)
 
+
+                '=====================================================
+                ' TÊN DISPLAY
+                '=====================================================
 
                 Dim baseName As String =
                     IO.Path.GetFileNameWithoutExtension(
                         selectedFile)
-
 
                 oNewAsmDoc.DisplayName =
                     baseName &
@@ -127,137 +108,88 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
 
 
                 '=====================================================
-                ' BƯỚC 4:
-                ' THU THẬP SHEET METAL
-                '
-                ' DÙNG LIST -> GIỮ DUPLICATE
-                '
-                ' Ví dụ:
-                '
-                ' PART-A xuất hiện 5 lần
-                ' => List chứa PART-A 5 lần
-                '
+                ' BƯỚC 4: DUYỆT ASSEMBLY
                 '=====================================================
 
-
-
-                ' Collect sheet metal parts using Parts-Only BOM totals (aggregate actual quantities)
-                Dim sheetMetalParts As New List(Of String)
-                Try
-                    Dim oBOM As BOM = oOrigAsmDoc.ComponentDefinition.BOM
-                    Try : oBOM.PartsOnlyViewEnabled = True : Catch : End Try
-                    Try : oBOM.Update() : Catch : End Try
-                    Dim partsView As BOMView = Nothing
-                    Try
-                        partsView = oBOM.BOMViews.Item("Parts Only")
-                    Catch
-                        partsView = Nothing
-                    End Try
-
-                    If partsView IsNot Nothing Then
-                        For Each row As BOMRow In partsView.BOMRows
-                            Try
-                                If row Is Nothing OrElse row.ComponentDefinitions Is Nothing OrElse row.ComponentDefinitions.Count = 0 Then Continue For
-                                Dim doc As Document = row.ComponentDefinitions.Item(1).Document
-                                If doc Is Nothing Then Continue For
-                                If doc.DocumentType <> DocumentTypeEnum.kPartDocumentObject Then Continue For
-                                Dim part As PartDocument = CType(doc, PartDocument)
-                                Dim sm As SheetMetalComponentDefinition = TryCast(part.ComponentDefinition, SheetMetalComponentDefinition)
-                                If sm Is Nothing Then Continue For
-                                ' TotalQuantity gives aggregated quantity across assembly
-                                Dim qty As Integer = 1
-                                Try
-                                    qty = CInt(System.Math.Round(CDbl(row.TotalQuantity), 0))
-                                Catch
-                                    qty = 1
-                                End Try
-                                For i As Integer = 1 To Math.Max(1, qty)
-                                    sheetMetalParts.Add(part.FullFileName)
-                                Next
-                            Catch
-                            End Try
-                        Next
-                    End If
-                Catch
-                    ' fallback to original occurrence-based collection
-                    Dim visitedAssemblies As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
-                    CollectSheetMetalParts(oOrigAsmDoc.ComponentDefinition, sheetMetalParts, visitedAssemblies)
-                End Try
-
-
-                '=====================================================
-                ' DEBUG
-                '=====================================================
-
-                MessageBox.Show(
-                    "Số Sheet Metal Part thu thập:" &
-                    vbCrLf &
-                    sheetMetalParts.Count.ToString() &
-                    vbCrLf & vbCrLf &
-                    "Duplicate được giữ nguyên theo số lượng thực tế.",
-                    "Debug",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information)
-
-
-                '=====================================================
-                ' KHÔNG CÓ PART
-                '=====================================================
-
-                If sheetMetalParts.Count = 0 Then
-
-                    MessageBox.Show(
-                        "Không tìm thấy Sheet Metal Part nào.",
-                        "Sheet Metal Unfold",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information)
-
-                    oNewAsmDoc.Close(True)
-
-                    If openedByCode Then
-                        oOrigAsmDoc.Close(False)
-                    End If
-
-                    Exit Sub
-
-                End If
-
-
-                '=====================================================
-                ' BƯỚC 5:
-                ' THÊM PART VÀO ASSEMBLY MỚI
-                '
-                ' TẤT CẢ TẠI ORIGIN
-                '
-                '=====================================================
-
-                Dim oTG As TransientGeometry =
-                    oApp.TransientGeometry
-
-
-                Dim oMatrix As Matrix =
-                    oTG.CreateMatrix()
+                Dim oAsmDef As AssemblyComponentDefinition =
+                    oOrigAsmDoc.ComponentDefinition
 
 
                 Dim counter As Integer = 0
 
 
-                For Each partFullName As String
-                    In sheetMetalParts
+                '=====================================================
+                ' MATRIX = ORIGIN
+                '=====================================================
+
+                Dim oTG As TransientGeometry =
+                    oApp.TransientGeometry
+
+                Dim oMatrix As Matrix =
+                    oTG.CreateMatrix()
+
+
+                '=====================================================
+                ' DUYỆT OCCURRENCES
+                '=====================================================
+
+                For Each oOcc As ComponentOccurrence _
+                    In oAsmDef.Occurrences
 
 
                     Try
 
+                        '---------------------------------------------
+                        ' LẤY DOCUMENT
+                        '---------------------------------------------
+
+                        Dim oPartDoc As PartDocument =
+                            TryCast(
+                                oOcc.Definition.Document,
+                                PartDocument)
+
+
+                        If oPartDoc Is Nothing Then
+                            Continue For
+                        End If
+
+
+                        '---------------------------------------------
+                        ' KIỂM TRA SHEET METAL
+                        '---------------------------------------------
+
+                        Dim oPartCD As PartComponentDefinition =
+                            oPartDoc.ComponentDefinition
+
+
+                        Dim oSMCD As SheetMetalComponentDefinition =
+                            TryCast(
+                                oPartCD,
+                                SheetMetalComponentDefinition)
+
+
+                        If oSMCD Is Nothing Then
+                            Continue For
+                        End If
+
+
+                        '---------------------------------------------
+                        ' KIỂM TRA CÓ FEATURE
+                        '---------------------------------------------
+
+                        If oSMCD.Features.Count <= 0 Then
+                            Continue For
+                        End If
+
+
                         '=================================================
-                        ' THÊM OCCURRENCE
-                        '
-                        ' Nếu cùng file xuất hiện 5 lần
-                        ' => Add 5 occurrence
+                        ' THÊM PART VÀO ASSEMBLY MỚI
+                        ' TẠI ORIGIN
                         '=================================================
 
                         Dim oNewOcc As ComponentOccurrence =
                             oNewAsmDoc.ComponentDefinition.Occurrences.Add(
-                                partFullName,
+                                oPartDoc.FullFileName,
                                 oMatrix)
 
 
@@ -268,115 +200,60 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
                         Dim partName As String = ""
 
 
-                        Dim oPartDoc As PartDocument = Nothing
-
-
                         Try
 
-                            '---------------------------------------------
-                            ' Tìm document đang mở
-                            '---------------------------------------------
-
-                            Try
-
-                                oPartDoc =
-                                    CType(
-                                        oApp.Documents.ItemByName(
-                                            partFullName),
-                                        PartDocument)
-
-                            Catch
-
-                                oPartDoc = Nothing
-
-                            End Try
-
-
-                            '---------------------------------------------
-                            ' Nếu chưa mở thì mở
-                            '---------------------------------------------
-
-                            If oPartDoc Is Nothing Then
-
-                                oPartDoc =
-                                    CType(
-                                        oApp.Documents.Open(
-                                            partFullName,
-                                            False),
-                                        PartDocument)
-
-                            End If
-
-
-                            '---------------------------------------------
-                            ' Lấy Part Number
-                            '---------------------------------------------
-
-                            Try
-
-                                partName =
-                                    CStr(
-                                        oPartDoc.PropertySets(
-                                            "Design Tracking Properties").
-                                            Item("Part Number").Value)
-
-                            Catch
-
-                                partName = ""
-
-                            End Try
-
-
-                            '---------------------------------------------
-                            ' Nếu không có Part Number
-                            '---------------------------------------------
-
-                            If String.IsNullOrWhiteSpace(partName) Then
-
-                                partName =
-                                    IO.Path.GetFileNameWithoutExtension(
-                                        partFullName)
-
-                            End If
-
-
-                            '---------------------------------------------
-                            ' Đặt tên occurrence
-                            '
-                            ' Nếu trùng tên Inventor sẽ tự xử lý
-                            '---------------------------------------------
-
-                            If Not String.IsNullOrWhiteSpace(partName) Then
-
-                                Try
-
-                                    oNewOcc.Name =
-                                        partName
-
-                                Catch
-
-                                    ' Nếu trùng tên thì giữ tên mặc định
-
-                                End Try
-
-                            End If
-
+                            partName =
+                                CStr(
+                                    oPartDoc.PropertySets(
+                                        "Design Tracking Properties").
+                                        Item("Part Number").Value)
 
                         Catch
 
-                            ' Không lấy được Part Number
-                            ' nhưng occurrence vẫn được giữ
-
+                            partName = ""
 
                         End Try
+
+
+                        '=================================================
+                        ' NẾU KHÔNG CÓ PART NUMBER
+                        ' DÙNG DISPLAY NAME
+                        '=================================================
+
+                        If String.IsNullOrWhiteSpace(partName) Then
+
+                            partName =
+                                IO.Path.GetFileNameWithoutExtension(
+                                    oPartDoc.FullFileName)
+
+                        End If
+
+
+                        '=================================================
+                        ' ĐẶT TÊN OCCURRENCE
+                        '=================================================
+
+                        If Not String.IsNullOrWhiteSpace(partName) Then
+
+                            Try
+
+                                oNewOcc.Name = partName
+
+                            Catch
+
+                                ' Không set được thì giữ tên mặc định
+
+                            End Try
+
+                        End If
 
 
                         counter += 1
 
 
-                    Catch ex As Exception
+                    Catch
 
-                        ' Bỏ qua occurrence lỗi
+                        ' Bỏ qua Part lỗi
 
                     End Try
 
@@ -385,18 +262,19 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
 
 
                 '=====================================================
-                ' BƯỚC 6: UPDATE
+                ' BƯỚC 5: UPDATE ASSEMBLY
                 '=====================================================
 
                 oNewAsmDoc.Update2(True)
 
 
                 '=====================================================
-                ' BƯỚC 7: CHỌN NƠI LƯU
+                ' BƯỚC 6: CHỌN NƠI LƯU
                 '=====================================================
 
                 Dim savePath As String =
                     SelectSaveAssemblyFile(
+                        oApp,
                         baseName &
                         "_SheetMetal_Unfold.iam")
 
@@ -409,7 +287,7 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
 
                     MessageBox.Show(
                         "Đã hủy lưu file." &
-                        vbCrLf & vbCrLf &
+                        vbCrLf &
                         "Assembly mới vẫn đang mở.",
                         "Hủy lưu",
                         MessageBoxButtons.OK,
@@ -433,10 +311,10 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
                         vbCrLf &
                         savePath &
                         vbCrLf & vbCrLf &
-                        "Tổng số Sheet Metal occurrence: " &
+                        "Số chi tiết Sheet Metal: " &
                         counter.ToString() &
                         vbCrLf & vbCrLf &
-                        "Các occurrence được đặt tại Origin.",
+                        "Tất cả được đặt tại Origin.",
                         "Sheet Metal Unfold",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information)
@@ -445,18 +323,17 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
 
 
                 '=====================================================
-                ' ĐÓNG ASSEMBLY GỐC NẾU CODE ĐÃ MỞ
+                ' ĐÓNG ASSEMBLY GỐC NẾU ĐƯỢC MỞ BỞI CODE
                 '=====================================================
 
-                If openedByCode AndAlso
-                   oOrigAsmDoc IsNot Nothing Then
+                If activeDoc Is Nothing OrElse
+                   Not Object.ReferenceEquals(
+                       oOrigAsmDoc,
+                       activeDoc) Then
 
                     Try
-
                         oOrigAsmDoc.Close(False)
-
                     Catch
-
                     End Try
 
                 End If
@@ -466,22 +343,18 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
                 ' ACTIVE ASSEMBLY MỚI
                 '=====================================================
 
-                Try
-
-                    oNewAsmDoc.Activate()
-
-                Catch
-
-                End Try
+                oNewAsmDoc.Activate()
 
 
             Catch ex As Exception
 
                 MessageBox.Show(
-                    "CÓ LỖI:" &
+                    "Có lỗi xảy ra:" &
                     vbCrLf & vbCrLf &
                     ex.Message &
                     vbCrLf & vbCrLf &
+                    "Chi tiết:" &
+                    vbCrLf &
                     ex.StackTrace,
                     "Sheet Metal Unfold",
                     MessageBoxButtons.OK,
@@ -493,43 +366,44 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
 
 
         '=============================================================
-        ' CHỌN FILE ASSEMBLY
+        ' CHỌN ASSEMBLY
         '=============================================================
 
-        Private Function SelectAssemblyFile() As String
+        Private Function SelectAssemblyFile(
+            ByVal oApp As Inventor.Application) As String
 
             Try
 
-                Using dlg As New OpenFileDialog()
-
-                    dlg.Title =
-                        "Chọn file lắp ghép (.iam)"
-
-                    dlg.Filter =
-                        "Assembly Files (*.iam)|*.iam"
-
-                    dlg.Multiselect = False
+                Dim dlg As OpenFileDialog =
+                    New OpenFileDialog()
 
 
-                    If dlg.ShowDialog() =
-                       DialogResult.OK Then
+                dlg.Title =
+                    "Chọn file lắp ghép (.iam)"
 
-                        Return dlg.FileName
 
-                    End If
+                dlg.Filter =
+                    "Assembly Files (*.iam)|*.iam"
 
-                End Using
+
+                dlg.Multiselect = False
+
+
+                If dlg.ShowDialog() =
+                   DialogResult.OK Then
+
+                    Return dlg.FileName
+
+                End If
 
 
             Catch ex As Exception
 
                 MessageBox.Show(
-                    "Lỗi chọn Assembly:" &
+                    "Không thể mở hộp thoại chọn file:" &
                     vbCrLf &
                     ex.Message,
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error)
+                    "Lỗi")
 
             End Try
 
@@ -540,51 +414,52 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
 
 
         '=============================================================
-        ' CHỌN NƠI LƯU
+        ' CHỌN FILE SAVE
         '=============================================================
 
         Private Function SelectSaveAssemblyFile(
+            ByVal oApp As Inventor.Application,
             ByVal defaultFileName As String) As String
 
             Try
 
-                Using dlg As New SaveFileDialog()
-
-                    dlg.Title =
-                        "Lưu file lắp ghép mới (.iam)"
-
-                    dlg.Filter =
-                        "Assembly Files (*.iam)|*.iam"
-
-                    dlg.DefaultExt =
-                        "iam"
-
-                    dlg.AddExtension =
-                        True
-
-                    dlg.FileName =
-                        defaultFileName
+                Dim dlg As SaveFileDialog =
+                    New SaveFileDialog()
 
 
-                    If dlg.ShowDialog() =
-                       DialogResult.OK Then
+                dlg.Title =
+                    "Lưu file lắp ghép mới (.iam)"
 
-                        Return dlg.FileName
 
-                    End If
+                dlg.Filter =
+                    "Assembly Files (*.iam)|*.iam"
 
-                End Using
+
+                dlg.DefaultExt = "iam"
+
+
+                dlg.AddExtension = True
+
+
+                dlg.FileName =
+                    defaultFileName
+
+
+                If dlg.ShowDialog() =
+                   DialogResult.OK Then
+
+                    Return dlg.FileName
+
+                End If
 
 
             Catch ex As Exception
 
                 MessageBox.Show(
-                    "Lỗi chọn nơi lưu:" &
+                    "Không thể mở hộp thoại lưu file:" &
                     vbCrLf &
                     ex.Message,
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error)
+                    "Lỗi")
 
             End Try
 
@@ -592,184 +467,6 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
             Return ""
 
         End Function
-
-
-        '=============================================================
-        ' RECURSIVE COLLECT
-        '
-        ' QUAN TRỌNG:
-        ' DÙNG LIST CHỨ KHÔNG DÙNG HASHSET
-        '
-        ' => GIỮ DUPLICATE
-        '
-        '=============================================================
-
-        Private Sub CollectSheetMetalParts(
-            ByVal asmDef As AssemblyComponentDefinition,
-            ByRef sheetMetalParts As List(Of String),
-            ByRef visitedAssemblies As HashSet(Of String))
-
-
-            For Each oOcc As ComponentOccurrence
-                In asmDef.Occurrences
-
-
-                Try
-
-                    '=================================================
-                    ' BỎ QUA SUPPRESSED
-                    '=================================================
-
-                    If oOcc.Suppressed Then
-                        Continue For
-                    End If
-
-
-                    '=================================================
-                    ' LẤY DOCUMENT
-                    '=================================================
-
-                    Dim oRefDoc As Document = Nothing
-
-                    If oOcc.ReferencedDocumentDescriptor IsNot Nothing Then
-                        Try
-                            oRefDoc =
-                                oOcc.ReferencedDocumentDescriptor.
-                                ReferencedDocument
-                        Catch
-                            oRefDoc = Nothing
-                        End Try
-                    Else
-                        Try
-                            oRefDoc = oOcc.Definition.Document
-                        Catch
-                            oRefDoc = Nothing
-                        End Try
-                    End If
-
-                    If oRefDoc Is Nothing Then
-                        Continue For
-                    End If
-
-                    Dim refFullName As String = String.Empty
-                    Try
-                        refFullName = oRefDoc.FullFileName
-                    Catch
-                        refFullName = String.Empty
-                    End Try
-
-                    If String.IsNullOrWhiteSpace(refFullName) Then
-                        Continue For
-                    End If
-
-
-                    '=================================================
-                    ' PART
-                    '=================================================
-
-                    If oRefDoc.DocumentType =
-                       DocumentTypeEnum.kPartDocumentObject Then
-
-
-                        Dim oPartDoc As PartDocument =
-                            TryCast(
-                                oRefDoc,
-                                PartDocument)
-
-
-                        If oPartDoc Is Nothing Then
-                            Continue For
-                        End If
-
-
-                        '---------------------------------------------
-                        ' Kiểm tra Sheet Metal
-                        '---------------------------------------------
-
-                        Dim oPartCD As PartComponentDefinition =
-                            oPartDoc.ComponentDefinition
-
-
-                        Dim oSMCD As SheetMetalComponentDefinition =
-                            TryCast(
-                                oPartCD,
-                                SheetMetalComponentDefinition)
-
-
-                        If oSMCD IsNot Nothing Then
-
-                            If oSMCD.Features.Count > 0 Then
-
-                                '-------------------------------------
-                                ' QUAN TRỌNG:
-                                '
-                                ' Dùng Add mỗi lần gặp occurrence
-                                '
-                                ' KHÔNG kiểm tra Contains
-                                '
-                                ' => giữ duplicate
-                                '-------------------------------------
-
-                                sheetMetalParts.Add(
-                                    oPartDoc.FullFileName)
-
-                            End If
-
-                        End If
-
-
-                        '=================================================
-                        ' SUB ASSEMBLY
-                        '=================================================
-
-                    ElseIf oRefDoc.DocumentType =
-                           DocumentTypeEnum.kAssemblyDocumentObject Then
-
-
-                        Dim oSubAsmDef As AssemblyComponentDefinition =
-                            TryCast(
-                                oRefDoc.ComponentDefinition,
-                                AssemblyComponentDefinition)
-
-
-                        If oSubAsmDef IsNot Nothing Then
-
-                            Try
-                                Dim subAsmFullName As String = String.Empty
-                                Try
-                                    subAsmFullName = oRefDoc.FullFileName
-                                Catch
-                                    subAsmFullName = String.Empty
-                                End Try
-
-                                If Not String.IsNullOrWhiteSpace(subAsmFullName) Then
-                                    If Not visitedAssemblies.Contains(subAsmFullName) Then
-                                        visitedAssemblies.Add(subAsmFullName)
-                                        CollectSheetMetalParts(
-                                            oSubAsmDef,
-                                            sheetMetalParts,
-                                            visitedAssemblies)
-                                    End If
-                                End If
-                            Catch
-                            End Try
-
-                        End If
-
-
-                    End If
-
-
-                Catch
-
-                    ' Bỏ qua occurrence lỗi
-
-                End Try
-
-
-            Next
-
-        End Sub
 
     End Module
 
