@@ -162,12 +162,14 @@ Namespace ToolInventor2020
 #End Region
 
 #Region "Nut cho các assembly"
+
             ' Create Assembly buttons explicitly (no loop) so each button can have distinct implementation
 
             '''' Lệnh lắp ghép ===============
+            '''
 #Region "Lệnh lắp ghép"
 
-
+      #Region "constrain
             '============================== Constrain các cụm chi tiết & part về gốc tọa độ của cụm chi tiết đầu tiên chọn ==============
             Dim assemblyBtn28 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame3", "ToolInventor2020_Assembly_Btn28", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                           Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.", ass1SmallIcon28, ass1LargeIcon28)
@@ -199,6 +201,9 @@ Namespace ToolInventor2020
             buttonsList.Add(assemblyBtn4)
 
             '==============================
+
+           #endregion   
+
 
             Dim assemblyBtn27 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa all Constrain lỗi", "ToolInventor2020_Assembly_Btn27", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                           Nothing, "Xóa tất cả các constrain lỗi trong Assembly.", ass1SmallIcon27, ass1LargeIcon27)
