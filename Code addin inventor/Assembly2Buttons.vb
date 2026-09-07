@@ -176,6 +176,13 @@ Namespace ToolInventor2020
             AddHandler assemblyBtna6.OnExecute, AddressOf Assembly2.Buttons.BOMcode.ass_bom_6.OnExecute
             buttonsList.Add(assemblyBtna6)
 
+            Dim assemblyBtna7 As ButtonDefinition = controlDefs.AddButtonDefinition("Thay đổi đuôi tên BOM", "ToolInventor2020_Assembly_Btna7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
+                                                                                    "Đổi tên part number", Ass2SmallIcon7, Ass2LargeIcon7)
+            AddHandler assemblyBtna7.OnExecute, AddressOf Assembly2.Buttons.BOMcode.ass_bom_7.UpdatePartNumber_BOM
+            buttonsList.Add(assemblyBtna7)
+
+
+
             Dim assemblyBtna5 As ButtonDefinition = controlDefs.AddButtonDefinition("Hiện gốc tọa độ để Constrain", "ToolInventor2020_Assembly_Btna5", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                     Nothing, "ấn chọn file part hoặc Assembly để hiện gốc tọa độ" & vbCrLf &
                                                                                    " tiếp theo dùng lệnh Constrain để lắp ghép với nhau." & vbCrLf &
@@ -183,9 +190,7 @@ Namespace ToolInventor2020
             AddHandler assemblyBtna5.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_5.OnExecute
             ' buttonsList.Add(assemblyBtna5)
 
-            Dim assemblyBtna7 As ButtonDefinition = controlDefs.AddButtonDefinition("4", "ToolInventor2020_Assembly_Btna7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Ass2SmallIcon7, Ass2LargeIcon7)
-            AddHandler assemblyBtna7.OnExecute, AddressOf Assembly2.Buttons.BOMcode.Ass_Bom_7.OnExecute
-            ' buttonsList.Add(assemblyBtna7)
+
 
             Dim assemblyBtna8 As ButtonDefinition = controlDefs.AddButtonDefinition("5", "ToolInventor2020_Assembly_Btna8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, "Code này sẽ thay tên stocknumber 
 theo kích thước bao sau khi trải ", Ass2SmallIcon8, Ass2LargeIcon8)

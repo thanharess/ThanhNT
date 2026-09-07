@@ -9,7 +9,7 @@ Imports Inventor
 Imports ToolInventor2020.ToolInventor2020.Assembly.Buttons
 
 Namespace ToolInventor2020.Drawing.Buttons
-    Public Module Draw_6
+    Public Module Draw_61111
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
             Dim app As Inventor.Application = g_inventorApplication
@@ -40,7 +40,9 @@ Namespace ToolInventor2020.Drawing.Buttons
                 ' 1. CHẾ ĐỘ TÊN
                 '=================================================
                 Dim nameModeIdx As Integer =
-                    PickFromList(                        "Xử lý cột Tên",                        New String() {
+                    PickFromList(
+                        "Xử lý cột Tên",
+                        New String() {
                             "1 - Part Number: không ghi đè nếu Tên đã là PN/SN",
                             "2 - Part Number: chỉ ghi khi ô Tên đang trống",
                             "3 - Stock Number: đồng bộ trực tiếp vào BOM",
@@ -543,13 +545,38 @@ Namespace ToolInventor2020.Drawing.Buttons
             ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''' code cũ ko dùng vẫn chạy ổn nhưng lâu 
 
 
+
             '=====================================================
-            ' UPDATE trước khi đánh STT
+            ' UPDATE 1 LẦN TRƯỚC KHI XỬ LÝ UNIT QTY
             '=====================================================
             Try
                 oPartList.Update()
             Catch
             End Try
+
+            '=====================================================
+            ' UNIT QTY
+            ' <= 1 -> XÓA
+            ' > 1  -> GIỮ
+            '=====================================================
+            If cUnitQty <> "" Then
+                For qtyIdx As Integer = 1 To oPartList.PartsListRows.Count
+                    Try
+                        Dim qtyRow As Inventor.PartsListRow = oPartList.PartsListRows.Item(qtyIdx)
+                        Dim qtyText As String = GetCellValue(qtyRow, cUnitQty)
+
+                        If qtyText <> "" Then
+                            Dim qty As Double = 0
+                            If TryParseNumber(qtyText, qty) Then
+                                If qty <= 1 Then
+                                    ClearCell(qtyRow, cUnitQty)
+                                End If
+                            End If
+                        End If
+                    Catch
+                    End Try
+                Next
+            End If
 
             '=====================================================
             ' STT
@@ -573,46 +600,40 @@ Namespace ToolInventor2020.Drawing.Buttons
             End Try
 
             '=====================================================
-            ' SAVE OVERRIDE XUỐNG BOM (trước khi xóa Unit Qty)
+            ' SAVE + UPDATE LẦN CUỐI
             '=====================================================
             Try
                 oPartList.SaveItemOverridesToBOM()
             Catch
             End Try
 
-            '=====================================================
-            ' UNIT QTY  →  chỉ xóa trên Parts List, KHÔNG Save nữa
-            ' <= 1 → XÓA
-            '=====================================================
-            If cUnitQty <> "" Then
-                For qtyIdx As Integer = 1 To oPartList.PartsListRows.Count
-                    Try
-                        Dim qtyRow As Inventor.PartsListRow = oPartList.PartsListRows.Item(qtyIdx)
-                        Dim qtyText As String = GetCellValue(qtyRow, cUnitQty)
-
-                        If qtyText <> "" Then
-                            Dim qty As Double = 0
-                            If TryParseNumber(qtyText, qty) Then
-                                If qty <= 1 Then
-                                    ClearCell(qtyRow, cUnitQty)   ' chỉ xóa trên PL
-                                End If
-                            End If
-                        End If
-                    Catch
-                    End Try
-                Next
-            End If
-
-            '=====================================================
-            ' UPDATE lần cuối (không Save nữa)
-            '=====================================================
             Try
                 oPartList.Update()
             Catch
             End Try
 
 
+
         End Sub
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -277,6 +277,10 @@ Namespace ToolInventor2020
             AddHandler assemblyBtn22.OnExecute, AddressOf Assembly.Buttons.Part.Ass_Part_8.OnExecute
             buttonsList.Add(assemblyBtn22)
 
+            Dim assemblyBtn17 As ButtonDefinition = controlDefs.AddButtonDefinition("Thay màu part", "ToolInventor2020_Assembly_Btn17", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                    Nothing, "Thay đổi màu sắc của chi tiết, thay vật liệu all", ass1SmallIcon17, ass1LargeIcon17)
+            AddHandler assemblyBtn17.OnExecute, AddressOf Assembly.Buttons.Part.Ass_Part_9.OnExecute
+            buttonsList.Add(assemblyBtn17)
 
 
 #End Region
@@ -302,11 +306,6 @@ Namespace ToolInventor2020
 
 
 
-
-            Dim assemblyBtn17 As ButtonDefinition = controlDefs.AddButtonDefinition("2", "ToolInventor2020_Assembly_Btn17", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                    Nothing, "Tạo, ghép shetmetal to assembly all lever - lọc đếm phân loại ko ộng dồn ko trùng partnumber", ass1SmallIcon17, ass1LargeIcon17)
-            AddHandler assemblyBtn17.OnExecute, AddressOf Assembly.Buttons.caclenhboctach.part.Ass_boctach_part_1.OnExecute
-            ' buttonsList.Add(assemblyBtn17)
 
             Dim assemblyBtn18 As ButtonDefinition = controlDefs.AddButtonDefinition("3", "ToolInventor2020_Assembly_Btn18", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                     Nothing, "Tạo, ghép shetmetal to assembly all lever lấy tất cả các tấm kể cả trung tên partnumber", ass1SmallIcon18, ass1LargeIcon18)
