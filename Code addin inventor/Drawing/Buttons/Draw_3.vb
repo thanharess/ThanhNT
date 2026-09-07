@@ -83,7 +83,7 @@ Namespace ToolInventor2020.Drawing.Buttons
 
                 ' 5. Lưu document (tùy chọn)
                 Try
-                    drawDoc.Save2(True)
+                    '  drawDoc.Save2(True)
                 Catch
                     ' Bỏ qua nếu không muốn lưu tự động
                 End Try

@@ -178,7 +178,7 @@ Namespace ToolInventor2020
 
             Dim assemblyBtna7 As ButtonDefinition = controlDefs.AddButtonDefinition("Thay đổi đuôi tên BOM", "ToolInventor2020_Assembly_Btna7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
                                                                                     "Đổi tên part number", Ass2SmallIcon7, Ass2LargeIcon7)
-            AddHandler assemblyBtna7.OnExecute, AddressOf Assembly2.Buttons.BOMcode.ass_bom_7.UpdatePartNumber_BOM
+            AddHandler assemblyBtna7.OnExecute, AddressOf Assembly2.Buttons.BOMcode.ass_bom_7.OnExecute
             buttonsList.Add(assemblyBtna7)
 
 

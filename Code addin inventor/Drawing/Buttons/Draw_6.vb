@@ -39,12 +39,14 @@ Namespace ToolInventor2020.Drawing.Buttons
                 '=================================================
                 ' 1. CHẾ ĐỘ TÊN
                 '=================================================
-                Dim nameModeIdx As Integer =
-                    PickFromList(                        "Xử lý cột Tên",                        New String() {
-                            "1 - Part Number: không ghi đè nếu Tên đã là PN/SN",
-                            "2 - Part Number: chỉ ghi khi ô Tên đang trống",
-                            "3 - Stock Number: đồng bộ trực tiếp vào BOM",
-                            "4 - Không sửa tên"}, 0)
+                Dim nameModeIdx As Integer = PickFromList("Xử lý cột Tên", New String() {
+    "1 - Part Number: không ghi đè nếu Tên đã là PN/SN",
+    "2 - Part Number: chỉ ghi khi ô Tên đang trống",
+    "3 - Stock Number: đồng bộ trực tiếp vào BOM",
+    "4 - Không sửa tên",
+    "5 - Stock Number: không ghi đè nếu Tên đã là PN/SN",
+    "6 - Stock Number: chỉ ghi khi ô Tên đang trống",
+    "7 - Không sửa tên (dùng Stock Number để đoán đơn vị)"}, 0)
 
                 If nameModeIdx < 0 Then
                     Exit Sub
@@ -241,7 +243,8 @@ Namespace ToolInventor2020.Drawing.Buttons
     "Parts List đã xử lý: " & processed.ToString() &
     vbCrLf & "Chế độ tên: " & nameMode.ToString() &
     vbCrLf & "Nguồn tên: " & If(nameMode = 3, "Stock Number / đồng bộ từ Part Number",
-        If(nameMode = 4, "Không sửa", "Part Number")) &
+             If(nameMode = 4 OrElse nameMode = 7, "Không sửa",
+             If(nameMode = 5 OrElse nameMode = 6, "Stock Number", "Part Number"))) &
     vbCrLf & "VL mặc định: " & If(matDefault = "", "(không dùng)", matDefault) &
     vbCrLf & "VL Purchased: " & If(clearPurchasedMaterial, "Xóa", "Để nguyên"),
     "Override Parts List",
@@ -260,48 +263,211 @@ Namespace ToolInventor2020.Drawing.Buttons
 
         '=========================================================
         ' XỬ LÝ 1 PARTS LIST
+        '
+        ' MODE 7:
+        '   - CHỈ ĐỌC Ô TÊN ĐANG HIỂN THỊ TRÊN PARTS LIST
+        '   - KHÔNG ĐỌC PART NUMBER
+        '   - KHÔNG ĐỌC STOCK NUMBER PROPERTY
+        '   - KHÔNG TRUY CẬP DOCUMENT
+        '   - KHÔNG TRUY CẬP BOM
+        '
+        ' MODE 1-6:
+        '   Giữ nguyên logic cũ.
         '=========================================================
-        Private Sub ProcessOnePartsList(oPartList As Inventor.PartsList, nameMode As Integer, matDefault As String,
-    clearPurchasedMaterial As Boolean,          ' ← thêm dòng này
-    colSTT As String, colTen As String, colTen2 As String, colDonVi As String, colVL As String, colUnitQty As String)
+        Private Sub ProcessOnePartsList(
+    oPartList As Inventor.PartsList,
+    nameMode As Integer,
+    matDefault As String,
+    clearPurchasedMaterial As Boolean,
+    colSTT As String,
+    colTen As String,
+    colTen2 As String,
+    colDonVi As String,
+    colVL As String,
+    colUnitQty As String)
 
-            '=====================================================
+            '=========================================================
             ' TÌM CỘT
-            '=====================================================
-            Dim cSTT As String = FindColumn(oPartList, New String() {colSTT, "Item", "ITEM"})
+            '=========================================================
+            Dim cSTT As String =
+        FindColumn(oPartList, New String() {
+            colSTT,
+            "Item",
+            "ITEM"
+        })
 
-            Dim cTen As String = FindColumn(oPartList, New String() {colTen, colTen2, "Part Number", "Stock Number", "Tên"})
-            Dim nameCol As String = cTen          ' cache cột tên ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''' tối ưu code l1
+            Dim cTen As String =
+        FindColumn(oPartList, New String() {
+            colTen,
+            colTen2,
+            "Part Number",
+            "Stock Number",
+            "Tên"
+        })
 
-            Dim cDonVi As String = FindColumn(oPartList, New String() {colDonVi, "Keywords", "Unit", "ĐƠN VỊ"})
+            Dim nameCol As String = cTen
 
-            Dim cVL As String = FindColumn(oPartList, New String() {colVL, "Material", "MATERIAL", "VẬT LIỆU"})
+            Dim cDonVi As String =
+        FindColumn(oPartList, New String() {
+            colDonVi,
+            "Keywords",
+            "Unit",
+            "ĐƠN VỊ"
+        })
+
+            Dim cVL As String =
+        FindColumn(oPartList, New String() {
+            colVL,
+            "Material",
+            "MATERIAL",
+            "VẬT LIỆU"
+        })
 
             Dim cUnitQty As String = FindUnitQtyColumn(oPartList)
 
 
+            '=========================================================
+            ' KIỂM TRA CỘT
+            '=========================================================
             If cSTT = "" OrElse cDonVi = "" Then
 
-                Throw New Exception("Không tìm thấy cột STT hoặc Đơn vị trên Parts List.")
+                Throw New Exception(
+            "Không tìm thấy cột STT hoặc Đơn vị trên Parts List.")
 
             End If
 
-            '=====================================================
-            ' DUYỆT ROW
-            '=====================================================
+            '=========================================================
+            ' MODE 7 - SIÊU TỐI ƯU
+            '
+            ' CHỈ ĐỌC THÔNG TIN ĐANG HIỂN THỊ TRÊN PARTS LIST
+            '
+            ' Không:
+            '   - BOM
+            '   - BOMRow
+            '   - ComponentDefinitions
+            '   - Document
+            '   - Part Number
+            '   - Stock Number Property
+            '   - NumberRows
+            '   - Sort
+            '   - SaveItemOverridesToBOM
+            '   - Unit Qty
+            '
+            ' Chỉ:
+            '   Parts List → Tên → GuessUnit → Đơn vị
+            '=========================================================
+            If nameMode = 7 Then
+
+                For i As Integer = 1 To oPartList.PartsListRows.Count
+
+                    Try
+
+                        Dim row As Inventor.PartsListRow =
+                oPartList.PartsListRows.Item(i)
+
+                        '=================================================
+                        ' ĐỌC TRỰC TIẾP Ô TÊN
+                        '=================================================
+                        Dim displayName As String = ""
+
+                        Try
+                            Dim v As Object = row.Item(cTen).Value
+
+                            If v IsNot Nothing Then
+                                displayName = CStr(v).Trim()
+                            End If
+
+                        Catch
+                            displayName = ""
+                        End Try
+
+
+                        '=================================================
+                        ' ĐOÁN ĐƠN VỊ
+                        '=================================================
+                        Dim donVi As String =
+                GuessUnit(displayName)
+
+
+                        '=================================================
+                        ' CHỈ GHI KHI KHÁC GIÁ TRỊ HIỆN TẠI
+                        '=================================================
+                        Dim currentUnit As String = ""
+
+                        Try
+                            Dim oldValue As Object =
+                    row.Item(cDonVi).Value
+
+                            If oldValue IsNot Nothing Then
+                                currentUnit = CStr(oldValue).Trim()
+                            End If
+
+                        Catch
+                            currentUnit = ""
+                        End Try
+
+
+                        If Not String.Equals(
+                currentUnit,
+                donVi,
+                StringComparison.OrdinalIgnoreCase) Then
+
+                            Try
+                                row.Item(cDonVi).Value = donVi
+                            Catch
+                            End Try
+
+                        End If
+
+                    Catch
+                        ' Bỏ qua row lỗi
+                    End Try
+
+                Next
+
+
+                '=========================================================
+                ' CHỈ UPDATE 1 LẦN
+                '=========================================================
+                Try
+                    oPartList.Update()
+                Catch
+                End Try
+
+
+                '=========================================================
+                ' KẾT THÚC MODE 7
+                '=========================================================
+                Exit Sub
+
+            End If
+
+            '=========================================================
+            ' MODE 1-6
+            '
+            ' Từ đây trở xuống giữ logic BOM/Document cũ.
+            '=========================================================
             For i As Integer = 1 To oPartList.PartsListRows.Count
 
                 Try
 
-                    Dim row As Inventor.PartsListRow = oPartList.PartsListRows.Item(i)
+                    Dim row As Inventor.PartsListRow =
+                oPartList.PartsListRows.Item(i)
 
+
+                    '=================================================
+                    ' KIỂM TRA REFERENCED ROW
+                    '=================================================
                     If row.ReferencedRows Is Nothing OrElse
-                       row.ReferencedRows.Count < 1 Then
+               row.ReferencedRows.Count < 1 Then
+
                         Continue For
+
                     End If
 
 
-                    Dim bomRow As Inventor.BOMRow = row.ReferencedRows.Item(1).BOMRow
+                    Dim bomRow As Inventor.BOMRow =
+                row.ReferencedRows.Item(1).BOMRow
 
                     If bomRow Is Nothing Then
                         Continue For
@@ -311,9 +477,12 @@ Namespace ToolInventor2020.Drawing.Buttons
                     '=================================================
                     ' BOM STRUCTURE
                     '=================================================
-                    Dim bs As Inventor.BOMStructureEnum = bomRow.BOMStructure
+                    Dim bs As Inventor.BOMStructureEnum =
+                bomRow.BOMStructure
 
-                    Dim isPurchased As Boolean = (bs = Inventor.BOMStructureEnum.kPurchasedBOMStructure)
+                    Dim isPurchased As Boolean =
+                (bs =
+                 Inventor.BOMStructureEnum.kPurchasedBOMStructure)
 
 
                     '=================================================
@@ -321,20 +490,21 @@ Namespace ToolInventor2020.Drawing.Buttons
                     '=================================================
                     Dim refDoc As Inventor.Document = Nothing
 
-
                     Dim docType As Inventor.DocumentTypeEnum =
-                        Inventor.DocumentTypeEnum.kUnknownDocumentObject
+                Inventor.DocumentTypeEnum.kUnknownDocumentObject
 
 
                     Try
 
                         If bomRow.ComponentDefinitions.Count > 0 Then
 
-                            refDoc = bomRow.ComponentDefinitions.Item(1).Document
-
+                            refDoc =
+                        bomRow.ComponentDefinitions.Item(1).Document
 
                             If refDoc IsNot Nothing Then
-                                docType = refDoc.DocumentType
+
+                                docType =
+                            refDoc.DocumentType
 
                             End If
 
@@ -343,66 +513,74 @@ Namespace ToolInventor2020.Drawing.Buttons
                     Catch
                     End Try
 
-                    Dim isAsm As Boolean = (docType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject)
-                    Dim isPart As Boolean = (docType = Inventor.DocumentTypeEnum.kPartDocumentObject)
+
+                    Dim isAsm As Boolean =
+                (docType =
+                 Inventor.DocumentTypeEnum.kAssemblyDocumentObject)
+
+                    Dim isPart As Boolean =
+                (docType =
+                 Inventor.DocumentTypeEnum.kPartDocumentObject)
 
                     '=================================================
-                    ' PN / SN
+                    ' PN / SN / TÊN
                     '=================================================
                     Dim pn As String = ""
                     Dim sn As String = ""
+                    Dim currentName As String = ""
 
+                    ' Mode 1,2,4,5,6 đều cần đọc thông tin để đoán đơn vị
+                    ' Chỉ Mode 1,2,5,6 mới sửa cột Tên
+                    If nameMode = 1 OrElse nameMode = 2 OrElse nameMode = 4 OrElse
+   nameMode = 5 OrElse nameMode = 6 Then
 
-                    If refDoc IsNot Nothing Then
+                        If refDoc IsNot Nothing Then
+                            pn = GetProp(refDoc, "Part Number")
+                            sn = GetProp(refDoc, "Stock Number")
+                        End If
 
-                        pn = GetProp(refDoc, "Part Number")
-                        sn = GetProp(refDoc, "Stock Number")
+                        pn = If(pn, "").Trim()
+                        sn = If(sn, "").Trim()
+
+                        ' Đọc tên hiện tại trên Parts List
+                        currentName = GetCellValue(row, cTen)
+
+                        ' Chỉ Mode 1,2,5,6 mới ghi đè tên
+                        If nameMode = 1 OrElse nameMode = 2 OrElse nameMode = 5 OrElse nameMode = 6 Then
+                            ApplyNameLogic(row, currentName, pn, sn, nameMode, nameCol)
+                        End If
 
                     End If
-
-                    pn = If(pn, "").Trim()
-                    sn = If(sn, "").Trim()
-
-                    '=================================================
-                    ' TÊN HIỆN TẠI
-                    '=================================================
-                    Dim currentName As String = GetCellValue(row, cTen).Trim()
-
-                    '=================================================
-                    ' MODE 1 / MODE 2
-                    '
-                    ' Mode 3 đã đồng bộ BOM trước đó.
-                    '=================================================
-                    If nameMode <> 3 Then
-
-                        ' ApplyNameLogic(row, currentName, pn, sn, nameMode)
-                        ApplyNameLogic(row, currentName, pn, sn, nameMode, nameCol) ''''''''''''''''''''''''''''''''''''''''' toi ưu lan 1
-                    End If
-
 
                     '=================================================
                     ' ĐƠN VỊ
                     '=================================================
                     If isAsm Then
 
-                        SetCell(row, cDonVi, "Bộ")
+                        SetCell(
+                    row,
+                    cDonVi,
+                    "Bộ")
 
 
                     ElseIf isPart AndAlso Not isPurchased Then
 
-                        Dim nameForUnit As String = currentName
+                        Dim nameForUnit As String = ""
 
-                        If nameForUnit = "" Then
-
-                            If pn <> "" Then
-
-                                nameForUnit = pn
-                            Else
-                                nameForUnit = sn
+                        If nameMode = 5 OrElse nameMode = 6 Then
+                            ' Ưu tiên Stock Number
+                            nameForUnit = If(sn <> "", sn, pn)
+                        Else
+                            ' Mode 1, 2, 4: ưu tiên tên đang hiển thị
+                            nameForUnit = currentName
+                            If nameForUnit = "" Then
+                                nameForUnit = If(pn <> "", pn, sn)
                             End If
                         End If
+
                         Dim donVi As String = GuessUnit(nameForUnit)
                         SetCell(row, cDonVi, donVi)
+
                     ElseIf isPurchased Then
                         SetCell(row, cDonVi, "Cái")
                     End If
@@ -412,207 +590,189 @@ Namespace ToolInventor2020.Drawing.Buttons
                     ' MATERIAL
                     '
                     ' ASSEMBLY:
-                    '   KHÔNG ĐỤNG
+                    '   Không đụng
                     '
                     ' PURCHASED:
-                    '   KHÔNG ĐỤNG
+                    '   Yes → Xóa
+                    '   No  → Giữ nguyên
                     '
                     ' PART TỰ CHẾ:
-                    '   GHI ĐÈ
+                    '   Ghi vật liệu mặc định
                     '=================================================
-                    '    If isPart AndAlso Not isPurchased Then
-
-                    '        If matDefault <> "" Then
-
-                    '  SetCell(row, cVL, matDefault)
-
-                    '           End If
-                    '           End If
-
                     If isAsm Then
-                        ' không đụng
+
+                        ' Không đụng
 
                     ElseIf isPurchased Then
+
                         If clearPurchasedMaterial Then
-                            ClearCell(row, cVL)          ' Yes → Xóa
+
+                            ClearCell(
+                        row,
+                        cVL)
+
                         End If
-                        ' No → Để nguyên
 
                     ElseIf isPart Then
+
                         If matDefault <> "" Then
-                            SetCell(row, cVL, matDefault)
+
+                            SetCell(
+                        row,
+                        cVL,
+                        matDefault)
+
                         End If
+
                     End If
+
+
                 Catch
-                    '        'Bỏ qua row lỗi
+                    ' Bỏ qua row lỗi
                 End Try
 
             Next
 
 
-            ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''' code cũ ko dùng vẫn chạy ổn nhưng lâu 
-            '=====================================================
-            ' UPDATE PARTS LIST TRƯỚC
-            '=====================================================
-            ' Try
-            '   oPartList.Parent.Update()
-
-            '    Catch
-            '   End Try
-
-            '       Try
-            '         oPartList.Update()
-            '          Catch
-            '         End Try
-            '         '=====================================================
-            ' UNIT QTY
-            '
-            ' <= 1 -> XÓA
-            ' > 1  -> GIỮ
-            '=====================================================
-            '         If cUnitQty <> "" Then
-
-            '        For qtyIdx As Integer = 1 To oPartList.PartsListRows.Count
-
-            '       Try
-            '       Dim qtyRow As Inventor.PartsListRow = oPartList.PartsListRows.Item(qtyIdx)
-            '                  Dim qtyText As String = GetCellValue(qtyRow, cUnitQty)
-
-            '      If qtyText <> "" Then
-            '   Dim qty As Double = 0
-            '      If TryParseNumber(qtyText, qty) Then
-            '     If qty <= 1 Then
-            '                              ClearCell(qtyRow, cUnitQty)
-            '     End If
-            '    End If
-
-            '   End If
-
-            '   Catch
-            'Bỏ qua row lỗi
-            'End Try
-
-            '   Next
-
-            '  End If
-
-            '=====================================================
-            ' SAVE OVERRIDE
-            '=====================================================
-            '      Try
-
-            '   oPartList.SaveItemOverridesToBOM()
-
-            '    Catch
-            '    End Try
-
-            '=====================================================
-            ' STT
-            '
-            ' CỤM → PART → PURCHASED
-            '=====================================================
-            '    Dim stt As Integer = 1
-
-            '    stt = NumberRows(oPartList, cSTT, stt, True, False)
-            '   stt = NumberRows(oPartList, cSTT, stt, False, False)
-            '   stt = NumberRows(oPartList, cSTT, stt, False, True)
-
-
-            '=====================================================
-            ' SORT
-            '=====================================================
-            '    Try
-            '    oPartList.Sort(cSTT)
-            '    Catch
-            '    Try
-            '   oPartList.Sort("Item")
-            '   Catch
-            '  End Try
-
-            '  End Try
-            '=====================================================
-            ' SAVE LẦN CUỐI
-            '=====================================================
-            '    Try
-            '     oPartList.SaveItemOverridesToBOM()
-            '     Catch
-            '     End Try
-            '
-            '   End Sub
-
-            ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''' code cũ ko dùng vẫn chạy ổn nhưng lâu 
-
-
-            '=====================================================
-            ' UPDATE trước khi đánh STT
-            '=====================================================
+            '=========================================================
+            ' UPDATE TRƯỚC KHI ĐÁNH STT
+            '=========================================================
             Try
                 oPartList.Update()
             Catch
             End Try
 
-            '=====================================================
-            ' STT
-            ' CỤM → PART → PURCHASED
-            '=====================================================
-            Dim stt As Integer = 1
-            stt = NumberRows(oPartList, cSTT, stt, True, False)
-            stt = NumberRows(oPartList, cSTT, stt, False, False)
-            stt = NumberRows(oPartList, cSTT, stt, False, True)
 
-            '=====================================================
+            '=========================================================
+            ' STT
+            '
+            ' CỤM → PART → PURCHASED
+            '=========================================================
+            Dim stt As Integer = 1
+
+            stt =
+        NumberRows(
+            oPartList,
+            cSTT,
+            stt,
+            True,
+            False)
+
+            stt =
+        NumberRows(
+            oPartList,
+            cSTT,
+            stt,
+            False,
+            False)
+
+            stt =
+        NumberRows(
+            oPartList,
+            cSTT,
+            stt,
+            False,
+            True)
+
+
+            '=========================================================
             ' SORT
-            '=====================================================
+            '=========================================================
             Try
+
                 oPartList.Sort(cSTT)
+
             Catch
+
                 Try
+
                     oPartList.Sort("Item")
+
                 Catch
                 End Try
+
             End Try
 
-            '=====================================================
-            ' SAVE OVERRIDE XUỐNG BOM (trước khi xóa Unit Qty)
-            '=====================================================
+
+            '=========================================================
+            ' SAVE OVERRIDE XUỐNG BOM
+            '=========================================================
             Try
+
                 oPartList.SaveItemOverridesToBOM()
+
             Catch
             End Try
 
-            '=====================================================
-            ' UNIT QTY  →  chỉ xóa trên Parts List, KHÔNG Save nữa
+
+            '=========================================================
+            ' UNIT QTY
+            '
             ' <= 1 → XÓA
-            '=====================================================
+            ' > 1  → GIỮ
+            '
+            ' Chỉ xóa trên Parts List.
+            ' Không Save lại xuống BOM.
+            '=========================================================
             If cUnitQty <> "" Then
-                For qtyIdx As Integer = 1 To oPartList.PartsListRows.Count
+
+                For qtyIdx As Integer =
+            1 To oPartList.PartsListRows.Count
+
                     Try
-                        Dim qtyRow As Inventor.PartsListRow = oPartList.PartsListRows.Item(qtyIdx)
-                        Dim qtyText As String = GetCellValue(qtyRow, cUnitQty)
+
+                        Dim qtyRow As Inventor.PartsListRow =
+                    oPartList.PartsListRows.Item(qtyIdx)
+
+                        Dim qtyText As String =
+                    GetCellValue(
+                        qtyRow,
+                        cUnitQty)
+
 
                         If qtyText <> "" Then
+
                             Dim qty As Double = 0
-                            If TryParseNumber(qtyText, qty) Then
+
+
+                            If TryParseNumber(
+                        qtyText,
+                        qty) Then
+
                                 If qty <= 1 Then
-                                    ClearCell(qtyRow, cUnitQty)   ' chỉ xóa trên PL
+
+                                    ClearCell(
+                                qtyRow,
+                                cUnitQty)
+
                                 End If
+
                             End If
+
                         End If
+
+
                     Catch
                     End Try
+
                 Next
+
             End If
 
-            '=====================================================
-            ' UPDATE lần cuối (không Save nữa)
-            '=====================================================
+
+            '=========================================================
+            ' UPDATE LẦN CUỐI
+            '=========================================================
             Try
+
                 oPartList.Update()
+
             Catch
             End Try
 
-
         End Sub
+
+
 
 
 
@@ -625,64 +785,36 @@ Namespace ToolInventor2020.Drawing.Buttons
         ' Nếu PN trống:
         '   fallback SN.
         '=========================================================
-        Private Sub ApplyNameLogic(row As Inventor.PartsListRow, currentName As String, pn As String, sn As String, nameMode As Integer, nameCol As String)  ''''''''''''''''''''''''''''''''''''''''' toi ưu lan 1
+        Private Sub ApplyNameLogic(row As Inventor.PartsListRow, currentName As String, pn As String, sn As String, nameMode As Integer, nameCol As String)
 
             Dim cur As String = If(currentName, "").Trim()
-
             Dim requiredName As String = ""
-            If pn <> "" Then
-                requiredName = pn
-            Else
-                requiredName = sn
-            End If
 
             Select Case nameMode
+                Case 1, 2
+                    ' Ưu tiên Part Number
+                    requiredName = If(pn <> "", pn, sn)
 
-                '=================================================
-                ' MODE 1
-                '=================================================
-                Case 1
+                Case 5, 6
+                    ' Ưu tiên Stock Number
+                    requiredName = If(sn <> "", sn, pn)
+            End Select
 
+            If requiredName = "" Then Exit Sub
+
+            Select Case nameMode
+                Case 1, 5   ' Không ghi đè nếu tên đã là PN hoặc SN
                     If cur <> "" AndAlso
-                       (
-                           String.Equals(cur, pn, StringComparison.OrdinalIgnoreCase) OrElse
-                           String.Equals(cur, sn, StringComparison.OrdinalIgnoreCase)
-                       ) Then
-                        Exit Sub
-
-                    End If
-
-                    If requiredName <> "" Then
-
-                        ' SetCell(row, GetNameColumn(row), requiredName)
-
-                        SetCell(row, nameCol, requiredName) ''''''''''''''''''''''''''''''''''''''''' toi ưu lan 1
-
-                    End If
-                '   ===============================================
-                ' MODE 2
-                '                ' CHỈ KHI Ô TÊN TRỐNG
-                '=================================================
-                Case 2
-
-                    If cur <> "" Then
+               (String.Equals(cur, pn, StringComparison.OrdinalIgnoreCase) OrElse
+                String.Equals(cur, sn, StringComparison.OrdinalIgnoreCase)) Then
                         Exit Sub
                     End If
+                    SetCell(row, nameCol, requiredName)
 
-                    If requiredName <> "" Then
-
-                        '   SetCell(row, GetNameColumn(row), requiredName)
-                        SetCell(row, nameCol, requiredName) ''''''''''''''''''''''''''''''''''''''''' toi ưu lan 1
+                Case 2, 6   ' Chỉ ghi khi ô đang trống
+                    If cur = "" Then
+                        SetCell(row, nameCol, requiredName)
                     End If
-
-
-                '=================================================
-                ' MODE 4
-                '=================================================
-                Case 4
-
-                    Exit Sub
-
             End Select
 
         End Sub
@@ -743,12 +875,12 @@ Namespace ToolInventor2020.Drawing.Buttons
                         Continue For
                     End If
 
+
                     '=================================================
                     ' ĐỌC PN / SN TRỰC TIẾP
                     '=================================================
                     Dim pn As String = GetProp(refDoc, "Part Number")
                     Dim sn As String = GetProp(refDoc, "Stock Number")
-
 
                     pn = If(pn, "").Trim()
                     sn = If(sn, "").Trim()
@@ -874,140 +1006,114 @@ Namespace ToolInventor2020.Drawing.Buttons
         '=========================================================
         ' ĐƠN VỊ
         '=========================================================
-        Private Function GuessUnit2(ten As String) As String  ''''''''''''''''''code cũ hiện ko dùng
 
-            If String.IsNullOrEmpty(ten) Then
-
-                Return "Cái"
-
-            End If
-
-            Dim t As String = ten.Trim()
-
-            '=====================================================
-            ' THANH
-            '=====================================================
-            If t.Length >= 3 AndAlso
-               (
-                   (t.StartsWith("Th", StringComparison.OrdinalIgnoreCase) OrElse
-                       t.StartsWith("Tr", StringComparison.OrdinalIgnoreCase) OrElse
-                       t.StartsWith("TR", StringComparison.OrdinalIgnoreCase) OrElse
-                       t.StartsWith("XG", StringComparison.OrdinalIgnoreCase) OrElse
-                       t.StartsWith("Ốn", StringComparison.OrdinalIgnoreCase) OrElse
-                       t.StartsWith("TH", StringComparison.OrdinalIgnoreCase) OrElse
-                       t.StartsWith("Câ", StringComparison.OrdinalIgnoreCase) OrElse
-                       t.StartsWith("Xg", StringComparison.OrdinalIgnoreCase) OrElse
-                       t.StartsWith("Pi", StringComparison.OrdinalIgnoreCase) OrElse
-                       t.StartsWith("Shaf", StringComparison.OrdinalIgnoreCase) OrElse
-                       t.StartsWith("U", StringComparison.OrdinalIgnoreCase) OrElse
-                       t.StartsWith("C", StringComparison.OrdinalIgnoreCase) OrElse
-                       t.StartsWith("I", StringComparison.OrdinalIgnoreCase) OrElse
-                       t.StartsWith("H", StringComparison.OrdinalIgnoreCase) OrElse
-                       t.StartsWith("V", StringComparison.OrdinalIgnoreCase) OrElse
-                       t.StartsWith("L", StringComparison.OrdinalIgnoreCase)
-                                             ) AndAlso
-                   t.EndsWith("L", StringComparison.OrdinalIgnoreCase) OrElse
-                     t.EndsWith("mm", StringComparison.OrdinalIgnoreCase)
-               ) Then
-
-                Return "Thanh"
-
-            End If
-
-
-            If t.Length >= 2 Then
-
-                Dim c0 As Char = Char.ToUpperInvariant(t(0))
-
-
-                If "TPVLHIZCUS".IndexOf(c0) >= 0 AndAlso
-                 t.EndsWith("L", StringComparison.OrdinalIgnoreCase) OrElse
-                     t.EndsWith("mm", StringComparison.OrdinalIgnoreCase) Then
-                    Return "Thanh"
-
-                End If
-                '     Select Case c0
-                ' Case "T"c   ' Thép
-                ' Case "P"c   ' Phi
-                '  Case "V"c   ' Vít
-                '  Case "L"c   ' Lưới
-                '  Case "H"c   ' Hộp
-                '  Case "I"c   ' Inox
-                '  Case "Z"c   ' Ký hiệu riêng
-                '  Case "C"c   ' Cột
-                '  Case "U"c   ' U (thanh chữ U)
-                '  If t.EndsWith("L", StringComparison.OrdinalIgnoreCase) Then
-                '  Return "Thanh"
-                'E'nd If
-                '   End Select
-            End If '
-
-
-            '=====================================================
-            ' TẤM
-            '=====================================================
-            If t.StartsWith("PL", StringComparison.OrdinalIgnoreCase) OrElse
-               t.StartsWith("Tô", StringComparison.OrdinalIgnoreCase) OrElse
-               t.StartsWith("Tấ", StringComparison.OrdinalIgnoreCase) OrElse
-               t.StartsWith("Mã", StringComparison.OrdinalIgnoreCase) OrElse
-               t.StartsWith("Bi", StringComparison.OrdinalIgnoreCase) Then
-
-                Return "Tấm"
-
-            End If
-
-            Return "Cái"
-
-        End Function ''''''''''''''''''code cũ hiện ko dùng
 
 
 
         ''''''''''''''''''code mới đang dùng
+        '=========================================================
+        ' ĐOÁN ĐƠN VỊ
+        '
+        ' Ưu tiên:
+        '   1. Thanh
+        '   2. Tấm
+        '   3. Cái
+        '
+        ' Mode 7 sử dụng Stock Number đưa vào hàm này
+        '=========================================================
+        '=========================================================
+        ' ĐOÁN ĐƠN VỊ
+        '
+        ' NGUYÊN TẮC:
+        '
+        ' 1. So sánh từ đầu chuỗi
+        ' 2. So sánh từ trái sang phải
+        ' 3. Không nhận diện bằng 1 chữ cái
+        ' 4. Không kiểm tra chiều dài L hoặc mm
+        ' 5. Không cần phân tích kích thước
+        '
+        ' Ưu tiên:
+        '       THANH
+        '       TẤM
+        '       CÁI
+        '
+        ' Mode 7:
+        '       Input = Stock Number
+        '=========================================================
+        '=========================================================
+        ' ĐOÁN ĐƠN VỊ - GỘP 2 KIỂU CŨ THÀNH 1
+        '
+        ' Ưu tiên:
+        '   1. Thanh
+        '   2. Tấm
+        '   3. Cái
+        '
+        ' Logic:
+        '   - Ưu tiên keyword từ đầu chuỗi (GuessUnit)
+        '   - Kết hợp thêm điều kiện EndsWith L / mm (GuessUnit2)
+        '=========================================================
         Private Function GuessUnit(ten As String) As String
-            If String.IsNullOrEmpty(ten) Then Return "Cái"
+
+            If String.IsNullOrEmpty(ten) Then
+                Return "Cái"
+            End If
 
             Dim t As String = ten.Trim()
-            Dim len As Integer = t.Length
-            If len = 0 Then Return "Cái"
-
-            ' Kiểm tra kết thúc trước (nhanh nhất)
-            Dim last As Char = Char.ToUpperInvariant(t(len - 1))
-            Dim endsWithL As Boolean = (last = "L"c)
-            Dim endsWithMM As Boolean = (len >= 2 AndAlso last = "M"c AndAlso Char.ToUpperInvariant(t(len - 2)) = "M"c)
-
-            If endsWithL OrElse endsWithMM Then
-                Dim c0 As Char = Char.ToUpperInvariant(t(0))
-
-                ' Tiền tố 2 ký tự phổ biến
-                If len >= 2 Then
-                    Dim c1 As Char = Char.ToUpperInvariant(t(1))
-                    If (c0 = "T"c AndAlso (c1 = "H"c OrElse c1 = "R"c)) OrElse
-               (c0 = "X"c AndAlso c1 = "G"c) OrElse
-               (c0 = "P"c AndAlso c1 = "I"c) OrElse
-               (c0 = "S"c AndAlso c1 = "H"c) OrElse
-               (c0 = "C"c AndAlso c1 = "Â"c) OrElse
-               (c0 = "Ố"c AndAlso c1 = "N"c) Then
-                        Return "Thanh"
-                    End If
-                End If
-
-                ' Ký tự đơn
-                If "TPVLHIZCUS".IndexOf(c0) >= 0 Then Return "Thanh"
+            If t = "" Then
+                Return "Cái"
             End If
 
-            ' Tấm
-            If len >= 2 Then
+            '=====================================================
+            ' 1. THANH
+            '=====================================================
+            Dim thanhKeywords As String() = {
+        "THANH", "THÉP", "TH", "TR", "ỐNG", "ONG", "PIPE", "TUBE", "THEP", "TRỤC", "TRUC", "SHAFT", "PHI", "CÂY", "CAY", "RHS", "SHS",
+        "UPE", "V6", "V5", "V1", "V7", "V8", "V9", "I1", "I2", "I4", "H1", "H2", "H3", "H4",
+        "XG", "SH", "ỐN", "CÂ", "C1", "C2", "C5", "C6", "C7", "U1", "U2", "U8", "C8", "C9", "u9", "u7", "u6"
+    }
+
+            ' Kiểm tra keyword từ đầu chuỗi
+            For Each keyword As String In thanhKeywords
+                If String.IsNullOrEmpty(keyword) Then Continue For
+
+                If t.StartsWith(keyword, StringComparison.OrdinalIgnoreCase) Then
+                    Return "Thanh"
+                End If
+            Next
+
+            ' Kết hợp logic cũ: chữ cái đầu + EndsWith L hoặc mm
+            If t.Length >= 2 Then
                 Dim c0 As Char = Char.ToUpperInvariant(t(0))
-                Dim c1 As Char = Char.ToUpperInvariant(t(1))
-                If (c0 = "P"c AndAlso c1 = "L"c) OrElse
-           (c0 = "T"c AndAlso (c1 = "Ô"c OrElse c1 = "Ấ"c)) OrElse
-           (c0 = "M"c AndAlso c1 = "Ã"c) OrElse
-           (c0 = "B"c AndAlso c1 = "I"c) Then
+
+                If "TPVLHIZCUS".IndexOf(c0) >= 0 AndAlso
+           (t.EndsWith("L", StringComparison.OrdinalIgnoreCase) OrElse
+            t.EndsWith("mm", StringComparison.OrdinalIgnoreCase)) Then
+
+                    Return "Thanh"
+                End If
+            End If
+
+            '=====================================================
+            ' 2. TẤM
+            '=====================================================
+            Dim tamKeywords As String() = {
+        "PL", "TẤM", "TAM", "TÔN", "TON", "MÃ", "MA",
+        "BÌ", "BI", "PLATE", "TÔ", "TẤ", "Mái"
+    }
+
+            For Each keyword As String In tamKeywords
+                If String.IsNullOrEmpty(keyword) Then Continue For
+
+                If t.StartsWith(keyword, StringComparison.OrdinalIgnoreCase) Then
                     Return "Tấm"
                 End If
-            End If
+            Next
 
+            '=====================================================
+            ' 3. MẶC ĐỊNH
+            '=====================================================
             Return "Cái"
+
         End Function
 
 

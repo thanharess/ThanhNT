@@ -8,33 +8,49 @@ Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
     Public Module ass_bom_7
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
-            ' để trống
+            RunBOMReplace()
         End Sub
 
         '=====================================================
-        ' HÀM 1: SỬA PART NUMBER (có hộp thoại Find / Replace)
+        ' HÀM CHÍNH - 1 NÚT
         '=====================================================
-        Public Sub UpdatePartNumber_BOM()
-            Dim findText As String = InputBox("Nhập chữ cần tìm:", "Part Number - Find", "mm")
+        Public Sub RunBOMReplace()
+
+            Dim resultType As DialogResult = MessageBox.Show(
+        "Chọn loại muốn sửa:" & vbCrLf & vbCrLf &
+        "Yes = Part Number" & vbCrLf &
+        "No  = Stock Number",
+        "Chọn loại",
+        MessageBoxButtons.YesNoCancel,
+        MessageBoxIcon.Question)
+
+            If resultType = DialogResult.Cancel Then Exit Sub
+
+            Dim updatePartNumber As Boolean = (resultType = DialogResult.Yes)
+            Dim updateStockNumber As Boolean = (resultType = DialogResult.No)
+
+            '----- 2. Chọn Top Level / All Levels (dùng nút) -----
+            Dim result As DialogResult = MessageBox.Show(
+                "Chọn chế độ chạy:" & vbCrLf & vbCrLf &
+                "Yes  = All Levels (sửa tất cả cấp)" & vbCrLf &
+                "No   = Top Level (chỉ cấp trên + Phantom)",
+                "Chọn Level",
+                MessageBoxButtons.YesNoCancel,
+                MessageBoxIcon.Question)
+
+            If result = DialogResult.Cancel Then Exit Sub
+
+            Dim allLevels As Boolean = (result = DialogResult.Yes)
+
+            '----- 3. Nhập chữ tìm & thay -----
+            Dim findText As String = InputBox("Nhập chữ cần tìm:", "Find", "mm")
             If String.IsNullOrEmpty(findText) Then Exit Sub
 
-            Dim replaceText As String = InputBox("Nhập chữ cần thay thế:", "Part Number - Replace", "L")
-            If replaceText Is Nothing Then Exit Sub   ' bấm Cancel
-
-            RunOnStructureBOM(updatePartNumber:=True, updateStockNumber:=False, findText, replaceText)
-        End Sub
-
-        '=====================================================
-        ' HÀM 2: SỬA STOCK NUMBER (có hộp thoại Find / Replace)
-        '=====================================================
-        Public Sub UpdateStockNumber_BOM()
-            Dim findText As String = InputBox("Nhập chữ cần tìm:", "Stock Number - Find", "mm")
-            If String.IsNullOrEmpty(findText) Then Exit Sub
-
-            Dim replaceText As String = InputBox("Nhập chữ cần thay thế:", "Stock Number - Replace", "L")
+            Dim replaceText As String = InputBox("Nhập chữ cần thay thế:", "Replace", "L")
             If replaceText Is Nothing Then Exit Sub
 
-            RunOnStructureBOM(updatePartNumber:=False, updateStockNumber:=True, findText, replaceText)
+            '----- 4. Chạy -----
+            RunOnModelBrowser(updatePartNumber, updateStockNumber, findText, replaceText, allLevels)
         End Sub
 
         '=====================================================
@@ -50,12 +66,13 @@ Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
         End Function
 
         '=====================================================
-        ' HÀM CHÍNH – CHẠY TRÊN STRUCTURE BOM
+        ' CHẠY TRÊN MODEL BROWSER
         '=====================================================
-        Private Sub RunOnStructureBOM(updatePartNumber As Boolean,
+        Private Sub RunOnModelBrowser(updatePartNumber As Boolean,
                                       updateStockNumber As Boolean,
                                       findText As String,
-                                      replaceText As String)
+                                      replaceText As String,
+                                      allLevels As Boolean)
 
             Dim invApp As Inventor.Application = GetInventorApp()
             If invApp Is Nothing Then Exit Sub
@@ -66,15 +83,11 @@ Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
             End If
 
             Dim asmDoc As AssemblyDocument = invApp.ActiveDocument
-            Dim bom As BOM = asmDoc.ComponentDefinition.BOM
-
-            bom.StructuredViewEnabled = True
-            Dim structuredView As BOMView = bom.BOMViews.Item("Structured")
-
             Dim countChanged As Integer = 0
 
-            For Each row As BOMRow In structuredView.BOMRows
-                ProcessBOMRow(row, updatePartNumber, updateStockNumber, findText, replaceText, countChanged)
+            ' Duyệt từ cấp trên cùng của Model Browser
+            For Each occ As ComponentOccurrence In asmDoc.ComponentDefinition.Occurrences
+                ProcessOccurrence(occ, updatePartNumber, updateStockNumber, findText, replaceText, allLevels, countChanged)
             Next
 
             asmDoc.Update2(True)
@@ -82,34 +95,83 @@ Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
 
             MessageBox.Show("Hoàn tất!" & vbCrLf &
                             "Số lượng item đã sửa: " & countChanged.ToString() & vbCrLf &
-                            "Tìm: """ & findText & """ → Thay bằng: """ & replaceText & """",
-                            "BOM Update")
+                            "Tìm: """ & findText & """ → Thay: """ & replaceText & """" & vbCrLf &
+                            "Chế độ: " & If(allLevels, "All Levels", "Top Level"),
+                            "BOM Replace")
         End Sub
 
         '=====================================================
-        ' XỬ LÝ TỪNG HÀNG BOM (ĐỆ QUY)
+        ' XỬ LÝ TỪNG OCCURRENCE (HỖ TRỢ PHANTOM)
         '=====================================================
-        Private Sub ProcessBOMRow(row As BOMRow,
-                                  updatePartNumber As Boolean,
-                                  updateStockNumber As Boolean,
-                                  findText As String,
-                                  replaceText As String,
-                                  ByRef countChanged As Integer)
+        Private Sub ProcessOccurrence(occ As ComponentOccurrence,
+                                      updatePartNumber As Boolean,
+                                      updateStockNumber As Boolean,
+                                      findText As String,
+                                      replaceText As String,
+                                      allLevels As Boolean,
+                                      ByRef countChanged As Integer)
 
             Try
-                Dim def As ComponentDefinition = row.ComponentDefinitions.Item(1)
-                Dim doc As Document = def.Document
+                If occ.Suppressed Then Exit Sub
 
-                Dim designProps As PropertySet = Nothing
+                Dim doc As Document = Nothing
                 Try
-                    designProps = doc.PropertySets.Item("Design Tracking Properties")
+                    doc = occ.Definition.Document
                 Catch
                     Exit Sub
                 End Try
 
+                '----- Kiểm tra Phantom -----
+                Dim isPhantom As Boolean = False
+                Try
+                    ' Phantom thường là kPhantomLevelOfDetail hoặc BOMStructure = kPhantomBOMStructure
+                    If occ.BOMStructure = BOMStructureEnum.kPhantomBOMStructure Then
+                        isPhantom = True
+                    End If
+                Catch
+                End Try
+
+                ' Nếu là Phantom → luôn đi vào bên trong
+                If isPhantom Then
+                    If occ.SubOccurrences IsNot Nothing Then
+                        For Each subOcc As ComponentOccurrence In occ.SubOccurrences
+                            ProcessOccurrence(subOcc, updatePartNumber, updateStockNumber, findText, replaceText, allLevels, countChanged)
+                        Next
+                    End If
+                    Exit Sub   ' Phantom không sửa chính nó
+                End If
+
+                '----- Sửa thuộc tính -----
+                UpdateDocumentProps(doc, updatePartNumber, updateStockNumber, findText, replaceText, countChanged)
+
+                '----- All Levels: đi tiếp vào cấp con -----
+                If allLevels Then
+                    If occ.SubOccurrences IsNot Nothing Then
+                        For Each subOcc As ComponentOccurrence In occ.SubOccurrences
+                            ProcessOccurrence(subOcc, updatePartNumber, updateStockNumber, findText, replaceText, allLevels, countChanged)
+                        Next
+                    End If
+                End If
+
+            Catch
+            End Try
+        End Sub
+
+        '=====================================================
+        ' SỬA iPROPERTIES CỦA DOCUMENT
+        '=====================================================
+        Private Sub UpdateDocumentProps(doc As Document,
+                                        updatePartNumber As Boolean,
+                                        updateStockNumber As Boolean,
+                                        findText As String,
+                                        replaceText As String,
+                                        ByRef countChanged As Integer)
+
+            Try
+                Dim designProps As PropertySet = doc.PropertySets.Item("Design Tracking Properties")
                 Dim changed As Boolean = False
 
-                '----- Sửa Part Number -----
+                ' Part Number
                 If updatePartNumber Then
                     Try
                         Dim prop As Inventor.Property = designProps.Item("Part Number")
@@ -124,7 +186,7 @@ Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
                     End Try
                 End If
 
-                '----- Sửa Stock Number -----
+                ' Stock Number
                 If updateStockNumber Then
                     Try
                         Dim prop As Inventor.Property = designProps.Item("Stock Number")
@@ -142,13 +204,6 @@ Namespace ToolInventor2020.Assembly2.Buttons.BOMcode
                 If changed Then
                     doc.Save2(True)
                     countChanged += 1
-                End If
-
-                ' Đệ quy vào các hàng con
-                If row.ChildRows IsNot Nothing Then
-                    For Each childRow As BOMRow In row.ChildRows
-                        ProcessBOMRow(childRow, updatePartNumber, updateStockNumber, findText, replaceText, countChanged)
-                    Next
                 End If
 
             Catch
