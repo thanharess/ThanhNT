@@ -682,5 +682,20 @@ Namespace ToolInventor2020.Drawing.Buttons
             End Try
             MyBase.OnFormClosed(e)
         End Sub
+
+        Private Sub InitializeComponent()
+            Me.SuspendLayout()
+            '
+            'ThanhNSheetNavigatorForm
+            '
+            Me.ClientSize = New System.Drawing.Size(284, 261)
+            Me.Name = "ThanhNSheetNavigatorForm"
+            Me.ResumeLayout(False)
+
+        End Sub
+
+        Private Sub ThanhNSheetNavigatorForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+        End Sub
     End Class
 End Namespace
