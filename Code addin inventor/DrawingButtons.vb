@@ -193,11 +193,13 @@ Namespace ToolInventor2020
             AddHandler DrawingBtn11.OnExecute, AddressOf Drawing.Buttons.Draw_11.OnExecute
             buttonsList.Add(DrawingBtn11)
 
-            Dim DrawingBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi mã cho Partlist", "ToolInventor2020_Drawing_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon12, Dra1LargeIcon12)
+            Dim DrawingBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Ghi mã cho Partlist", "ToolInventor2020_Drawing_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
+                                                                                   "Ghi mã chi tiết vào category trong partlist. yêu cầu partlist phải có sẵn ô này thì mới được!", Dra1SmallIcon12, Dra1LargeIcon12)
             AddHandler DrawingBtn12.OnExecute, AddressOf Drawing.Buttons.Draw_12.OnExecute
             buttonsList.Add(DrawingBtn12)
 
-            Dim DrawingBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Thay chữ cái view sheet", "ToolInventor2020_Drawing_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon13, Dra1LargeIcon13)
+            Dim DrawingBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Thay chữ cái view sheet", "ToolInventor2020_Drawing_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
+                                                                                   "Đổi tên view hiển thị trong sheet", Dra1SmallIcon13, Dra1LargeIcon13)
             AddHandler DrawingBtn13.OnExecute, AddressOf Drawing.Buttons.draw_13.OnExecute
             buttonsList.Add(DrawingBtn13)
 

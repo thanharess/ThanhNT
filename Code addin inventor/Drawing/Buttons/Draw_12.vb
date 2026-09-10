@@ -8,7 +8,7 @@ Imports ToolInventor2020.ToolInventor2020.Assembly.Buttons
 
 Namespace ToolInventor2020.Drawing.Buttons
 
-    Public Module draw_12
+    Public Module Draw_12
 
         ' Property Set ID của Document Summary Information
         Private Const DOC_SUMMARY_PROPSET As String = "{D5CDD502-2E9C-101B-9397-08002B2CF9AE}"
@@ -46,7 +46,18 @@ Namespace ToolInventor2020.Drawing.Buttons
                 PREFIX = PREFIX.Trim()
 
                 '=================================================
-                ' 2. PHẠM VI
+                ' 2. GHI XUỐNG BOM GỐC?
+                '=================================================
+                Dim writeToBomIdx As Integer = PickFromList("Ghi xuống BOM gốc?", New String() {
+                    "1 - Chỉ ghi trên Parts List (không đụng BOM)",
+                    "2 - Ghi cả Parts List + BOM gốc (Category iProperty)"}, 0)
+
+                If writeToBomIdx < 0 Then Exit Sub
+
+                Dim writeToBom As Boolean = (writeToBomIdx = 1)
+
+                '=================================================
+                ' 3. PHẠM VI
                 '=================================================
                 Dim scopeIdx As Integer = PickFromList("Phạm vi", New String() {
                     "1 - Chỉ Parts List đầu trên sheet active",
@@ -61,7 +72,7 @@ Namespace ToolInventor2020.Drawing.Buttons
                 If scopeIdx = 0 Then
                     Try
                         Dim oPartList As Inventor.PartsList = oSheet.PartsLists.Item(1)
-                        totalRows += ProcessOnePartsList(oPartList, PREFIX)
+                        totalRows += ProcessOnePartsList(oPartList, PREFIX, writeToBom)
                         processed += 1
                     Catch ex As Exception
                         MessageBox.Show("Parts List 1:" & vbCrLf & ex.Message, "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -71,7 +82,7 @@ Namespace ToolInventor2020.Drawing.Buttons
                     For plIdx As Integer = 1 To oSheet.PartsLists.Count
                         Try
                             Dim oPartList As Inventor.PartsList = oSheet.PartsLists.Item(plIdx)
-                            totalRows += ProcessOnePartsList(oPartList, PREFIX)
+                            totalRows += ProcessOnePartsList(oPartList, PREFIX, writeToBom)
                             processed += 1
                         Catch exPL As Exception
                             MessageBox.Show("Sheet: " & oSheet.Name & vbCrLf & "Parts List: " & plIdx.ToString() &
@@ -87,7 +98,7 @@ Namespace ToolInventor2020.Drawing.Buttons
                             For plIdx As Integer = 1 To oCurSheet.PartsLists.Count
                                 Try
                                     Dim oPartList As Inventor.PartsList = oCurSheet.PartsLists.Item(plIdx)
-                                    totalRows += ProcessOnePartsList(oPartList, PREFIX)
+                                    totalRows += ProcessOnePartsList(oPartList, PREFIX, writeToBom)
                                     processed += 1
                                 Catch exPL As Exception
                                     MessageBox.Show("Sheet: " & oCurSheet.Name & vbCrLf & "Parts List: " & plIdx.ToString() &
@@ -109,7 +120,7 @@ Namespace ToolInventor2020.Drawing.Buttons
                                 "Parts List đã xử lý: " & processed.ToString() & vbCrLf &
                                 "Số dòng đã ghi mã: " & totalRows.ToString() & vbCrLf &
                                 "Định dạng: " & PREFIX & "STT" & vbCrLf &
-                                "Nguồn: Item Property  →  Đích: Category Property",
+                                "Ghi BOM gốc: " & If(writeToBom, "Có", "Không"),
                                 "Ghi mã bản vẽ (Item → Category)",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Information)
@@ -125,11 +136,11 @@ Namespace ToolInventor2020.Drawing.Buttons
         '=========================================================
         Private Function ProcessOnePartsList(
             oPartList As Inventor.PartsList,
-            PREFIX As String) As Integer
+            PREFIX As String,
+            writeToBom As Boolean) As Integer
 
             Dim count As Integer = 0
 
-            ' Tìm cột theo thuộc tính thật (không theo Title)
             Dim cItem As String = FindItemColumn(oPartList)
             Dim cCategory As String = FindCategoryColumn(oPartList)
 
@@ -138,7 +149,7 @@ Namespace ToolInventor2020.Drawing.Buttons
             End If
 
             If cCategory = "" Then
-                Throw New Exception("Không tìm thấy cột Category (kFileProperty + PropId=2) trên Parts List." & vbCrLf &
+                Throw New Exception("Không tìm thấy cột Category trên Parts List." & vbCrLf &
                                     "Hãy thêm cột Category vào Parts List trước.")
             End If
 
@@ -153,9 +164,15 @@ Namespace ToolInventor2020.Drawing.Buttons
                     Dim newCode As String = PREFIX & itemValue
                     Dim currentCategory As String = GetCellValue(row, cCategory)
 
+                    ' 1. Ghi trên Parts List
                     If Not String.Equals(currentCategory, newCode, StringComparison.OrdinalIgnoreCase) Then
                         SetCell(row, cCategory, newCode)
                         count += 1
+                    End If
+
+                    ' 2. Ghi xuống BOM gốc (Category iProperty của component)
+                    If writeToBom Then
+                        WriteCategoryToBOM(row, newCode)
                     End If
 
                 Catch
@@ -168,9 +185,91 @@ Namespace ToolInventor2020.Drawing.Buttons
             Catch
             End Try
 
+            ' Nếu ghi BOM thì SaveItemOverridesToBOM (đồng bộ override nếu cần)
+            If writeToBom Then
+                Try
+                    oPartList.SaveItemOverridesToBOM()
+                Catch
+                End Try
+            End If
+
             Return count
 
         End Function
+
+        '=========================================================
+        ' GHI CATEGORY XUỐNG DOCUMENT GỐC (BOM)
+        '=========================================================
+        Private Sub WriteCategoryToBOM(row As Inventor.PartsListRow, newCode As String)
+
+            Try
+                If row.ReferencedRows Is Nothing OrElse row.ReferencedRows.Count < 1 Then
+                    Exit Sub
+                End If
+
+                Dim bomRow As Inventor.BOMRow = row.ReferencedRows.Item(1).BOMRow
+                If bomRow Is Nothing Then Exit Sub
+
+                If bomRow.ComponentDefinitions.Count < 1 Then Exit Sub
+
+                Dim refDoc As Inventor.Document = bomRow.ComponentDefinitions.Item(1).Document
+                If refDoc Is Nothing Then Exit Sub
+
+                ' Ghi vào iProperty Category (Document Summary Information)
+                SetCategoryProperty(refDoc, newCode)
+
+            Catch
+            End Try
+
+        End Sub
+
+        '=========================================================
+        ' SET CATEGORY iPROPERTY
+        '=========================================================
+        Private Sub SetCategoryProperty(doc As Inventor.Document, value As String)
+
+            If doc Is Nothing OrElse value Is Nothing Then Exit Sub
+
+            Dim newValue As String = value.Trim()
+            If newValue = "" Then Exit Sub
+
+            Try
+                Dim ps As Inventor.PropertySet = doc.PropertySets.Item(DOC_SUMMARY_PROPSET)
+                Dim prop As Inventor.Property = ps.ItemByPropId(CATEGORY_PROPID)
+
+                Dim oldValue As String = ""
+                Try
+                    If prop.Value IsNot Nothing Then
+                        oldValue = CStr(prop.Value).Trim()
+                    End If
+                Catch
+                End Try
+
+                If String.Equals(oldValue, newValue, StringComparison.OrdinalIgnoreCase) Then
+                    Exit Sub
+                End If
+
+                prop.Value = newValue
+
+                Try
+                    doc.Update()
+                Catch
+                End Try
+
+            Catch
+                ' Fallback: thử theo tên
+                Try
+                    Dim ps2 As Inventor.PropertySet = doc.PropertySets.Item("Inventor Document Summary Information")
+                    ps2.Item("Category").Value = newValue
+                    Try
+                        doc.Update()
+                    Catch
+                    End Try
+                Catch
+                End Try
+            End Try
+
+        End Sub
 
         '=========================================================
         ' TÌM CỘT ITEM theo PropertyType
@@ -208,7 +307,6 @@ Namespace ToolInventor2020.Drawing.Buttons
 
                             col.GetFilePropertyId(propSetId, propId)
 
-                            ' Category = Document Summary Information + PropId 2
                             If String.Equals(propSetId, DOC_SUMMARY_PROPSET, StringComparison.OrdinalIgnoreCase) AndAlso
                                propId = CATEGORY_PROPID Then
 
@@ -286,14 +384,14 @@ Namespace ToolInventor2020.Drawing.Buttons
             frm.FormBorderStyle = FormBorderStyle.FixedDialog
             frm.MaximizeBox = False
             frm.MinimizeBox = False
-            frm.Width = 500
+            frm.Width = 520
             frm.Height = 320
             frm.ShowInTaskbar = False
 
             Dim lst As New ListBox()
             lst.Left = 12
             lst.Top = 12
-            lst.Width = 460
+            lst.Width = 480
             lst.Height = 220
 
             For Each s As String In items
@@ -308,7 +406,7 @@ Namespace ToolInventor2020.Drawing.Buttons
 
             Dim btnOK As New Button() With {
                 .Text = "OK",
-                .Left = 300,
+                .Left = 320,
                 .Top = 245,
                 .Width = 80,
                 .DialogResult = DialogResult.OK
@@ -316,7 +414,7 @@ Namespace ToolInventor2020.Drawing.Buttons
 
             Dim btnCancel As New Button() With {
                 .Text = "Hủy",
-                .Left = 390,
+                .Left = 410,
                 .Top = 245,
                 .Width = 80,
                 .DialogResult = DialogResult.Cancel

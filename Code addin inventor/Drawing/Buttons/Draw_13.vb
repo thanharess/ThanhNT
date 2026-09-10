@@ -30,10 +30,12 @@ Namespace ToolInventor2020.Drawing.Buttons
                 Dim skipDetail As Boolean = False
                 Dim skipAuxiliary As Boolean = False
                 Dim skipOverlay As Boolean = True
+                Dim resetPerSheet As Boolean = False
 
                 If Not ShowInputDialog(startLetter, scope,
                                        skipBase, skipProjected, skipSection,
-                                       skipDetail, skipAuxiliary, skipOverlay) Then Return
+                                       skipDetail, skipAuxiliary, skipOverlay,
+                                       resetPerSheet) Then Return
 
                 startLetter = startLetter.Trim().ToUpper()
 
@@ -52,7 +54,8 @@ Namespace ToolInventor2020.Drawing.Buttons
                 Else
                     count = RenameViewsAllSheets(oDrawDoc, startLetter,
                                                  skipBase, skipProjected, skipSection,
-                                                 skipDetail, skipAuxiliary, skipOverlay)
+                                                 skipDetail, skipAuxiliary, skipOverlay,
+                                                 resetPerSheet)
                 End If
 
                 oDrawDoc.Update2(True)
@@ -66,6 +69,9 @@ Namespace ToolInventor2020.Drawing.Buttons
                 If skipDetail Then msg &= "• Bỏ qua Detail View" & vbCrLf
                 If skipAuxiliary Then msg &= "• Bỏ qua Auxiliary View" & vbCrLf
                 If skipOverlay Then msg &= "• Bỏ qua Overlay View" & vbCrLf
+                If scope = "All Sheets" AndAlso resetPerSheet Then
+                    msg &= "• Reset chữ cái mỗi Sheet" & vbCrLf
+                End If
 
                 MessageBox.Show(msg, "Rename View Label", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
@@ -96,20 +102,15 @@ Namespace ToolInventor2020.Drawing.Buttons
             Dim count As Integer = 0
 
             For Each oView As DrawingView In oSheet.DrawingViews
-
                 Try
                     If ShouldSkipView(oView, skipBase, skipProjected, skipSection,
-                                      skipDetail, skipAuxiliary, skipOverlay) Then
-                        Continue For
-                    End If
+                                      skipDetail, skipAuxiliary, skipOverlay) Then Continue For
 
                     oView.Name = currentName
                     currentName = GetNextLetter(currentName)
                     count += 1
-
                 Catch
                 End Try
-
             Next
 
             Return count
@@ -118,7 +119,7 @@ Namespace ToolInventor2020.Drawing.Buttons
 
 
         '==========================================================
-        ' RENAME TẤT CẢ SHEET
+        ' RENAME TẤT CẢ SHEET (CÓ CHẾ ĐỘ RESET MỖI SHEET)
         '==========================================================
         Private Function RenameViewsAllSheets(ByVal oDrawDoc As DrawingDocument,
                                               ByVal startLetter As String,
@@ -127,23 +128,27 @@ Namespace ToolInventor2020.Drawing.Buttons
                                               ByVal skipSection As Boolean,
                                               ByVal skipDetail As Boolean,
                                               ByVal skipAuxiliary As Boolean,
-                                              ByVal skipOverlay As Boolean) As Integer
+                                              ByVal skipOverlay As Boolean,
+                                              ByVal resetPerSheet As Boolean) As Integer
 
             Dim total As Integer = 0
             Dim currentName As String = startLetter
 
             For Each oSheet As Sheet In oDrawDoc.Sheets
+
+                ' Nếu bật Reset mỗi Sheet → quay về chữ bắt đầu
+                If resetPerSheet Then
+                    currentName = startLetter
+                End If
+
                 For Each oView As DrawingView In oSheet.DrawingViews
                     Try
                         If ShouldSkipView(oView, skipBase, skipProjected, skipSection,
-                                          skipDetail, skipAuxiliary, skipOverlay) Then
-                            Continue For
-                        End If
+                                          skipDetail, skipAuxiliary, skipOverlay) Then Continue For
 
                         oView.Name = currentName
                         currentName = GetNextLetter(currentName)
                         total += 1
-
                     Catch
                     End Try
                 Next
@@ -186,7 +191,7 @@ Namespace ToolInventor2020.Drawing.Buttons
 
 
         '==========================================================
-        ' TĂNG CHỮ CÁI: A → B → ... → Z → AA → AB → ...
+        ' TĂNG CHỮ CÁI: A → B → ... → Z → AA → AB ...
         '==========================================================
         Private Function GetNextLetter(ByVal current As String) As String
 
@@ -205,15 +210,11 @@ Namespace ToolInventor2020.Drawing.Buttons
                 End If
             Loop
 
-            ' Đã vượt Z, ZZ... → thêm 1 chữ A ở đầu
             Return "A" & New String(chars)
 
         End Function
 
 
-        '==========================================================
-        ' KIỂM TRA CHỮ HỢP LỆ
-        '==========================================================
         Private Function IsValidLetter(ByVal text As String) As Boolean
             For Each c As Char In text
                 If Not Char.IsLetter(c) Then Return False
@@ -232,58 +233,47 @@ Namespace ToolInventor2020.Drawing.Buttons
                                          ByRef skipSection As Boolean,
                                          ByRef skipDetail As Boolean,
                                          ByRef skipAuxiliary As Boolean,
-                                         ByRef skipOverlay As Boolean) As Boolean
+                                         ByRef skipOverlay As Boolean,
+                                         ByRef resetPerSheet As Boolean) As Boolean
 
             Dim frm As New Form()
             frm.Text = "Đặt tên View theo chữ cái"
-            frm.Size = New Size(400, 430)
+            frm.Size = New Size(400, 420)
             frm.StartPosition = FormStartPosition.CenterScreen
             frm.FormBorderStyle = FormBorderStyle.FixedDialog
             frm.MaximizeBox = False
             frm.MinimizeBox = False
             frm.Font = New Font("Segoe UI", 9)
 
-            Dim lbl1 As New Label()
-            lbl1.Text = "Chữ cái bắt đầu (A, B, AA, AB...):"
-            lbl1.Location = New System.Drawing.Point(20, 10)
-            lbl1.AutoSize = True
+            Dim lbl1 As New Label() With {.Text = "Chữ cái bắt đầu (A, B, AA, AB...):", .Location = New System.Drawing.Point(20, 5), .AutoSize = True}
+            Dim txtLetter As New System.Windows.Forms.TextBox() With {.Text = "A", .Location = New System.Drawing.Point(20, 40), .Width = 80, .CharacterCasing = CharacterCasing.Upper}
 
-            Dim txtLetter As New System.Windows.Forms.TextBox()
-            txtLetter.Text = "A"
-            txtLetter.Location = New System.Drawing.Point(20, 40)
-            txtLetter.Width = 80
-            txtLetter.CharacterCasing = CharacterCasing.Upper
-
-            Dim lbl2 As New Label()
-            lbl2.Text = "Phạm vi:"
-            lbl2.Location = New System.Drawing.Point(20, 70)
-            lbl2.AutoSize = True
-
-            Dim cboScope As New ComboBox()
-            cboScope.Location = New System.Drawing.Point(20, 98)
-            cboScope.Width = 340
-            cboScope.DropDownStyle = ComboBoxStyle.DropDownList
-            cboScope.Items.Add("Active Sheet")
-            cboScope.Items.Add("All Sheets")
+            Dim lbl2 As New Label() With {.Text = "Phạm vi:", .Location = New System.Drawing.Point(20, 70), .AutoSize = True}
+            Dim cboScope As New ComboBox() With {.Location = New System.Drawing.Point(20, 98), .Width = 340, .DropDownStyle = ComboBoxStyle.DropDownList}
+            cboScope.Items.AddRange({"Active Sheet", "All Sheets"})
             cboScope.SelectedIndex = 0
 
-            Dim lbl3 As New Label()
-            lbl3.Text = "Bỏ qua loại View:"
-            lbl3.Location = New System.Drawing.Point(20, 140)
-            lbl3.AutoSize = True
+            Dim chkResetPerSheet As New CheckBox() With {
+                .Text = "Reset chữ cái mỗi Sheet (chỉ dùng khi All Sheets)",
+                .Location = New System.Drawing.Point(20, 130),
+                .AutoSize = True,
+                .Checked = True
+            }
 
-            Dim chkBase As New CheckBox() With {.Text = "Base View", .Location = New System.Drawing.Point(20, 165), .AutoSize = True, .Checked = True}
-            Dim chkProjected As New CheckBox() With {.Text = "Projected View", .Location = New System.Drawing.Point(20, 190), .AutoSize = True, .Checked = True}
-            Dim chkSection As New CheckBox() With {.Text = "Section View", .Location = New System.Drawing.Point(20, 215), .AutoSize = True, .Checked = False}
-            Dim chkDetail As New CheckBox() With {.Text = "Detail View", .Location = New System.Drawing.Point(20, 240), .AutoSize = True, .Checked = False}
-            Dim chkAuxiliary As New CheckBox() With {.Text = "Auxiliary View", .Location = New System.Drawing.Point(20, 265), .AutoSize = True, .Checked = False}
-            Dim chkOverlay As New CheckBox() With {.Text = "Overlay View", .Location = New System.Drawing.Point(20, 290), .AutoSize = True, .Checked = True}
+            Dim lbl3 As New Label() With {.Text = "Bỏ qua loại View:", .Location = New System.Drawing.Point(20, 165), .AutoSize = True}
 
-            Dim btnOK As New Button() With {.Text = "OK", .Location = New System.Drawing.Point(200, 345), .Width = 70, .DialogResult = DialogResult.OK}
-            Dim btnCancel As New Button() With {.Text = "Cancel", .Location = New System.Drawing.Point(280, 345), .Width = 70, .DialogResult = DialogResult.Cancel}
+            Dim chkBase As New CheckBox() With {.Text = "Base View", .Location = New System.Drawing.Point(20, 190), .AutoSize = True, .Checked = True}
+            Dim chkProjected As New CheckBox() With {.Text = "Projected View", .Location = New System.Drawing.Point(20, 215), .AutoSize = True, .Checked = True}
+            Dim chkSection As New CheckBox() With {.Text = "Section View", .Location = New System.Drawing.Point(20, 240), .AutoSize = True, .Checked = False}
+            Dim chkDetail As New CheckBox() With {.Text = "Detail View", .Location = New System.Drawing.Point(20, 265), .AutoSize = True, .Checked = False}
+            Dim chkAuxiliary As New CheckBox() With {.Text = "Auxiliary View", .Location = New System.Drawing.Point(20, 290), .AutoSize = True, .Checked = False}
+            Dim chkOverlay As New CheckBox() With {.Text = "Overlay View", .Location = New System.Drawing.Point(20, 315), .AutoSize = True, .Checked = True}
+
+            Dim btnOK As New Button() With {.Text = "OK", .Location = New System.Drawing.Point(200, 350), .Width = 70, .DialogResult = DialogResult.OK}
+            Dim btnCancel As New Button() With {.Text = "Cancel", .Location = New System.Drawing.Point(280, 350), .Width = 70, .DialogResult = DialogResult.Cancel}
 
             frm.Controls.AddRange({
-                lbl1, txtLetter, lbl2, cboScope, lbl3,
+                lbl1, txtLetter, lbl2, cboScope, chkResetPerSheet, lbl3,
                 chkBase, chkProjected, chkSection, chkDetail, chkAuxiliary, chkOverlay,
                 btnOK, btnCancel
             })
@@ -300,6 +290,7 @@ Namespace ToolInventor2020.Drawing.Buttons
                 skipDetail = chkDetail.Checked
                 skipAuxiliary = chkAuxiliary.Checked
                 skipOverlay = chkOverlay.Checked
+                resetPerSheet = chkResetPerSheet.Checked
                 Return True
             End If
 

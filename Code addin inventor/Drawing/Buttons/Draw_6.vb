@@ -43,7 +43,7 @@ Namespace ToolInventor2020.Drawing.Buttons
     "1 - Part Number: không ghi đè nếu Tên đã là PN/SN",
     "2 - Part Number: chỉ ghi khi ô Tên đang trống",
     "3 - Stock Number: đồng bộ trực tiếp vào BOM",
-    "4 - Không sửa tên",
+    "4 - Không sửa tên (dùng Part Number để đoán đơn vị)",
     "5 - Stock Number: không ghi đè nếu Tên đã là PN/SN",
     "6 - Stock Number: chỉ ghi khi ô Tên đang trống",
     "7 - Không sửa tên (dùng Stock Number để đoán đơn vị)"}, 0)
