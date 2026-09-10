@@ -24,14 +24,21 @@ Namespace ToolInventor2020.Drawing.Buttons
 
                 Dim startLetter As String = ""
                 Dim scope As String = ""
+                Dim skipBase As Boolean = True
                 Dim skipProjected As Boolean = False
+                Dim skipSection As Boolean = False
+                Dim skipDetail As Boolean = False
+                Dim skipAuxiliary As Boolean = False
+                Dim skipOverlay As Boolean = True
 
-                If Not ShowInputDialog(startLetter, scope, skipProjected) Then Return
+                If Not ShowInputDialog(startLetter, scope,
+                                       skipBase, skipProjected, skipSection,
+                                       skipDetail, skipAuxiliary, skipOverlay) Then Return
 
                 startLetter = startLetter.Trim().ToUpper()
 
-                If startLetter.Length <> 1 OrElse Not Char.IsLetter(startLetter.Chars(0)) Then
-                    MessageBox.Show("Chữ cái bắt đầu phải là 1 ký tự A-Z.",
+                If String.IsNullOrEmpty(startLetter) OrElse Not IsValidLetter(startLetter) Then
+                    MessageBox.Show("Chữ cái bắt đầu không hợp lệ (chỉ dùng A-Z, AA, AB...).",
                                     "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     Return
                 End If
@@ -39,20 +46,26 @@ Namespace ToolInventor2020.Drawing.Buttons
                 Dim count As Integer = 0
 
                 If scope = "Active Sheet" Then
-                    count = RenameViewsOnSheet(oDrawDoc.ActiveSheet, startLetter, skipProjected)
+                    count = RenameViewsOnSheet(oDrawDoc.ActiveSheet, startLetter,
+                                               skipBase, skipProjected, skipSection,
+                                               skipDetail, skipAuxiliary, skipOverlay)
                 Else
-                    count = RenameViewsAllSheets(oDrawDoc, startLetter, skipProjected)
+                    count = RenameViewsAllSheets(oDrawDoc, startLetter,
+                                                 skipBase, skipProjected, skipSection,
+                                                 skipDetail, skipAuxiliary, skipOverlay)
                 End If
 
                 oDrawDoc.Update2(True)
 
                 Dim msg As String = "Đã đặt lại tên " & count.ToString() & " View(s)" & vbCrLf &
-                                    "Bắt đầu từ chữ: " & startLetter & vbCrLf &
-                                    "Đã bỏ qua Base View"
+                                    "Bắt đầu từ: " & startLetter & vbCrLf
 
-                If skipProjected Then
-                    msg &= vbCrLf & "Đã bỏ qua Projected View"
-                End If
+                If skipBase Then msg &= "• Bỏ qua Base View" & vbCrLf
+                If skipProjected Then msg &= "• Bỏ qua Projected View" & vbCrLf
+                If skipSection Then msg &= "• Bỏ qua Section View" & vbCrLf
+                If skipDetail Then msg &= "• Bỏ qua Detail View" & vbCrLf
+                If skipAuxiliary Then msg &= "• Bỏ qua Auxiliary View" & vbCrLf
+                If skipOverlay Then msg &= "• Bỏ qua Overlay View" & vbCrLf
 
                 MessageBox.Show(msg, "Rename View Label", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
@@ -68,35 +81,31 @@ Namespace ToolInventor2020.Drawing.Buttons
         '==========================================================
         ' RENAME TRÊN 1 SHEET
         '==========================================================
-        Private Function RenameViewsOnSheet(ByVal oSheet As Sheet, ByVal startLetter As String, ByVal skipProjected As Boolean) As Integer
+        Private Function RenameViewsOnSheet(ByVal oSheet As Sheet,
+                                            ByVal startLetter As String,
+                                            ByVal skipBase As Boolean,
+                                            ByVal skipProjected As Boolean,
+                                            ByVal skipSection As Boolean,
+                                            ByVal skipDetail As Boolean,
+                                            ByVal skipAuxiliary As Boolean,
+                                            ByVal skipOverlay As Boolean) As Integer
 
             If oSheet Is Nothing Then Return 0
 
-            Dim currentChar As Integer = Asc(startLetter)
+            Dim currentName As String = startLetter
             Dim count As Integer = 0
 
             For Each oView As DrawingView In oSheet.DrawingViews
 
                 Try
-                    ' Bỏ qua Base View
-                    If oView.ViewType = DrawingViewTypeEnum.kStandardDrawingViewType Then Continue For
-
-                    ' Bỏ qua Overlay View
-                    If oView.ViewType = DrawingViewTypeEnum.kOverlayDrawingViewType Then Continue For
-
-                    ' Bỏ qua Projected View (nếu được chọn)
-                    If skipProjected AndAlso oView.ViewType = DrawingViewTypeEnum.kProjectedDrawingViewType Then
+                    If ShouldSkipView(oView, skipBase, skipProjected, skipSection,
+                                      skipDetail, skipAuxiliary, skipOverlay) Then
                         Continue For
                     End If
 
-                    oView.Name = Chr(currentChar)
-
-                    currentChar += 1
+                    oView.Name = currentName
+                    currentName = GetNextLetter(currentName)
                     count += 1
-
-                    If currentChar > Asc("Z") Then
-                        currentChar = Asc("A")
-                    End If
 
                 Catch
                 End Try
@@ -111,34 +120,29 @@ Namespace ToolInventor2020.Drawing.Buttons
         '==========================================================
         ' RENAME TẤT CẢ SHEET
         '==========================================================
-        Private Function RenameViewsAllSheets(ByVal oDrawDoc As DrawingDocument, ByVal startLetter As String, ByVal skipProjected As Boolean) As Integer
+        Private Function RenameViewsAllSheets(ByVal oDrawDoc As DrawingDocument,
+                                              ByVal startLetter As String,
+                                              ByVal skipBase As Boolean,
+                                              ByVal skipProjected As Boolean,
+                                              ByVal skipSection As Boolean,
+                                              ByVal skipDetail As Boolean,
+                                              ByVal skipAuxiliary As Boolean,
+                                              ByVal skipOverlay As Boolean) As Integer
 
             Dim total As Integer = 0
-            Dim currentChar As Integer = Asc(startLetter)
+            Dim currentName As String = startLetter
 
             For Each oSheet As Sheet In oDrawDoc.Sheets
-
                 For Each oView As DrawingView In oSheet.DrawingViews
                     Try
-                        ' Bỏ qua Base View
-                        If oView.ViewType = DrawingViewTypeEnum.kStandardDrawingViewType Then Continue For
-
-                        ' Bỏ qua Overlay View
-                        If oView.ViewType = DrawingViewTypeEnum.kOverlayDrawingViewType Then Continue For
-
-                        ' Bỏ qua Projected View (nếu được chọn)
-                        If skipProjected AndAlso oView.ViewType = DrawingViewTypeEnum.kProjectedDrawingViewType Then
+                        If ShouldSkipView(oView, skipBase, skipProjected, skipSection,
+                                          skipDetail, skipAuxiliary, skipOverlay) Then
                             Continue For
                         End If
 
-                        oView.Name = Chr(currentChar)
-
-                        currentChar += 1
+                        oView.Name = currentName
+                        currentName = GetNextLetter(currentName)
                         total += 1
-
-                        If currentChar > Asc("Z") Then
-                            currentChar = Asc("A")
-                        End If
 
                     Catch
                     End Try
@@ -151,13 +155,88 @@ Namespace ToolInventor2020.Drawing.Buttons
 
 
         '==========================================================
-        ' FORM NHẬP
+        ' KIỂM TRA BỎ QUA VIEW
         '==========================================================
-        Private Function ShowInputDialog(ByRef startLetter As String, ByRef scope As String, ByRef skipProjected As Boolean) As Boolean
+        Private Function ShouldSkipView(ByVal oView As DrawingView,
+                                        ByVal skipBase As Boolean,
+                                        ByVal skipProjected As Boolean,
+                                        ByVal skipSection As Boolean,
+                                        ByVal skipDetail As Boolean,
+                                        ByVal skipAuxiliary As Boolean,
+                                        ByVal skipOverlay As Boolean) As Boolean
+
+            Select Case oView.ViewType
+                Case DrawingViewTypeEnum.kStandardDrawingViewType
+                    Return skipBase
+                Case DrawingViewTypeEnum.kProjectedDrawingViewType
+                    Return skipProjected
+                Case DrawingViewTypeEnum.kSectionDrawingViewType
+                    Return skipSection
+                Case DrawingViewTypeEnum.kDetailDrawingViewType
+                    Return skipDetail
+                Case DrawingViewTypeEnum.kAuxiliaryDrawingViewType
+                    Return skipAuxiliary
+                Case DrawingViewTypeEnum.kOverlayDrawingViewType
+                    Return skipOverlay
+                Case Else
+                    Return False
+            End Select
+
+        End Function
+
+
+        '==========================================================
+        ' TĂNG CHỮ CÁI: A → B → ... → Z → AA → AB → ...
+        '==========================================================
+        Private Function GetNextLetter(ByVal current As String) As String
+
+            If String.IsNullOrEmpty(current) Then Return "A"
+
+            Dim chars() As Char = current.ToUpper().ToCharArray()
+            Dim i As Integer = chars.Length - 1
+
+            Do While i >= 0
+                If chars(i) < "Z"c Then
+                    chars(i) = Chr(Asc(chars(i)) + 1)
+                    Return New String(chars)
+                Else
+                    chars(i) = "A"c
+                    i -= 1
+                End If
+            Loop
+
+            ' Đã vượt Z, ZZ... → thêm 1 chữ A ở đầu
+            Return "A" & New String(chars)
+
+        End Function
+
+
+        '==========================================================
+        ' KIỂM TRA CHỮ HỢP LỆ
+        '==========================================================
+        Private Function IsValidLetter(ByVal text As String) As Boolean
+            For Each c As Char In text
+                If Not Char.IsLetter(c) Then Return False
+            Next
+            Return True
+        End Function
+
+
+        '==========================================================
+        ' FORM
+        '==========================================================
+        Private Function ShowInputDialog(ByRef startLetter As String,
+                                         ByRef scope As String,
+                                         ByRef skipBase As Boolean,
+                                         ByRef skipProjected As Boolean,
+                                         ByRef skipSection As Boolean,
+                                         ByRef skipDetail As Boolean,
+                                         ByRef skipAuxiliary As Boolean,
+                                         ByRef skipOverlay As Boolean) As Boolean
 
             Dim frm As New Form()
             frm.Text = "Đặt tên View theo chữ cái"
-            frm.Size = New Size(380, 260)
+            frm.Size = New Size(400, 430)
             frm.StartPosition = FormStartPosition.CenterScreen
             frm.FormBorderStyle = FormBorderStyle.FixedDialog
             frm.MaximizeBox = False
@@ -165,56 +244,62 @@ Namespace ToolInventor2020.Drawing.Buttons
             frm.Font = New Font("Segoe UI", 9)
 
             Dim lbl1 As New Label()
-            lbl1.Text = "Chữ cái bắt đầu (A, B, C...):"
-            lbl1.Location = New System.Drawing.Point(20, 20)
+            lbl1.Text = "Chữ cái bắt đầu (A, B, AA, AB...):"
+            lbl1.Location = New System.Drawing.Point(20, 10)
             lbl1.AutoSize = True
 
             Dim txtLetter As New System.Windows.Forms.TextBox()
             txtLetter.Text = "A"
-            txtLetter.Location = New System.Drawing.Point(20, 45)
-            txtLetter.Width = 60
-            txtLetter.MaxLength = 1
+            txtLetter.Location = New System.Drawing.Point(20, 40)
+            txtLetter.Width = 80
             txtLetter.CharacterCasing = CharacterCasing.Upper
 
             Dim lbl2 As New Label()
             lbl2.Text = "Phạm vi:"
-            lbl2.Location = New System.Drawing.Point(20, 85)
+            lbl2.Location = New System.Drawing.Point(20, 70)
             lbl2.AutoSize = True
 
             Dim cboScope As New ComboBox()
-            cboScope.Location = New System.Drawing.Point(20, 110)
-            cboScope.Width = 320
+            cboScope.Location = New System.Drawing.Point(20, 98)
+            cboScope.Width = 340
             cboScope.DropDownStyle = ComboBoxStyle.DropDownList
             cboScope.Items.Add("Active Sheet")
             cboScope.Items.Add("All Sheets")
             cboScope.SelectedIndex = 0
 
-            Dim chkSkipProjected As New CheckBox()
-            chkSkipProjected.Text = "Bỏ qua Projected View"
-            chkSkipProjected.Location = New System.Drawing.Point(20, 150)
-            chkSkipProjected.AutoSize = True
-            chkSkipProjected.Checked = True
+            Dim lbl3 As New Label()
+            lbl3.Text = "Bỏ qua loại View:"
+            lbl3.Location = New System.Drawing.Point(20, 140)
+            lbl3.AutoSize = True
 
-            Dim btnOK As New Button()
-            btnOK.Text = "OK"
-            btnOK.Location = New System.Drawing.Point(180, 185)
-            btnOK.Width = 70
-            btnOK.DialogResult = DialogResult.OK
+            Dim chkBase As New CheckBox() With {.Text = "Base View", .Location = New System.Drawing.Point(20, 165), .AutoSize = True, .Checked = True}
+            Dim chkProjected As New CheckBox() With {.Text = "Projected View", .Location = New System.Drawing.Point(20, 190), .AutoSize = True, .Checked = True}
+            Dim chkSection As New CheckBox() With {.Text = "Section View", .Location = New System.Drawing.Point(20, 215), .AutoSize = True, .Checked = False}
+            Dim chkDetail As New CheckBox() With {.Text = "Detail View", .Location = New System.Drawing.Point(20, 240), .AutoSize = True, .Checked = False}
+            Dim chkAuxiliary As New CheckBox() With {.Text = "Auxiliary View", .Location = New System.Drawing.Point(20, 265), .AutoSize = True, .Checked = False}
+            Dim chkOverlay As New CheckBox() With {.Text = "Overlay View", .Location = New System.Drawing.Point(20, 290), .AutoSize = True, .Checked = True}
 
-            Dim btnCancel As New Button()
-            btnCancel.Text = "Cancel"
-            btnCancel.Location = New System.Drawing.Point(260, 185)
-            btnCancel.Width = 70
-            btnCancel.DialogResult = DialogResult.Cancel
+            Dim btnOK As New Button() With {.Text = "OK", .Location = New System.Drawing.Point(200, 345), .Width = 70, .DialogResult = DialogResult.OK}
+            Dim btnCancel As New Button() With {.Text = "Cancel", .Location = New System.Drawing.Point(280, 345), .Width = 70, .DialogResult = DialogResult.Cancel}
 
-            frm.Controls.AddRange({lbl1, txtLetter, lbl2, cboScope, chkSkipProjected, btnOK, btnCancel})
+            frm.Controls.AddRange({
+                lbl1, txtLetter, lbl2, cboScope, lbl3,
+                chkBase, chkProjected, chkSection, chkDetail, chkAuxiliary, chkOverlay,
+                btnOK, btnCancel
+            })
+
             frm.AcceptButton = btnOK
             frm.CancelButton = btnCancel
 
             If frm.ShowDialog() = DialogResult.OK Then
                 startLetter = txtLetter.Text
                 scope = cboScope.SelectedItem.ToString()
-                skipProjected = chkSkipProjected.Checked
+                skipBase = chkBase.Checked
+                skipProjected = chkProjected.Checked
+                skipSection = chkSection.Checked
+                skipDetail = chkDetail.Checked
+                skipAuxiliary = chkAuxiliary.Checked
+                skipOverlay = chkOverlay.Checked
                 Return True
             End If
 

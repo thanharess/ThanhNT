@@ -38,7 +38,7 @@ Namespace ToolInventor2020.Drawing.Buttons
                 '=================================================
                 ' 1. NHẬP PREFIX
                 '=================================================
-                Dim PREFIX As String = InputBox("Nhập PREFIX mã bản vẽ (ví dụ: 1.2.3.)", "PREFIX", "1.2.3.")
+                Dim PREFIX As String = InputBox("Nhập PREFIX mã bản vẽ (ví dụ: 1.2.3.)", "PREFIX", "")
 
                 If PREFIX Is Nothing OrElse PREFIX.Trim() = "" Then
                     Exit Sub
