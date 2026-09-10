@@ -227,6 +227,11 @@ Namespace ToolInventor2020
             AddHandler assemblyBtn21.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_LG_2.OnExecute
             buttonsList.Add(assemblyBtn21)
 
+            Dim assemblyBtn18 As ButtonDefinition = controlDefs.AddButtonDefinition("Ản file", "ToolInventor2020_Assembly_Btn18", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                    Nothing, "Tạo, ghép shetmetal to assembly all lever lấy tất cả các tấm kể cả trung tên partnumber", ass1SmallIcon18, ass1LargeIcon18)
+            AddHandler assemblyBtn18.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_LG_3.OnExecute
+            buttonsList.Add(assemblyBtn18)
+
 #End Region
             '==================================================
 
@@ -307,10 +312,7 @@ Namespace ToolInventor2020
 
 
 
-            Dim assemblyBtn18 As ButtonDefinition = controlDefs.AddButtonDefinition("3", "ToolInventor2020_Assembly_Btn18", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                    Nothing, "Tạo, ghép shetmetal to assembly all lever lấy tất cả các tấm kể cả trung tên partnumber", ass1SmallIcon18, ass1LargeIcon18)
-            AddHandler assemblyBtn18.OnExecute, AddressOf Assembly.Buttons.caclenhboctach.part.Ass_boctach_part_1.OnExecute
-            '  buttonsList.Add(assemblyBtn18)
+
 
             Dim assemblyBtn19 As ButtonDefinition = controlDefs.AddButtonDefinition("4", "ToolInventor2020_Assembly_Btn19", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing, "Tạo, ghép shetmetal,mua,thư viện to assembly all lever lấy tổng partnumber", ass1SmallIcon19, ass1LargeIcon19)

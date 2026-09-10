@@ -114,6 +114,7 @@
     <Compile Include="Code addin inventor\Assembly3Buttons.vb" />
     <Compile Include="Code addin inventor\Assembly2Buttons.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Auto Creating Drawing\Auto drawing ASS,Part top LV.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_LG_3.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Lenh_Constrain\Ass_LG_C_1e.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Part\Ass_Part_9.vb" />
     <Compile Include="Code addin inventor\Assembly\Cac lenh Boc tach\Part\Ass_boctach_part_1.vb" />
@@ -155,9 +156,7 @@
     <Compile Include="Code addin inventor\DrawingButtons.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_1.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_10.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Draw_11.vb">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Code addin inventor\Drawing\Buttons\Draw_11.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_12.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_13.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_14.vb" />
