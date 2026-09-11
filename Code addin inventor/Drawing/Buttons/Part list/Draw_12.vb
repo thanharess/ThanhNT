@@ -6,7 +6,7 @@ Imports System.Windows.Forms
 Imports Inventor
 Imports ToolInventor2020.ToolInventor2020.Assembly.Buttons
 
-Namespace ToolInventor2020.Drawing.Buttons
+Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
 
     Public Module Draw_12
 

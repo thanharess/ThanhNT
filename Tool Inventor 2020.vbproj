@@ -157,7 +157,7 @@
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_1.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_10.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_11.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Draw_12.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Draw_12.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_13.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_14.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_15.vb" />
@@ -165,13 +165,15 @@
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_3.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_4.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_5.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Draw_6.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Draw_6b.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Draw_6a.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_7.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_8.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_9.vb" />
     <Compile Include="Code addin inventor\AssemblyButtons.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Draw_6.vb" />
     <Compile Include="Globals.vb" />
     <Compile Include="Basecode.vb" />
     <Compile Include="Code addin inventor\Part\Buttons\Solid\Part_Solid_1.vb" />
