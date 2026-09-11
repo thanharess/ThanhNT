@@ -203,9 +203,9 @@ Namespace ToolInventor2020
             AddHandler DrawingBtn13.OnExecute, AddressOf Drawing.Buttons.draw_13.OnExecute
             buttonsList.Add(DrawingBtn13)
 
-            Dim DrawingBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 14", "ToolInventor2020_Drawing_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon14, Dra1LargeIcon14)
+            Dim DrawingBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Đổi scale Hatch", "ToolInventor2020_Drawing_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon14, Dra1LargeIcon14)
             AddHandler DrawingBtn14.OnExecute, AddressOf Drawing.Buttons.Draw_14.OnExecute
-            ' buttonsList.Add(DrawingBtn14)
+            buttonsList.Add(DrawingBtn14)
 
             Dim DrawingBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing Action 15", "ToolInventor2020_Drawing_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon15, Dra1LargeIcon15)
             AddHandler DrawingBtn15.OnExecute, AddressOf Drawing.Buttons.Draw_15.OnExecute

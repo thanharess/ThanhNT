@@ -237,7 +237,7 @@ Namespace ToolInventor2020.Drawing.Buttons
                                          ByRef resetPerSheet As Boolean) As Boolean
 
             Dim frm As New Form()
-            frm.Text = "Đặt tên View theo chữ cái"
+            frm.Text = "Đặt lại tên View theo chữ cái Lựa chọn"
             frm.Size = New Size(400, 420)
             frm.StartPosition = FormStartPosition.CenterScreen
             frm.FormBorderStyle = FormBorderStyle.FixedDialog
@@ -245,7 +245,7 @@ Namespace ToolInventor2020.Drawing.Buttons
             frm.MinimizeBox = False
             frm.Font = New Font("Segoe UI", 9)
 
-            Dim lbl1 As New Label() With {.Text = "Chữ cái bắt đầu (A, B, AA, AB...):", .Location = New System.Drawing.Point(20, 5), .AutoSize = True}
+            Dim lbl1 As New Label() With {.Text = "Chữ cái bắt đầu (A, B, AA, AB...):", .Location = New System.Drawing.Point(20, 10), .AutoSize = True}
             Dim txtLetter As New System.Windows.Forms.TextBox() With {.Text = "A", .Location = New System.Drawing.Point(20, 40), .Width = 80, .CharacterCasing = CharacterCasing.Upper}
 
             Dim lbl2 As New Label() With {.Text = "Phạm vi:", .Location = New System.Drawing.Point(20, 70), .AutoSize = True}
