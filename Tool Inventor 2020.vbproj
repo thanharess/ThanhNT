@@ -154,6 +154,7 @@
     <Compile Include="Code addin inventor\Assembly\Buttons\Auto Creating Drawing\Auto drawing ASS top LV.vb" />
     <Compile Include="Code addin inventor\Assembly\CommonKeywords.vb" />
     <Compile Include="Code addin inventor\DrawingButtons.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_15.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_15e.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_15d.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_15c.vb" />
@@ -164,7 +165,7 @@
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_13.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_14.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_15a.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Draw_2.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_dim_hole.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_3.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_4.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_5.vb" />

@@ -5,15 +5,15 @@ Imports Inventor
 Imports System.Collections.Generic
 Imports System.Linq
 
-Namespace ToolInventor2020.Drawing.Buttons
-
+Namespace ToolInventor2020.Drawing.Buttons.Drawdim
     Public Module Draw_15a
 
-        Private Const TOL As Double = 0.25
+        Private Const TOL As Double = 0.0
         Private Const EDGE_TOL As Double = 0.15
         Private Const RADIUS_TOL As Double = 0.04
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
+
             Dim app As Inventor.Application = g_inventorApplication
 
             Try
@@ -27,20 +27,68 @@ Namespace ToolInventor2020.Drawing.Buttons
                 Dim oSheet As Sheet = oDrawDoc.ActiveSheet
                 Dim tg As TransientGeometry = app.TransientGeometry
 
+                '=====================================================
+                ' CHỌN NHIỀU VIEW SAU KHI CHẠY CODE
+                '=====================================================
+                Dim selectedViews As New List(Of DrawingView)
+
+                Do
+                    Dim oSS As SelectSet = oDrawDoc.SelectSet
+                    oSS.Clear()
+
+                    Dim oView As DrawingView = Nothing
+
+                    Try
+                        oView = CType(
+                            app.CommandManager.Pick(
+                                SelectionFilterEnum.kDrawingViewFilter,
+                                "Chọn View (Esc hoặc Right-click để kết thúc)"),
+                            DrawingView)
+                    Catch
+                        Exit Do
+                    End Try
+
+                    If oView Is Nothing Then Exit Do
+
+                    ' Tránh chọn trùng
+                    Dim already As Boolean = False
+                    For Each v As DrawingView In selectedViews
+                        If v Is oView Then
+                            already = True
+                            Exit For
+                        End If
+                    Next
+
+                    If Not already Then
+                        selectedViews.Add(oView)
+                    End If
+
+                Loop
+
+                If selectedViews.Count = 0 Then
+                    MessageBox.Show("Chưa chọn View nào.", "Thông báo")
+                    Exit Sub
+                End If
+
                 Dim countOK As Integer = 0
                 Dim countFail As Integer = 0
                 Dim countZero As Integer = 0
                 Dim countArray As Integer = 0
 
-                For Each oView As DrawingView In oSheet.DrawingViews
+                '=====================================================
+                ' XỬ LÝ TỪNG VIEW ĐÃ CHỌN
+                '=====================================================
+                For Each oView As DrawingView In selectedViews
 
-                    '=====================================================
+                    '-------------------------------------------------
                     ' 1. LẤY TẤT CẢ LỖ TRÒN
-                    '=====================================================
+                    '-------------------------------------------------
                     Dim allHoles As New List(Of HoleInfo)
+
                     For Each oCurve As DrawingCurve In oView.DrawingCurves
                         Try
                             If oCurve.CurveType <> CurveTypeEnum.kCircleCurve Then Continue For
+
                             Dim c As Point2d = oCurve.CenterPoint
                             If c Is Nothing Then Continue For
 
@@ -55,20 +103,21 @@ Namespace ToolInventor2020.Drawing.Buttons
                                 hi.Radius = 1.5
                             End Try
                             allHoles.Add(hi)
+
                         Catch
                         End Try
                     Next
 
                     If allHoles.Count = 0 Then Continue For
 
-                    '=====================================================
-                    ' 2. TÌM CIRCULAR ARRAY (cải tiến)
-                    '=====================================================
+                    '-------------------------------------------------
+                    ' 2. TÌM CIRCULAR ARRAY
+                    '-------------------------------------------------
                     Dim arrayHoles As List(Of HoleInfo) = FindCircularArrayHoles(allHoles)
 
-                    '=====================================================
+                    '-------------------------------------------------
                     ' 3. LOẠI LỖ ARRAY
-                    '=====================================================
+                    '-------------------------------------------------
                     Dim cleanHoles As New List(Of HoleInfo)
                     For Each h As HoleInfo In allHoles
                         If ContainsHole(arrayHoles, h) Then
@@ -80,9 +129,9 @@ Namespace ToolInventor2020.Drawing.Buttons
 
                     If cleanHoles.Count = 0 Then Continue For
 
-                    '=====================================================
-                    ' 4. TÌM BIÊN VIEW (cải tiến - tính cả lỗ)
-                    '=====================================================
+                    '-------------------------------------------------
+                    ' 4. TÌM BIÊN VIEW (line + circle)
+                    '-------------------------------------------------
                     Dim leftEdge As DrawingCurve = Nothing
                     Dim rightEdge As DrawingCurve = Nothing
                     Dim topEdge As DrawingCurve = Nothing
@@ -93,7 +142,6 @@ Namespace ToolInventor2020.Drawing.Buttons
                     Dim maxY As Double = Double.MinValue
                     Dim minY As Double = Double.MaxValue
 
-                    ' 4.1 Tính biên thật (line + circle)
                     For Each oCurve As DrawingCurve In oView.DrawingCurves
                         Try
                             Select Case oCurve.CurveType
@@ -119,7 +167,7 @@ Namespace ToolInventor2020.Drawing.Buttons
                         End Try
                     Next
 
-                    ' 4.2 Tìm line gần biên nhất để làm GeometryIntent
+                    ' Tìm line gần biên nhất
                     Dim bestLeftDist As Double = Double.MaxValue
                     Dim bestRightDist As Double = Double.MaxValue
                     Dim bestTopDist As Double = Double.MaxValue
@@ -128,14 +176,13 @@ Namespace ToolInventor2020.Drawing.Buttons
                     For Each oCurve As DrawingCurve In oView.DrawingCurves
                         Try
                             If oCurve.CurveType <> CurveTypeEnum.kLineCurve AndAlso
-           oCurve.CurveType <> CurveTypeEnum.kLineSegmentCurve Then Continue For
+                               oCurve.CurveType <> CurveTypeEnum.kLineSegmentCurve Then Continue For
 
                             Dim p1 As Point2d = oCurve.StartPoint
                             Dim p2 As Point2d = oCurve.EndPoint
                             Dim len As Double = Math.Sqrt((p2.X - p1.X) ^ 2 + (p2.Y - p1.Y) ^ 2)
-                            If len < 2.0 Then Continue For   ' bỏ line quá ngắn
+                            If len < 2.0 Then Continue For
 
-                            ' Cạnh đứng
                             If Math.Abs(p1.X - p2.X) < 0.05 Then
                                 Dim distL As Double = Math.Abs(p1.X - minX)
                                 Dim distR As Double = Math.Abs(p1.X - maxX)
@@ -149,7 +196,6 @@ Namespace ToolInventor2020.Drawing.Buttons
                                 End If
                             End If
 
-                            ' Cạnh ngang
                             If Math.Abs(p1.Y - p2.Y) < 0.05 Then
                                 Dim distT As Double = Math.Abs(p1.Y - maxY)
                                 Dim distB As Double = Math.Abs(p1.Y - minY)
@@ -167,22 +213,20 @@ Namespace ToolInventor2020.Drawing.Buttons
                     Next
 
                     If leftEdge Is Nothing OrElse rightEdge Is Nothing OrElse
-   topEdge Is Nothing OrElse bottomEdge Is Nothing Then
+                       topEdge Is Nothing OrElse bottomEdge Is Nothing Then
                         Continue For
                     End If
 
                     Dim viewW As Double = maxX - minX
                     Dim viewH As Double = maxY - minY
 
-                    ' Giảm cứng RATIO + TOL để bắt lỗ gần cạnh tốt hơn
                     Dim RATIO As Double = 0.48
                     Dim limitX As Double = minX + viewW * RATIO
                     Dim limitY As Double = maxY - viewH * RATIO
-                    Dim EDGE_TOL As Double = 0.15   ' riêng cho khoảng cách đến cạnh
 
-                    '=====================================================
-                    ' 5. DIM TỔNG NGANG + DỌC
-                    '=====================================================
+                    '-------------------------------------------------
+                    ' 5. DIM TỔNG
+                    '-------------------------------------------------
                     Try
                         Dim tp As Point2d = tg.CreatePoint2d((minX + maxX) / 2, maxY + 5.5)
                         oSheet.DrawingDimensions.GeneralDimensions.AddLinear(
@@ -206,35 +250,27 @@ Namespace ToolInventor2020.Drawing.Buttons
                     Catch
                         countFail += 1
                     End Try
-                    '=====================================================
-                    ' SAU KHI CÓ cleanHoles + leftEdge, rightEdge, topEdge, bottomEdge, minX, maxX, minY, maxY
-                    '=====================================================
 
-                    '----- 1. CLUSTER HÀNG (theo Y) -----
-                    Dim rows As List(Of List(Of HoleInfo)) = ClusterByY(cleanHoles, 3.0)   ' 3 mm gom thành 1 hàng
-
-                    '----- 2. CLUSTER CỘT (theo X) -----
+                    '-------------------------------------------------
+                    ' 6. CLUSTER + DIM 4 CHUỖI
+                    '-------------------------------------------------
+                    Dim rows As List(Of List(Of HoleInfo)) = ClusterByY(cleanHoles, 3.0)
                     Dim cols As List(Of List(Of HoleInfo)) = ClusterByX(cleanHoles, 3.0)
 
-                    '----- 3. LẤY HÀNG TRÊN + HÀNG DƯỚI -----
                     Dim topRow As List(Of HoleInfo) = Nothing
                     Dim botRow As List(Of HoleInfo) = Nothing
-
                     If rows.Count > 0 Then
-                        topRow = rows(0).OrderBy(Function(h) h.X).ToList()          ' hàng cao nhất
-                        botRow = rows(rows.Count - 1).OrderBy(Function(h) h.X).ToList() ' hàng thấp nhất
+                        topRow = rows(0).OrderBy(Function(h) h.X).ToList()
+                        botRow = rows(rows.Count - 1).OrderBy(Function(h) h.X).ToList()
                     End If
 
-                    '----- 4. LẤY CỘT TRÁI + CỘT PHẢI -----
                     Dim leftCol As List(Of HoleInfo) = Nothing
                     Dim rightCol As List(Of HoleInfo) = Nothing
-
                     If cols.Count > 0 Then
                         leftCol = cols(0).OrderByDescending(Function(h) h.Y).ToList()
                         rightCol = cols(cols.Count - 1).OrderByDescending(Function(h) h.Y).ToList()
                     End If
 
-                    '----- 5. DIM 4 CHUỖI -----
                     If topRow IsNot Nothing AndAlso topRow.Count > 0 Then
                         DimChainHorizontal(oSheet, tg, topRow, leftEdge, rightEdge, minX, maxX, maxY + 4.5, maxY + 3.0, True, countOK, countFail, countZero)
                     End If
@@ -250,24 +286,75 @@ Namespace ToolInventor2020.Drawing.Buttons
                     If rightCol IsNot Nothing AndAlso rightCol.Count > 0 Then
                         DimChainVertical(oSheet, tg, rightCol, topEdge, bottomEdge, maxY, minY, maxX + 4.5, maxX + 3.0, False, countOK, countFail, countZero)
                     End If
-                Next
+
+                Next ' End selectedViews
+
+                '=====================================================
+                ' AUTO ARRANGE
+                '=====================================================
+                Try
+                    ArrangeDimensions(oSheet, app)
+                Catch
+                End Try
 
                 oDrawDoc.Update()
+
                 MessageBox.Show(
                     "Hoàn tất!" & vbCrLf & vbCrLf &
+                    "Số view đã xử lý: " & selectedViews.Count & vbCrLf &
                     "Số DIM: " & countOK & vbCrLf &
                     "Lỗ Circular Array bỏ qua: " & countArray & vbCrLf &
                     "Bỏ = 0: " & countZero & vbCrLf &
-                    "Lỗi: " & countFail,
+                    "Lỗi: " & countFail & vbCrLf & vbCrLf &
+                    "• Chọn nhiều View liên tục" & vbCrLf &
+                    "• Lọc Circular Array" & vbCrLf &
+                    "• Auto Arrange Dimension",
                     "Dim Chain lỗ", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
             Catch ex As Exception
                 MessageBox.Show("Lỗi:" & vbCrLf & ex.Message, "Dim Chain lỗ", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
+
+        End Sub
+
+        '=============================================================
+        ' AUTO ARRANGE
+        '=============================================================
+        Private Sub ArrangeDimensions(ByVal oSheet As Sheet, ByVal app As Inventor.Application)
+
+            Try
+                Dim oDims As DrawingDimensions = oSheet.DrawingDimensions
+                If oDims Is Nothing OrElse oDims.Count = 0 Then Exit Sub
+
+                Dim oCol As ObjectCollection = app.TransientObjects.CreateObjectCollection
+
+                For Each oDim As DrawingDimension In oDims
+                    Try
+                        If TypeOf oDim Is LinearGeneralDimension OrElse
+                           TypeOf oDim Is AngularGeneralDimension Then
+
+                            Try
+                                oDim.CenterText()
+                            Catch
+                            End Try
+
+                            oCol.Add(oDim)
+                        End If
+                    Catch
+                    End Try
+                Next
+
+                If oCol.Count > 0 Then
+                    oDims.Arrange(oCol)
+                End If
+
+            Catch
+            End Try
+
         End Sub
 
         '=====================================================
-        ' HELPER: DIM NGANG (B1 + B3)
+        ' HELPER: DIM NGANG
         '=====================================================
         Private Sub DimChainHorizontal(
             oSheet As Sheet, tg As TransientGeometry,
@@ -282,7 +369,6 @@ Namespace ToolInventor2020.Drawing.Buttons
 
             Dim prev As HoleInfo = holes.First()
 
-            ' Cạnh trái → lỗ đầu
             If (prev.X - minX) > TOL Then
                 Try
                     Dim tp As Point2d = tg.CreatePoint2d((minX + prev.X) / 2, edgeOffset)
@@ -297,7 +383,6 @@ Namespace ToolInventor2020.Drawing.Buttons
                 End Try
             End If
 
-            ' Các lỗ giữa
             For i As Integer = 1 To holes.Count - 1
                 Dim h As HoleInfo = holes(i)
                 Dim dist As Double = h.X - prev.X
@@ -305,6 +390,7 @@ Namespace ToolInventor2020.Drawing.Buttons
                     countZero += 1
                     Continue For
                 End If
+
                 Try
                     Dim tp As Point2d = tg.CreatePoint2d((prev.X + h.X) / 2, midOffset)
                     oSheet.DrawingDimensions.GeneralDimensions.AddLinear(
@@ -319,7 +405,6 @@ Namespace ToolInventor2020.Drawing.Buttons
                 End Try
             Next
 
-            ' Lỗ cuối → cạnh phải
             If rightEdge IsNot Nothing AndAlso (maxX - prev.X) > TOL Then
                 Try
                     Dim tp As Point2d = tg.CreatePoint2d((prev.X + maxX) / 2, edgeOffset)
@@ -333,10 +418,11 @@ Namespace ToolInventor2020.Drawing.Buttons
                     countFail += 1
                 End Try
             End If
+
         End Sub
 
         '=====================================================
-        ' HELPER: DIM DỌC (B2 + B4)
+        ' HELPER: DIM DỌC
         '=====================================================
         Private Sub DimChainVertical(
             oSheet As Sheet, tg As TransientGeometry,
@@ -351,7 +437,6 @@ Namespace ToolInventor2020.Drawing.Buttons
 
             Dim prev As HoleInfo = holes.First()
 
-            ' Cạnh trên → lỗ đầu
             If (maxY - prev.Y) > EDGE_TOL Then
                 Try
                     Dim tp As Point2d = tg.CreatePoint2d(edgeOffset, (maxY + prev.Y) / 2)
@@ -366,7 +451,6 @@ Namespace ToolInventor2020.Drawing.Buttons
                 End Try
             End If
 
-            ' Các lỗ giữa
             For i As Integer = 1 To holes.Count - 1
                 Dim h As HoleInfo = holes(i)
                 Dim dist As Double = prev.Y - h.Y
@@ -374,6 +458,7 @@ Namespace ToolInventor2020.Drawing.Buttons
                     countZero += 1
                     Continue For
                 End If
+
                 Try
                     Dim tp As Point2d = tg.CreatePoint2d(midOffset, (prev.Y + h.Y) / 2)
                     oSheet.DrawingDimensions.GeneralDimensions.AddLinear(
@@ -388,7 +473,6 @@ Namespace ToolInventor2020.Drawing.Buttons
                 End Try
             Next
 
-            ' Lỗ cuối → cạnh dưới
             If bottomEdge IsNot Nothing AndAlso (prev.Y - minY) > EDGE_TOL Then
                 Try
                     Dim tp As Point2d = tg.CreatePoint2d(edgeOffset, (prev.Y + minY) / 2)
@@ -402,10 +486,11 @@ Namespace ToolInventor2020.Drawing.Buttons
                     countFail += 1
                 End Try
             End If
+
         End Sub
 
         '=====================================================
-        ' TÌM CIRCULAR ARRAY (cải tiến ~90-95%)
+        ' TÌM CIRCULAR ARRAY
         '=====================================================
         Private Function FindCircularArrayHoles(allHoles As List(Of HoleInfo)) As List(Of HoleInfo)
             Dim result As New List(Of HoleInfo)
@@ -416,7 +501,6 @@ Namespace ToolInventor2020.Drawing.Buttons
             For Each baseHole As HoleInfo In allHoles
                 If ContainsHole(checked, baseHole) Then Continue For
 
-                ' Nhóm cùng bán kính
                 Dim sameSize As New List(Of HoleInfo)
                 For Each h As HoleInfo In allHoles
                     If Math.Abs(h.Radius - baseHole.Radius) < RADIUS_TOL Then
@@ -430,7 +514,6 @@ Namespace ToolInventor2020.Drawing.Buttons
 
                 If sameSize.Count < 4 Then Continue For
 
-                ' Thử tìm tâm từ bộ 3 điểm
                 Dim found As Boolean = False
                 For i As Integer = 0 To sameSize.Count - 3
                     If found Then Exit For
@@ -442,7 +525,7 @@ Namespace ToolInventor2020.Drawing.Buttons
                             If Not GetCircleCenter(h1.X, h1.Y, h2.X, h2.Y, h3.X, h3.Y, cx, cy) Then Continue For
 
                             Dim arrayR As Double = GetDistance(h1.X, h1.Y, cx, cy)
-                            If arrayR < 0.8 Then Continue For   ' quá nhỏ → không phải array
+                            If arrayR < 0.8 Then Continue For
 
                             Dim members As New List(Of HoleInfo)
                             Dim circleTol As Double = Math.Max(0.1, arrayR * 0.015)
@@ -478,16 +561,14 @@ Namespace ToolInventor2020.Drawing.Buttons
             Next
             angles.Sort()
 
-            ' Kiểm tra số góc độc lập
             Dim unique As Integer = 1
             For i As Integer = 1 To angles.Count - 1
                 If Math.Abs(angles(i) - angles(i - 1)) > 0.03 Then unique += 1
             Next
             If unique < 4 Then Return False
 
-            ' Kiểm tra khoảng cách góc trung bình (đều hơn)
             Dim totalSpan As Double = angles.Last() - angles.First()
-            If totalSpan < 1.5 Then Return False   ' quá hẹp
+            If totalSpan < 1.5 Then Return False
 
             Return True
         End Function
@@ -516,6 +597,7 @@ Namespace ToolInventor2020.Drawing.Buttons
         Private Function GetDistance(x1 As Double, y1 As Double, x2 As Double, y2 As Double) As Double
             Return Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
         End Function
+
         Private Function ClusterByY(holes As List(Of HoleInfo), tol As Double) As List(Of List(Of HoleInfo))
             Dim result As New List(Of List(Of HoleInfo))
             If holes Is Nothing OrElse holes.Count = 0 Then Return result
@@ -557,6 +639,7 @@ Namespace ToolInventor2020.Drawing.Buttons
             result.Add(current.OrderByDescending(Function(h) h.Y).ToList())
             Return result
         End Function
+
         Public Class HoleInfo
             Public Curve As DrawingCurve
             Public Center As Point2d

@@ -150,7 +150,7 @@ Namespace ToolInventor2020
 
             Dim DrawingBtn2 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto dim hole", "ToolInventor2020_Drawing_Btn2", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing, "Auto dim kích thước lỗ & lỗ ren", Dra1SmallIcon2, Dra1LargeIcon2)
-            AddHandler DrawingBtn2.OnExecute, AddressOf Drawing.Buttons.Draw_2.OnExecute
+            AddHandler DrawingBtn2.OnExecute, AddressOf Drawing.Buttons.Drawdim.draw_15.OnExecute
             buttonsList.Add(DrawingBtn2)
 
             Dim DrawingBtn3 As ButtonDefinition = controlDefs.AddButtonDefinition("Auo giãn cách dim", "ToolInventor2020_Drawing_Btn3", CommandTypesEnum.kShapeEditCmdType, addInClientID,
@@ -197,8 +197,8 @@ Namespace ToolInventor2020
 
             Dim DrawingBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto Dim hole ko ar2", "ToolInventor2020_Drawing_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
                                                                                    "Ghi mã chi tiết vào category trong partlist. yêu cầu partlist phải có sẵn ô này thì mới được!", Dra1SmallIcon12, Dra1LargeIcon12)
-            AddHandler DrawingBtn12.OnExecute, AddressOf Drawing.Buttons.draw_15c.OnExecute
-            buttonsList.Add(DrawingBtn12)
+            '  AddHandler DrawingBtn12.OnExecute, AddressOf Drawing.Buttons.draw_15c.OnExecute
+            ' buttonsList.Add(DrawingBtn12)
 
             Dim DrawingBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Thay chữ cái view sheet", "ToolInventor2020_Drawing_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
                                                                                    "Đổi tên view hiển thị trong sheet", Dra1SmallIcon13, Dra1LargeIcon13)
@@ -210,22 +210,22 @@ Namespace ToolInventor2020
             buttonsList.Add(DrawingBtn14)
 
             Dim DrawingBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto Dim hole", "ToolInventor2020_Drawing_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon15, Dra1LargeIcon15)
-            AddHandler DrawingBtn15.OnExecute, AddressOf Drawing.Buttons.Draw_15a.OnExecute
+            ' AddHandler DrawingBtn15.OnExecute, AddressOf Drawing.Buttons.Draw_15a.OnExecute
 
-            buttonsList.Add(DrawingBtn15)
+            ' buttonsList.Add(DrawingBtn15)
             Dim DrawingBtn16 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto Dim hole ko ar", "ToolInventor2020_Drawing_Btn16", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon16, Dra1LargeIcon16)
-            AddHandler DrawingBtn16.OnExecute, AddressOf Drawing.Buttons.Draw_15b.OnExecute
+            ' AddHandler DrawingBtn16.OnExecute, AddressOf Drawing.Buttons.Draw_15b.OnExecute
 
-            buttonsList.Add(DrawingBtn16)
+            '  buttonsList.Add(DrawingBtn16)
 
             Dim DrawingBtn17 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto Dim hole ko ard", "ToolInventor2020_Drawing_Btn17", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon17, Dra1LargeIcon17)
-            AddHandler DrawingBtn17.OnExecute, AddressOf Drawing.Buttons.draw_15d.OnExecute
+            ' AddHandler DrawingBtn17.OnExecute, AddressOf Drawing.Buttons.draw_15d.OnExecute
 
-            buttonsList.Add(DrawingBtn17)
+            '  buttonsList.Add(DrawingBtn17)
             Dim DrawingBtn18 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto Dim hole ko ard2", "ToolInventor2020_Drawing_Btn18", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon18, Dra1LargeIcon18)
-            AddHandler DrawingBtn18.OnExecute, AddressOf Drawing.Buttons.draw_15e.OnExecute
+            ' AddHandler DrawingBtn18.OnExecute, AddressOf Drawing.Buttons.draw_15e.OnExecute
 
-            buttonsList.Add(DrawingBtn18)
+            ' buttonsList.Add(DrawingBtn18)
         End Sub
     End Class
 End Namespace
