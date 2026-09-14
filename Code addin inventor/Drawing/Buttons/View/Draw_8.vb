@@ -57,35 +57,35 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
             Me.StartPosition = FormStartPosition.CenterScreen
             Me.MaximizeBox = False
             Me.MinimizeBox = False
-            Me.ClientSize = New Size(340, 330)
+            Me.ClientSize = New Size(280, 275)
 
             '=================================================
             ' TICK BOX NGOÀI CÙNG - PHẠM VI VIEW
             '=================================================
             chkAllViews = New CheckBox()
-            chkAllViews.Text = "Áp dụng cho TẤT CẢ View (bỏ trống = chọn từng View)"
+            chkAllViews.Text = "Áp dụng cho all View"
             chkAllViews.Location = New System.Drawing.Point(15, 12)
-            chkAllViews.Size = New Size(310, 22)
-            chkAllViews.Font = New Font(chkAllViews.Font, FontStyle.Bold)
+            chkAllViews.Size = New Size(250, 22)
+            chkAllViews.Font = New Font(chkAllViews.Font, FontStyle.Regular) 'Bold)
             chkAllViews.Checked = True
             Me.Controls.Add(chkAllViews)
 
             Dim sep As New Label()
             sep.BorderStyle = BorderStyle.Fixed3D
             sep.Location = New System.Drawing.Point(15, 42)
-            sep.Size = New Size(310, 2)
+            sep.Size = New Size(250, 2)
             Me.Controls.Add(sep)
 
             Dim lbl1 As New Label()
             lbl1.Text = "Chọn tỷ lệ có sẵn:"
             lbl1.Location = New System.Drawing.Point(15, 52)
-            lbl1.Size = New Size(300, 20)
+            lbl1.Size = New Size(250, 20)
             Me.Controls.Add(lbl1)
 
             cboScale = New ComboBox()
             cboScale.DropDownStyle = ComboBoxStyle.DropDownList
             cboScale.Location = New System.Drawing.Point(15, 75)
-            cboScale.Size = New Size(300, 25)
+            cboScale.Size = New Size(250, 25)
             For Each s As String In scaleList
                 cboScale.Items.Add(s)
             Next
@@ -95,25 +95,25 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
             Dim lbl2 As New Label()
             lbl2.Text = "Hoặc nhập tỷ lệ tùy ý (ví dụ 1/2, 1/10, 2):"
             lbl2.Location = New System.Drawing.Point(15, 112)
-            lbl2.Size = New Size(300, 20)
+            lbl2.Size = New Size(250, 20)
             Me.Controls.Add(lbl2)
 
             txtCustom = New System.Windows.Forms.TextBox()
             txtCustom.Location = New System.Drawing.Point(15, 135)
-            txtCustom.Size = New Size(300, 25)
+            txtCustom.Size = New Size(250, 25)
             Me.Controls.Add(txtCustom)
 
             Dim lbl3 As New Label()
             lbl3.Text = "Loại View:"
-            lbl3.Location = New System.Drawing.Point(15, 177)
-            lbl3.Size = New Size(300, 20)
+            lbl3.Location = New System.Drawing.Point(15, 172)
+            lbl3.Size = New Size(250, 20)
             lbl3.Font = New Font(lbl3.Font, FontStyle.Bold)
             Me.Controls.Add(lbl3)
 
             cboViewType = New ComboBox()
             cboViewType.DropDownStyle = ComboBoxStyle.DropDownList
-            cboViewType.Location = New System.Drawing.Point(15, 200)
-            cboViewType.Size = New Size(300, 25)
+            cboViewType.Location = New System.Drawing.Point(15, 195)
+            cboViewType.Size = New Size(250, 25)
             For Each v As String In viewTypeList
                 cboViewType.Items.Add(v)
             Next
@@ -122,15 +122,15 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
 
             btnOK = New Button()
             btnOK.Text = "OK"
-            btnOK.Location = New System.Drawing.Point(140, 275)
-            btnOK.Size = New Size(85, 30)
+            btnOK.Location = New System.Drawing.Point(55, 235)
+            btnOK.Size = New Size(80, 30)
             btnOK.DialogResult = DialogResult.OK
             Me.Controls.Add(btnOK)
 
             btnCancel = New Button()
             btnCancel.Text = "Hủy"
-            btnCancel.Location = New System.Drawing.Point(230, 275)
-            btnCancel.Size = New Size(85, 30)
+            btnCancel.Location = New System.Drawing.Point(150, 235)
+            btnCancel.Size = New Size(80, 30)
             btnCancel.DialogResult = DialogResult.Cancel
             Me.Controls.Add(btnCancel)
 
