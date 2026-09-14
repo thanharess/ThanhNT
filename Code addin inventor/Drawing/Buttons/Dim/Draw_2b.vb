@@ -6,7 +6,7 @@ Imports System.Collections.Generic
 Imports System.Linq
 
 Namespace ToolInventor2020.Drawing.Buttons.Drawdim
-    Public Module draw_15b
+    Public Module Draw_2b
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
 

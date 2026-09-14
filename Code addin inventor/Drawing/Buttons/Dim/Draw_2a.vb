@@ -6,7 +6,7 @@ Imports System.Collections.Generic
 Imports System.Linq
 
 Namespace ToolInventor2020.Drawing.Buttons.Drawdim
-    Public Module Draw_15a
+    Public Module Draw_2a
 
         Private Const TOL As Double = 0.0
         Private Const EDGE_TOL As Double = 0.15

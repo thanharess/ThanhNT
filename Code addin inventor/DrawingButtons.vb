@@ -150,7 +150,7 @@ Namespace ToolInventor2020
 
             Dim DrawingBtn2 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto dim hole", "ToolInventor2020_Drawing_Btn2", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing, "Auto dim kích thước lỗ & lỗ ren", Dra1SmallIcon2, Dra1LargeIcon2)
-            AddHandler DrawingBtn2.OnExecute, AddressOf Drawing.Buttons.Drawdim.draw_15.OnExecute
+            AddHandler DrawingBtn2.OnExecute, AddressOf Drawing.Buttons.Drawdim.draw_2.OnExecute
             buttonsList.Add(DrawingBtn2)
 
             Dim DrawingBtn3 As ButtonDefinition = controlDefs.AddButtonDefinition("Auo giãn cách dim", "ToolInventor2020_Drawing_Btn3", CommandTypesEnum.kShapeEditCmdType, addInClientID,

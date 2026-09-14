@@ -6,21 +6,21 @@ Imports Inventor
 
 Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
-    Public Module draw_15
+    Public Module draw_2
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Select Case ShowSheetMetalMenu()
 
                 Case 1
-                    Draw_15a.OnExecute(Context)
+                    Draw_2a.OnExecute(Context)
                 Case 2
-                    draw_15b.OnExecute(Context)
+                    draw_2b.OnExecute(Context)
                 Case 3
-                    draw_15c.OnExecute(Context)
+                    draw_2c.OnExecute(Context)
                 Case 4
-                    draw_15d.OnExecute(Context)
+                    draw_2d.OnExecute(Context)
                 Case 5
-                    draw_15e.OnExecute(Context)
+                    draw_2e.OnExecute(Context)
                 Case 6
                     Draw_dim_hole.OnExecute(Context)
             End Select
