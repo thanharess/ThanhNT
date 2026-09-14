@@ -48,7 +48,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
             Me.StartPosition = FormStartPosition.CenterScreen
             Me.MaximizeBox = False
             Me.MinimizeBox = False
-            Me.ClientSize = New Size(420, 380)
+            Me.ClientSize = New Size(300, 370)
 
             Dim lbl As New Label()
             lbl.Text = "Chọn thao tác cần thực hiện:"
@@ -101,14 +101,14 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
             btnOK = New Button()
             btnOK.Text = "Thực hiện"
-            btnOK.Location = New System.Drawing.Point(220, 360)
+            btnOK.Location = New System.Drawing.Point(90, 320)
             btnOK.Size = New Size(85, 30)
             btnOK.DialogResult = DialogResult.OK
             Me.Controls.Add(btnOK)
 
             btnCancel = New Button()
             btnCancel.Text = "Hủy"
-            btnCancel.Location = New System.Drawing.Point(315, 360)
+            btnCancel.Location = New System.Drawing.Point(190, 320)
             btnCancel.Size = New Size(85, 30)
             btnCancel.DialogResult = DialogResult.Cancel
             Me.Controls.Add(btnCancel)
