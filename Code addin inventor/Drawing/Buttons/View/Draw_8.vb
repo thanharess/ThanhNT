@@ -18,7 +18,7 @@ End Class
 Namespace ToolInventor2020.Drawing.Buttons.DrawView
 
     '=====================================================
-    ' FORM CHỌN TỶ LỆ + LOẠI VIEW
+    ' FORM CHỌN TỶ LỆ + LOẠI VIEW + PHẠM VI VIEW
     '=====================================================
     Public Class ScaleViewForm
         Inherits Form
@@ -26,11 +26,13 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
         Private cboScale As ComboBox
         Private cboViewType As ComboBox
         Private txtCustom As System.Windows.Forms.TextBox
+        Private chkAllViews As CheckBox
         Private btnOK As Button
         Private btnCancel As Button
 
         Public ReadOnly Property SelectedScale As Double
         Public ReadOnly Property SelectedViewFilter As String
+        Public ReadOnly Property ApplyToAllViews As Boolean
         Public ReadOnly Property Cancelled As Boolean
 
         Private ReadOnly scaleList As String() = New String() {
@@ -48,23 +50,41 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
             _Cancelled = False
             _SelectedScale = 1.0
             _SelectedViewFilter = "(Tất cả view)"
+            _ApplyToAllViews = True
 
             Me.Text = "Chọn tỷ lệ & View"
             Me.FormBorderStyle = FormBorderStyle.FixedDialog
             Me.StartPosition = FormStartPosition.CenterScreen
             Me.MaximizeBox = False
             Me.MinimizeBox = False
-            Me.ClientSize = New Size(340, 290)
+            Me.ClientSize = New Size(340, 330)
+
+            '=================================================
+            ' TICK BOX NGOÀI CÙNG - PHẠM VI VIEW
+            '=================================================
+            chkAllViews = New CheckBox()
+            chkAllViews.Text = "Áp dụng cho TẤT CẢ View (bỏ trống = chọn từng View)"
+            chkAllViews.Location = New System.Drawing.Point(15, 12)
+            chkAllViews.Size = New Size(310, 22)
+            chkAllViews.Font = New Font(chkAllViews.Font, FontStyle.Bold)
+            chkAllViews.Checked = True
+            Me.Controls.Add(chkAllViews)
+
+            Dim sep As New Label()
+            sep.BorderStyle = BorderStyle.Fixed3D
+            sep.Location = New System.Drawing.Point(15, 42)
+            sep.Size = New Size(310, 2)
+            Me.Controls.Add(sep)
 
             Dim lbl1 As New Label()
             lbl1.Text = "Chọn tỷ lệ có sẵn:"
-            lbl1.Location = New System.Drawing.Point(15, 15)
+            lbl1.Location = New System.Drawing.Point(15, 52)
             lbl1.Size = New Size(300, 20)
             Me.Controls.Add(lbl1)
 
             cboScale = New ComboBox()
             cboScale.DropDownStyle = ComboBoxStyle.DropDownList
-            cboScale.Location = New System.Drawing.Point(15, 38)
+            cboScale.Location = New System.Drawing.Point(15, 75)
             cboScale.Size = New Size(300, 25)
             For Each s As String In scaleList
                 cboScale.Items.Add(s)
@@ -74,25 +94,25 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
 
             Dim lbl2 As New Label()
             lbl2.Text = "Hoặc nhập tỷ lệ tùy ý (ví dụ 1/2, 1/10, 2):"
-            lbl2.Location = New System.Drawing.Point(15, 75)
+            lbl2.Location = New System.Drawing.Point(15, 112)
             lbl2.Size = New Size(300, 20)
             Me.Controls.Add(lbl2)
 
             txtCustom = New System.Windows.Forms.TextBox()
-            txtCustom.Location = New System.Drawing.Point(15, 98)
+            txtCustom.Location = New System.Drawing.Point(15, 135)
             txtCustom.Size = New Size(300, 25)
             Me.Controls.Add(txtCustom)
 
             Dim lbl3 As New Label()
             lbl3.Text = "Loại View:"
-            lbl3.Location = New System.Drawing.Point(15, 140)
+            lbl3.Location = New System.Drawing.Point(15, 177)
             lbl3.Size = New Size(300, 20)
             lbl3.Font = New Font(lbl3.Font, FontStyle.Bold)
             Me.Controls.Add(lbl3)
 
             cboViewType = New ComboBox()
             cboViewType.DropDownStyle = ComboBoxStyle.DropDownList
-            cboViewType.Location = New System.Drawing.Point(15, 163)
+            cboViewType.Location = New System.Drawing.Point(15, 200)
             cboViewType.Size = New Size(300, 25)
             For Each v As String In viewTypeList
                 cboViewType.Items.Add(v)
@@ -102,14 +122,14 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
 
             btnOK = New Button()
             btnOK.Text = "OK"
-            btnOK.Location = New System.Drawing.Point(140, 240)
+            btnOK.Location = New System.Drawing.Point(140, 275)
             btnOK.Size = New Size(85, 30)
             btnOK.DialogResult = DialogResult.OK
             Me.Controls.Add(btnOK)
 
             btnCancel = New Button()
             btnCancel.Text = "Hủy"
-            btnCancel.Location = New System.Drawing.Point(230, 240)
+            btnCancel.Location = New System.Drawing.Point(230, 275)
             btnCancel.Size = New Size(85, 30)
             btnCancel.DialogResult = DialogResult.Cancel
             Me.Controls.Add(btnCancel)
@@ -133,6 +153,7 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
                 If TryParseScale(valueToParse, s) Then
                     _SelectedScale = s
                     _SelectedViewFilter = cboViewType.SelectedItem.ToString()
+                    _ApplyToAllViews = chkAllViews.Checked
                     Return True
                 End If
 
@@ -191,6 +212,7 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
 
                 Dim scale As Double = form.SelectedScale
                 Dim viewFilter As String = form.SelectedViewFilter
+                Dim applyAllViews As Boolean = form.ApplyToAllViews
 
                 '===== ĐƯA CỬA SỔ INVENTOR LÊN TRƯỚC =====
                 Try
@@ -203,29 +225,22 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
                 End Try
 
                 '=====================================================
-                ' CHỌN PHẠM VI: TẤT CẢ VIEW HAY CHỌN TỪNG VIEW
+                ' LUÔN LÀM VIỆC TRÊN SHEET HIỆN TẠI
                 '=====================================================
-                Dim choice As DialogResult = MessageBox.Show(
-    "Chọn phạm vi áp dụng tỷ lệ:" & vbCrLf & vbCrLf &
-    "Yes: TẤT CẢ view trên sheet hiện tại" & vbCrLf &
-    "No: Chọn từng view riêng lẻ" & vbCrLf &
-    "Cancel: Hủy",
-    "Scale View", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question)
-
-                If choice = DialogResult.Cancel Then Exit Sub
+                Dim activeSheet As Sheet = drawingDocument.ActiveSheet
 
                 '=====================================================
-                ' XÁC ĐỊNH DANH SÁCH VIEW SẼ XỬ LÝ
+                ' XÁC ĐỊNH DANH SÁCH VIEW
                 '=====================================================
                 Dim selectedViews As New List(Of DrawingView)
 
-                If choice = DialogResult.Yes Then
-                    '----- Tất cả view trên sheet -----
-                    For Each v As DrawingView In drawingDocument.ActiveSheet.DrawingViews
+                If applyAllViews Then
+                    '----- Tất cả view trên sheet hiện tại -----
+                    For Each v As DrawingView In activeSheet.DrawingViews
                         selectedViews.Add(v)
                     Next
                 Else
-                    '----- Chọn liên tục nhiều view -----
+                    '----- Chọn từng view bằng pick trên màn hình -----
                     Do
                         Dim oSS As SelectSet = drawingDocument.SelectSet
                         oSS.Clear()
@@ -233,17 +248,16 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
                         Dim oView As DrawingView = Nothing
                         Try
                             oView = CType(
-                invApp.CommandManager.Pick(
-                    SelectionFilterEnum.kDrawingViewFilter,
-                    "Chọn View cần đổi tỷ lệ (Esc / Right-click để kết thúc)"),
-                DrawingView)
+                                invApp.CommandManager.Pick(
+                                    SelectionFilterEnum.kDrawingViewFilter,
+                                    "Chọn View cần đổi tỷ lệ (Esc / Right-click để kết thúc)"),
+                                DrawingView)
                         Catch
                             Exit Do
                         End Try
 
                         If oView Is Nothing Then Exit Do
 
-                        ' Tránh chọn trùng
                         Dim already As Boolean = False
                         For Each v As DrawingView In selectedViews
                             If v Is oView Then
@@ -275,7 +289,6 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
                 For Each drawingView As DrawingView In selectedViews
 
                     Try
-                        ' Kiểm tra filter loại view
                         Dim actualType As String = GetViewTypeName(drawingView)
                         If viewFilter <> "(Tất cả view)" AndAlso
                            Not String.Equals(actualType, viewFilter, StringComparison.OrdinalIgnoreCase) Then
@@ -284,14 +297,12 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
                             Continue For
                         End If
 
-                        ' View phụ thuộc → không đổi được
                         If drawingView.ParentView IsNot Nothing Then
                             skipCount += 1
                             skipNames.Add(drawingView.Name & " (view phụ thuộc)")
                             Continue For
                         End If
 
-                        ' ScaleFromBase
                         If drawingView.ScaleFromBase Then
                             Try
                                 drawingView.ScaleFromBase = False
@@ -302,7 +313,6 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
                             End Try
                         End If
 
-                        ' Đổi tỷ lệ
                         drawingView.Scale = scale
                         okCount += 1
 
@@ -316,7 +326,11 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
                 drawingDocument.Update()
 
                 '===== THÔNG BÁO KẾT QUẢ =====
+                Dim scopeView As String = If(applyAllViews, "Tất cả View", "Chọn thủ công")
+
                 Dim msg As String =
+                    "Sheet: " & activeSheet.Name & vbCrLf &
+                    "Phạm vi: " & scopeView & vbCrLf &
                     "Đã đổi tỷ lệ: " & okCount & " view" & vbCrLf &
                     "Bỏ qua: " & skipCount & " view"
 
@@ -335,9 +349,6 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
 
         End Sub
 
-        '=================================================
-        ' Xác định tên loại view
-        '=================================================
         Private Function GetViewTypeName(dv As DrawingView) As String
             Try
                 Select Case dv.ViewType

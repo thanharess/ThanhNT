@@ -17,7 +17,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdelete
         Private chkHideLabel As CheckBox
         Private chkDeleteBalloon As CheckBox
         Private chkDeleteSurface As CheckBox
-        Private chkDeleteDatum As CheckBox
+        ' Private chkDeleteDatum As CheckBox
         Private chkDeleteFCF As CheckBox
         Private chkDeleteHoleDim As CheckBox
         Private chkDeleteHoleNote As CheckBox
@@ -26,11 +26,11 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdelete
         Private chkDeleteWelding As CheckBox
         Private btnOK As Button
         Private btnCancel As Button
-
+        Private chkDeleteSketchSymbol As CheckBox
         Public ReadOnly Property HideViewLabel As Boolean
         Public ReadOnly Property DeleteBalloon As Boolean
         Public ReadOnly Property DeleteSurface As Boolean
-        Public ReadOnly Property DeleteDatum As Boolean
+        '  Public ReadOnly Property DeleteDatum As Boolean
         Public ReadOnly Property DeleteFCF As Boolean
         Public ReadOnly Property DeleteHoleDim As Boolean
         Public ReadOnly Property DeleteHoleNote As Boolean
@@ -38,7 +38,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdelete
         Public ReadOnly Property DeleteLeaderText As Boolean
         Public ReadOnly Property DeleteWelding As Boolean
         Public ReadOnly Property Cancelled As Boolean
-
+        Public ReadOnly Property DeleteSketchSymbol As Boolean
         Public Sub New()
             _Cancelled = False
 
@@ -62,7 +62,8 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdelete
             chkHideLabel = MakeCheckBox("Ẩn Label của tất cả Drawing View", 96)
             chkDeleteBalloon = MakeCheckBox("Xóa Balloon (bong bóng đánh số)", 124)
             chkDeleteSurface = MakeCheckBox("Xóa Surface Texture Symbol", 152)
-            chkDeleteDatum = MakeCheckBox("Xóa Datum Target Symbol", 180)
+            ' chkDeleteDatum = MakeCheckBox("Xóa Datum Target Symbol", 180)
+            chkDeleteSketchSymbol = MakeCheckBox("Xóa Sketch Symbol (ký hiệu sketch)", 180)
             chkDeleteFCF = MakeCheckBox("Xóa Feature Control Frame (GD&T)", 208)
             chkDeleteTextNote = MakeCheckBox("Xóa Text Note (không leader)", 236)
             chkDeleteLeaderText = MakeCheckBox("Xóa Leader Text (có leader)", 264)
@@ -106,7 +107,8 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdelete
             _HideViewLabel = chkHideLabel.Checked
             _DeleteBalloon = chkDeleteBalloon.Checked
             _DeleteSurface = chkDeleteSurface.Checked
-            _DeleteDatum = chkDeleteDatum.Checked
+            '_DeleteDatum = chkDeleteDatum.Checked
+            _DeleteSketchSymbol = chkDeleteSketchSymbol.Checked
             _DeleteFCF = chkDeleteFCF.Checked
             _DeleteHoleDim = chkDeleteHoleDim.Checked
             _DeleteHoleNote = chkDeleteHoleNote.Checked
@@ -115,6 +117,21 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdelete
             _DeleteWelding = chkDeleteWelding.Checked
             Return True
         End Function
+
+        Private Sub InitializeComponent()
+            Me.SuspendLayout()
+            '
+            'CleanupFormDelete
+            '
+            Me.ClientSize = New System.Drawing.Size(282, 253)
+            Me.Name = "CleanupFormDelete"
+            Me.ResumeLayout(False)
+
+        End Sub
+
+        Private Sub CleanupFormDelete_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+        End Sub
     End Class
 
     '=====================================================
@@ -146,7 +163,9 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdelete
                 Dim nLabel As Integer = 0
                 Dim nBalloon As Integer = 0
                 Dim nSurface As Integer = 0
-                Dim nDatum As Integer = 0
+                ' Dim nDatum As Integer = 0
+                Dim nSketchSymbol As Integer = 0
+                ' (xóa Dim nDatum)
                 Dim nFCF As Integer = 0
                 Dim nHoleDim As Integer = 0
                 Dim nHoleNote As Integer = 0
@@ -214,24 +233,44 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdelete
                 '=====================================================
                 ' 4. DATUM TARGET
                 '=====================================================
-                If form.DeleteDatum Then
+                '  If form.DeleteDatum Then
+                ' Try
+                ' Dim toDel As New List(Of DatumTarget)
+                'For Each d As DatumTarget In oSheet.DatumTargets.ToString
+                ' toDel.Add(d)
+                'Next
+                '  For Each d As DatumTarget In toDel
+                '   Try
+                'd.Delete()
+                '        nDatum += 1
+                'Catch
+                '           nFail += 1
+                'End Try
+                '   Next
+                'Catch
+                'End Try
+                '    End If
+                '=====================================================
+                ' 4. SKETCH SYMBOL
+                '=====================================================
+                If form.DeleteSketchSymbol Then
                     Try
-                        ' Dim toDel As New List(Of DatumTarget)
-                        'For Each d As DatumTarget In oSheet.DatumTargets.ToString
-                        ' toDel.Add(d)
-                        'Next
-                        '  For Each d As DatumTarget In toDel
-                        '   Try
-                        'd.Delete()
-                        '        nDatum += 1
-                        'Catch
-                        '           nFail += 1
-                        'End Try
-                        '   Next
+                        Dim toDel As New List(Of SketchedSymbol)
+                        For Each sk As SketchedSymbol In oSheet.SketchedSymbols
+                            toDel.Add(sk)
+                        Next
+                        For Each sk As SketchedSymbol In toDel
+                            Try
+                                sk.Delete()
+                                nSketchSymbol += 1
+                            Catch
+                                nFail += 1
+                            End Try
+                        Next
                     Catch
+                        nFail += 1
                     End Try
                 End If
-
                 '=====================================================
                 ' 5. FEATURE CONTROL FRAME
                 '=====================================================
@@ -387,7 +426,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdelete
                     "Ẩn Label view: " & nLabel & vbCrLf &
                     "Xóa Balloon: " & nBalloon & vbCrLf &
                     "Xóa Surface: " & nSurface & vbCrLf &
-                    "Xóa Datum: " & nDatum & vbCrLf &
+                  "Xóa Sketch Symbol: " & nSketchSymbol & vbCrLf &                  '  "Xóa Datum: " & nDatum & vbCrLf &
                     "Xóa Feature Control Frame: " & nFCF & vbCrLf &
                     "Xóa Welding: " & nWelding & vbCrLf &
                     "Xóa Dimension lỗ: " & nHoleDim & vbCrLf &

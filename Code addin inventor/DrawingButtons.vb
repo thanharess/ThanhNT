@@ -153,10 +153,10 @@ Namespace ToolInventor2020
             AddHandler DrawingBtn2.OnExecute, AddressOf Drawing.Buttons.Drawdim.draw_2.OnExecute
             buttonsList.Add(DrawingBtn2)
 
-            Dim DrawingBtn3 As ButtonDefinition = controlDefs.AddButtonDefinition("Auo giãn cách dim", "ToolInventor2020_Drawing_Btn3", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim DrawingBtn3 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa, căn chỉnh dim", "ToolInventor2020_Drawing_Btn3", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
-                                                                                   Nothing, Dra1SmallIcon3, Dra1LargeIcon3)
-            AddHandler DrawingBtn3.OnExecute, AddressOf Drawing.Buttons.Draw_3.OnExecute
+                                                                                   "Xóa, căn chỉnh dim bằng arange", Dra1SmallIcon3, Dra1LargeIcon3)
+            AddHandler DrawingBtn3.OnExecute, AddressOf Drawing.Buttons.Drawdim.draw_3.OnExecute
             buttonsList.Add(DrawingBtn3)
 
             Dim DrawingBtn4 As ButtonDefinition = controlDefs.AddButtonDefinition("Tìm Dim bị edit", "ToolInventor2020_Drawing_Btn4", CommandTypesEnum.kShapeEditCmdType, addInClientID,

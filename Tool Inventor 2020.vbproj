@@ -169,7 +169,7 @@
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_14.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_2a.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_dim_hole.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Draw_3.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_3.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_4.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_5.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_2b.vb" />
