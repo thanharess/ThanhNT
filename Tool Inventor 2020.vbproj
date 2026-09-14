@@ -158,6 +158,10 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_2.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_dim_base_line_b.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_dim_chain_line_b.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_dim_chain_line_a.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_dim_base_line_a.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_2e.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_2d.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_2c.vb" />
