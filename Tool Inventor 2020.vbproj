@@ -154,6 +154,9 @@
     <Compile Include="Code addin inventor\Assembly\Buttons\Auto Creating Drawing\Auto drawing ASS top LV.vb" />
     <Compile Include="Code addin inventor\Assembly\CommonKeywords.vb" />
     <Compile Include="Code addin inventor\DrawingButtons.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Delete\Drawdelete.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_2.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_2e.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_2d.vb" />
@@ -161,7 +164,7 @@
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_1.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_10.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_11.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Draw_12.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Draw_6c.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_13.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_14.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_2a.vb" />
@@ -175,7 +178,8 @@
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_7.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Code addin inventor\Drawing\Buttons\Draw_8.vb" />
+    <Compile Include="Code addin inventor\Tool ngoai\Vi_tri_file.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\View\Draw_8.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_9.vb" />
     <Compile Include="Code addin inventor\AssemblyButtons.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Draw_6.vb" />
@@ -261,12 +265,18 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Code addin inventor\Drawing\Buttons\Delete\Drawdelete.resx">
+      <DependentUpon>Drawdelete.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Code addin inventor\Drawing\Buttons\Draw_11.resx">
       <DependentUpon>Draw_11.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Code addin inventor\Drawing\Buttons\Draw_7.resx">
       <DependentUpon>Draw_7.vb</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Code addin inventor\Tool ngoai\Vi_tri_file.resx">
+      <DependentUpon>Vi_tri_file.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

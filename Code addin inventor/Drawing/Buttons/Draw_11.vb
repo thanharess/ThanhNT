@@ -6,7 +6,7 @@ Imports System.Windows.Forms
 
 Namespace ToolInventor2020.Drawing.Buttons
 
-    Public Module draw_11
+    Public Module Vi_tri_file
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
 

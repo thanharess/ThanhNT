@@ -16,7 +16,7 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
                 Case 2
                     Draw_6b.OnExecute(Context)
                 Case 3
-                    Draw_12.OnExecute(Context)
+                    Draw_6c.OnExecute(Context)
             End Select
         End Sub
 

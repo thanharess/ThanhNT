@@ -238,6 +238,8 @@ Namespace ToolInventor2020
 
             ' Use AddTabPanelButtons helper defined above to add tabs/panels/buttons to the ribbon.
             ' (The AddTabPanelButtons method is implemented as a Private Sub at class scope to allow Optional parameter.)
+            '' Get the "Tools" tab.
+            '' Get the part ribbon.
 
             ' Add to Assembly ribbon as a separate tab.
             AddTabPanelButtons("Assembly", "Tool Assembly", "ToolInventor2020_AssemblyTab", "Tool Assembly", "ToolInventor2020_AssemblyPanel", m_assemblyButtons, False)

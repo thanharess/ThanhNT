@@ -291,33 +291,7 @@ Namespace ToolInventor2020
 #End Region
             '===============================
 
-#Region "Lệnh ngoài cụm lắp"
-            Dim assemblyBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Import,EX step & part", "ToolInventor2020_Assembly_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                    Nothing,
-                                                                                    "1, Import all file to part tự lưu, xóa liên kết lưu file tự động " & vbCrLf & "2, Export từ Cụm lắp sang file step" & vbCrLf &
-                                                                                      "Có thể chọn nhiều file 1 lúc", ass1SmallIcon13, ass1LargeIcon13)
-            AddHandler assemblyBtn13.OnExecute, AddressOf Assembly.Buttons.Lenhngoaicumlap.Im_EX_step_part.OnExecute
-            buttonsList.Add(assemblyBtn13)
 
-
-
-            Dim assemblyBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Design Assistant", "ToolInventor2020_Assembly_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon15, ass1LargeIcon15)
-            AddHandler assemblyBtn15.OnExecute, AddressOf Assembly.Buttons.Lenhngoaicumlap.Design_Assistant.OnExecute
-            buttonsList.Add(assemblyBtn15)
-
-#End Region
-
-
-
-
-
-
-
-
-            Dim assemblyBtn19 As ButtonDefinition = controlDefs.AddButtonDefinition("4", "ToolInventor2020_Assembly_Btn19", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                   Nothing, "Tạo, ghép shetmetal,mua,thư viện to assembly all lever lấy tổng partnumber", ass1SmallIcon19, ass1LargeIcon19)
-            AddHandler assemblyBtn19.OnExecute, AddressOf Assembly.Buttons.caclenhboctach.part.Ass_boctach_part_1.OnExecute
-            ' buttonsList.Add(assemblyBtn19)
 
             Dim assemblyBtn20 As ButtonDefinition = controlDefs.AddButtonDefinition("5", "ToolInventor2020_Assembly_Btn20", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing, "", ass1SmallIcon20, ass1LargeIcon20)
@@ -373,6 +347,30 @@ Namespace ToolInventor2020
 
 
 #End Region
+
+#Region "Lệnh ngoài cụm lắp"
+            Dim assemblyBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Import,EX step & part", "ToolInventor2020_Assembly_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                    Nothing,
+                                                                                    "1, Import all file to part tự lưu, xóa liên kết lưu file tự động " & vbCrLf & "2, Export từ Cụm lắp sang file step" & vbCrLf &
+                                                                                      "Có thể chọn nhiều file 1 lúc", ass1SmallIcon13, ass1LargeIcon13)
+            AddHandler assemblyBtn13.OnExecute, AddressOf Assembly.Buttons.Lenhngoaicumlap.Im_EX_step_part.OnExecute
+            buttonsList.Add(assemblyBtn13)
+
+
+
+            Dim assemblyBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Design Assistant", "ToolInventor2020_Assembly_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon15, ass1LargeIcon15)
+            AddHandler assemblyBtn15.OnExecute, AddressOf Assembly.Buttons.Lenhngoaicumlap.Design_Assistant.OnExecute
+            buttonsList.Add(assemblyBtn15)
+
+
+            Dim assemblyBtn19 As ButtonDefinition = controlDefs.AddButtonDefinition("Mở nơi lưu File", "ToolInventor2020_Assembly_Btn19", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                   Nothing, "Mở vị trí lưu file", ass1SmallIcon19, ass1LargeIcon19)
+            AddHandler assemblyBtn19.OnExecute, AddressOf Toolngoai.Vitrifile.Vitrifile
+            buttonsList.Add(assemblyBtn19)
+#End Region
+
+
+
         End Sub
     End Class
 End Namespace

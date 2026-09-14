@@ -216,12 +216,17 @@ Namespace ToolInventor2020
             AddHandler partBtn14.OnExecute, AddressOf Part.Buttons.Button14.OnExecute
             ' buttonsList.Add(partBtn14)
 
-            Dim partBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Import_step_to_part", "ToolInventor2020_Part_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                "Import STEP to Part" & vbCrLf & "Mô tả: (chỉnh sửa) Import STEP file to Part.",
-                                                                                "Tooltip: Import STEP to Part ", part15SmallIcon, part15LargeIcon)
-            ' AddHandler partBtn15.OnExecute, AddressOf Assembly.Buttons.Im_EX_step_part.OnExecute
-            ' buttonsList.Add(partBtn15)
 
+
+
+
+
+            ''''''''' tool ngoài
+            Dim partBtn15 As ButtonDefinition = controlDefs.AddButtonDefinition("Mở nơi lưu File", "ToolInventor2020_Part_Btn15", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                Nothing,
+                                                                               "Mở vị trí lưu file", part15SmallIcon, part15LargeIcon)
+            AddHandler partBtn15.OnExecute, AddressOf Toolngoai.Vitrifile.Vitrifile
+            buttonsList.Add(partBtn15)
         End Sub
     End Class
 End Namespace
