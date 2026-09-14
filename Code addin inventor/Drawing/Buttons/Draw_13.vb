@@ -238,7 +238,7 @@ Namespace ToolInventor2020.Drawing.Buttons
 
             Dim frm As New Form()
             frm.Text = "Đặt lại tên View theo chữ cái Lựa chọn"
-            frm.Size = New Size(400, 420)
+            frm.Size = New Size(400, 440)
             frm.StartPosition = FormStartPosition.CenterScreen
             frm.FormBorderStyle = FormBorderStyle.FixedDialog
             frm.MaximizeBox = False
@@ -269,8 +269,8 @@ Namespace ToolInventor2020.Drawing.Buttons
             Dim chkAuxiliary As New CheckBox() With {.Text = "Auxiliary View", .Location = New System.Drawing.Point(20, 290), .AutoSize = True, .Checked = False}
             Dim chkOverlay As New CheckBox() With {.Text = "Overlay View", .Location = New System.Drawing.Point(20, 315), .AutoSize = True, .Checked = True}
 
-            Dim btnOK As New Button() With {.Text = "OK", .Location = New System.Drawing.Point(200, 350), .Width = 70, .DialogResult = DialogResult.OK}
-            Dim btnCancel As New Button() With {.Text = "Cancel", .Location = New System.Drawing.Point(280, 350), .Width = 70, .DialogResult = DialogResult.Cancel}
+            Dim btnOK As New Button() With {.Text = "OK", .Location = New System.Drawing.Point(185, 350), .Height = 30, .Width = 85, .DialogResult = DialogResult.OK}
+            Dim btnCancel As New Button() With {.Text = "Cancel", .Location = New System.Drawing.Point(270, 350), .Height = 30, .Width = 85, .DialogResult = DialogResult.Cancel}
 
             frm.Controls.AddRange({
                 lbl1, txtLetter, lbl2, cboScope, chkResetPerSheet, lbl3,
