@@ -220,10 +220,10 @@ Namespace ToolInventor2020
             AddHandler DrawingBtn17.OnExecute, AddressOf Drawing.Buttons.Drawdim.Dim_Linear_Total.OnExecute
 
             buttonsList.Add(DrawingBtn17)
-            Dim DrawingBtn18 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto Dim hole ko ard2", "ToolInventor2020_Drawing_Btn18", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon18, Dra1LargeIcon18)
-            ' AddHandler DrawingBtn18.OnExecute, AddressOf Drawing.Buttons.draw_15e.OnExecute
+            Dim DrawingBtn18 As ButtonDefinition = controlDefs.AddButtonDefinition("Create_PartsList", "ToolInventor2020_Drawing_Btn18", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon18, Dra1LargeIcon18)
+            AddHandler DrawingBtn18.OnExecute, AddressOf Drawing.Buttons.DrawPartList.Create_PartsList.OnExecute
 
-            ' buttonsList.Add(DrawingBtn18)
+            buttonsList.Add(DrawingBtn18)
 
 
 

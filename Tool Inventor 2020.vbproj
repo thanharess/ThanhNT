@@ -155,6 +155,7 @@
     <Compile Include="Code addin inventor\Assembly\CommonKeywords.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_6.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_Rename_Sheet.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Create_Part_List.vb" />
     <Compile Include="Code addin inventor\ToolButton.vb" />
     <Compile Include="Code addin inventor\DrawingButtons.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Delete\Drawdelete.vb">
