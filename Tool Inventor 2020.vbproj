@@ -153,6 +153,7 @@
     <Compile Include="Code addin inventor\Assembly\Buttons\Auto Creating Drawing\Auto drawing V8.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Auto Creating Drawing\Auto drawing ASS top LV.vb" />
     <Compile Include="Code addin inventor\Assembly\CommonKeywords.vb" />
+    <Compile Include="Code addin inventor\ToolButton.vb" />
     <Compile Include="Code addin inventor\DrawingButtons.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Delete\Drawdelete.vb">
       <SubType>Form</SubType>
@@ -187,6 +188,7 @@
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_7.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Code addin inventor\Skill Auto\SkillAuto_1.vb" />
     <Compile Include="Code addin inventor\Tool ngoai\Vi_tri_file.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\View\Draw_8.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_9.vb" />
@@ -243,6 +245,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Code addin inventor\Part\Buttons\Sheetmetal\" />
+    <Folder Include="Code addin inventor\Skill Auto\Assembly\" />
+    <Folder Include="Code addin inventor\Skill Auto\Drawing\" />
+    <Folder Include="Code addin inventor\Skill Auto\Part\" />
     <Folder Include="My Project\" />
   </ItemGroup>
   <ItemGroup>

@@ -20,6 +20,7 @@ Namespace ToolInventor2020
         Private m_drawingButtons As New System.Collections.Generic.List(Of ButtonDefinition)
         Private m_assembly2Buttons As New System.Collections.Generic.List(Of ButtonDefinition)
         Private m_assembly3Buttons As New System.Collections.Generic.List(Of ButtonDefinition)
+        '  Private WithEvents m_ToolButton As ButtonDefinition
 
 #Region "ApplicationAddInServer Members"
 
@@ -36,6 +37,7 @@ Namespace ToolInventor2020
 
             ' Connect to the user-interface events to handle a ribbon reset.
             m_uievents = g_inventorApplication.UserInterfaceManager.UserInterfaceEvents
+
 
             ' Create button definitions for Part, Assembly and Drawing: 15 buttons each.
             Dim controlDefs As Inventor.ControlDefinitions = g_inventorApplication.CommandManager.ControlDefinitions
@@ -101,6 +103,11 @@ Namespace ToolInventor2020
             Assembly2Buttons.Register(controlDefs, AddInClientID, m_assembly2Buttons, largeIcon, smallIcon)
             ' Create Assembly buttons via helper class
             Assembly3Buttons.Register(controlDefs, AddInClientID, m_assembly3Buttons, largeIcon, smallIcon)
+            'm_ToolButton = controlDefs.AddButtonDefinition("Command Name", "Internal Name", CommandTypesEnum.kShapeEditCmdType, AddInClientID)
+            'ToolButtons.Register(controlDefs, AddInClientID, m_ToolButtons, largeIcon, smallIcon)
+
+            ' m_ToolButton = controlDefs.AddButtonDefinition("hhhhhh", "h Name", CommandTypesEnum.kShapeEditCmdType, AddInClientID,,, smallIcon, largeIcon)
+            'ToolButtons.Register(controlDefs, AddInClientID, m_ToolButtons, largeIcon, smallIcon)
 
             ' Ensure the user interface is created when the add-in activates.
             ' Call AddToUserInterface unconditionally so the Assembly tab/panel is created
@@ -254,6 +261,38 @@ Namespace ToolInventor2020
             AddTabPanelButtons("Assembly", "Tool Bom", "ToolInventor2020_AssemblyTab2", "Tool Assembly 2", "ToolInventor2020_AssemblyPanel2", m_assembly2Buttons, False)
             ' Panel visible; add buttons directly to the panel (no pulldown)
             ' AddTabPanelButtons("Assembly", "Tool Bom", "ToolInventor2020_AssemblyTab3", "Tool Assembly 2", "ToolInventor2020_AssemblyPanel3", m_assembly3Buttons, False)
+
+
+            '' Get the part ribbon.
+            ' Dim partRibbon As Ribbon = g_inventorApplication.UserInterfaceManager.Ribbons.Item("Part")
+            '' Get the "Tools" tab.
+            ' Dim toolsTab As RibbonTab = partRibbon.RibbonTabs.Item("id_TabTools")
+            '' Create a new panel.
+            '  Dim customPanel As RibbonPanel = toolsTab.RibbonPanels.Add("jjj", "MysSampleq", AddInClientID)
+            '' Add a button.
+            ' customPanel.CommandControls.AddButton(m_ToolButton)
+
+
+
+            '' Get the part ribbon.
+            ' Dim assemblyRibbon As Ribbon = g_inventorApplication.UserInterfaceManager.Ribbons.Item("Assembly")
+            '' Get the "Tools" tab.
+            ' Dim toolsTab1 As RibbonTab = assemblyRibbon.RibbonTabs.Item("id_TabTools")
+            '' Create a new panel.
+            'Dim customPanel1 As RibbonPanel = toolsTab1.RibbonPanels.Add("jjj", "MysSampleq", AddInClientID)
+            '' Add a button.
+            ' customPanel1.CommandControls.AddButton(m_ToolButton)
+
+
+
+            '' Get the part ribbon.
+            ' Dim DrawingRibbon As Ribbon = g_inventorApplication.UserInterfaceManager.Ribbons.Item("Drawing")
+            '' Get the "Tools" tab.
+            ' Dim toolsTab2 As RibbonTab = DrawingRibbon.RibbonTabs.Item("id_TabTools")
+            '' Create a new panel.
+            'Dim customPanel2 As RibbonPanel = toolsTab2.RibbonPanels.Add("jjj", "MysSampleq", AddInClientID)
+            '' Add a button.
+            'customPanel2.CommandControls.AddButton(m_ToolButton)
 
         End Sub
 
