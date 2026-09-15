@@ -187,7 +187,7 @@ Namespace ToolInventor2020
             buttonsList.Add(DrawingBtn9)
 
             Dim DrawingBtn10 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa centermark, centerline", "ToolInventor2020_Drawing_Btn10", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon10, Dra1LargeIcon10)
-            AddHandler DrawingBtn10.OnExecute, AddressOf Drawing.Buttons.Draw_10.OnExecute
+            AddHandler DrawingBtn10.OnExecute, AddressOf Drawing.Buttons.Draw_5.OnExecute
             buttonsList.Add(DrawingBtn10)
             '
             Dim DrawingBtn11 As ButtonDefinition = controlDefs.AddButtonDefinition("Update Views", "ToolInventor2020_Drawing_Btn11", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
@@ -195,10 +195,10 @@ Namespace ToolInventor2020
             AddHandler DrawingBtn11.OnExecute, AddressOf Drawing.Buttons.DrawView.Draw_Up_date_view.OnExecute
             buttonsList.Add(DrawingBtn11)
 
-            Dim DrawingBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto Dim hole ko ar2", "ToolInventor2020_Drawing_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
-                                                                                   "Ghi mã chi tiết vào category trong partlist. yêu cầu partlist phải có sẵn ô này thì mới được!", Dra1SmallIcon12, Dra1LargeIcon12)
-            ' AddHandler DrawingBtn12.OnExecute, AddressOf Drawing.Buttons.Drawdim.Draw_dim_base_line_b.OnExecute
-            ' buttonsList.Add(DrawingBtn12)
+            Dim DrawingBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Rename sheet    ", "ToolInventor2020_Drawing_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
+                                                                                   "Thay tên sheet theo part number", Dra1SmallIcon12, Dra1LargeIcon12)
+            AddHandler DrawingBtn12.OnExecute, AddressOf Drawing.Buttons.Draw_Rename_Sheet.OnExecute
+            buttonsList.Add(DrawingBtn12)
 
             Dim DrawingBtn13 As ButtonDefinition = controlDefs.AddButtonDefinition("Thay chữ cái view sheet", "ToolInventor2020_Drawing_Btn13", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
                                                                                    "Đổi tên view hiển thị trong sheet", Dra1SmallIcon13, Dra1LargeIcon13)
@@ -216,10 +216,10 @@ Namespace ToolInventor2020
             buttonsList.Add(DrawingBtn15)
 
 
-            Dim DrawingBtn17 As ButtonDefinition = controlDefs.AddButtonDefinition("chain", "ToolInventor2020_Drawing_Btn17", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon17, Dra1LargeIcon17)
-            ' AddHandler DrawingBtn17.OnExecute, AddressOf Drawing.Buttons.Drawdim.Draw_dim_chain_line_b.OnExecute
+            Dim DrawingBtn17 As ButtonDefinition = controlDefs.AddButtonDefinition("Dim Kích thước tổng", "ToolInventor2020_Drawing_Btn17", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon17, Dra1LargeIcon17)
+            AddHandler DrawingBtn17.OnExecute, AddressOf Drawing.Buttons.Drawdim.Dim_Linear_Total.OnExecute
 
-            ' buttonsList.Add(DrawingBtn17)
+            buttonsList.Add(DrawingBtn17)
             Dim DrawingBtn18 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto Dim hole ko ard2", "ToolInventor2020_Drawing_Btn18", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, Dra1SmallIcon18, Dra1LargeIcon18)
             ' AddHandler DrawingBtn18.OnExecute, AddressOf Drawing.Buttons.draw_15e.OnExecute
 

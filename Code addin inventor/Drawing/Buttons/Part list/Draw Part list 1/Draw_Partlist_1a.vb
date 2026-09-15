@@ -292,9 +292,9 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
             Dim cSTT As String =
         FindColumn(oPartList, New String() {
             colSTT,
-            "Item",
-            "ITEM"
-        })
+            "Item", "Items", "No", "No.",
+            "ITEM", "ITEMS", "For items", "FOR ITEMS"
+                    })
 
             Dim cTen As String =
         FindColumn(oPartList, New String() {

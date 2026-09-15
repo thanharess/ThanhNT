@@ -3,7 +3,7 @@ Imports System.Windows.Forms
 Imports Inventor
 
 Namespace ToolInventor2020.Drawing.Buttons
-    Public Module Draw_10
+    Public Module Draw_5
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
 
