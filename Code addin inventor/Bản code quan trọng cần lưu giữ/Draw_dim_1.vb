@@ -8,7 +8,7 @@ Imports Inventor
 
 Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
-    Friend Class NativeMethods
+    Friend Class NativeMethodsb
         <DllImport("user32.dll")>
         Public Shared Function SetForegroundWindow(ByVal hWnd As IntPtr) As Boolean
         End Function
@@ -17,7 +17,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
     '=====================================================
     ' FORM
     '=====================================================
-    Public Class DimCleanupForm
+    Public Class DimCleanupFormb
         Inherits Form
 
         Private chkDeleteHoleDim As CheckBox
@@ -170,7 +170,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 Dim oDrawDoc As DrawingDocument = CType(invApp.ActiveDocument, DrawingDocument)
                 Dim oSheet As Sheet = oDrawDoc.ActiveSheet
 
-                Dim form As New DimCleanupForm()
+                Dim form As New DimCleanupFormb()
                 If Not form.ShowAndGet() Then Exit Sub
 
                 '=====================================================

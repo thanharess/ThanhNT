@@ -30,6 +30,14 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     Draw_2e.OnExecute(Context)
                 Case 10
                     Draw_dim_hole.OnExecute(Context)
+                Case 11
+                    Draw_dim_base_line_c.OnExecute(Context)
+                Case 12
+                   ' Draw_dim_chain_line_c.OnExecute(Context)
+                Case 13
+                   ' Draw_dim_base_line_d.OnExecute(Context)
+                Case 14
+                    '  Draw_dim_chain_line_d.OnExecute(Context)
             End Select
         End Sub
 
@@ -38,8 +46,8 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
             Using form As New Form()
                 form.Text = "Auto dim"
-                form.Width = 560
-                form.Height = 650
+                form.Width = 550
+                form.Height = 760
                 form.StartPosition = FormStartPosition.CenterScreen
                 form.FormBorderStyle = FormBorderStyle.FixedDialog
                 form.MaximizeBox = False
@@ -52,20 +60,23 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 form.Controls.Add(title)
 
                 form.Tag = 0
-                AddMenuButton(form, "1. Base Dim view Auto", 45, 1)
-                AddMenuButton(form, "2. Chain Dim view Auto", 95, 2)
-                AddMenuButton(form, "3. Base Dim view Auto + Hole", 145, 3)
-                AddMenuButton(form, "4. Chain Dim view Auto + Hole", 195, 4)
-                AddMenuButton(form, "5. Dim kích thước lỗ", 245, 5)
-                AddMenuButton(form, "6. Dim lỗ Dim về cạnh (Dim ít có bỏ qua lỗ nếu trùng, bỏ qua lỗ array)", 295, 6)
-                AddMenuButton(form, "7. Dim lỗ Dim về cạnh (Dim tương đối có bỏ qua lỗ nếu trùng, bỏ qua lỗ array)", 345, 7)
-                AddMenuButton(form, "8. Dim lỗ Dim về cạnh (Nhiều dim ko bỏ qua lỗ, dim tất cả các lỗ)", 395, 8)
-                AddMenuButton(form, "9. Dim lỗ Base Dimline Set về cạnh", 445, 9)
-                AddMenuButton(form, "10. Dim lỗ Base Dimline về cạnh", 495, 10)
-
+                AddMenuButton(form, "Base Dim view Auto", 35, 1)
+                AddMenuButton(form, "Chain Dim view Auto", 70, 2)
+                AddMenuButton(form, "Base Dim view Auto + Hole", 105, 3)
+                AddMenuButton(form, "Chain Dim view Auto + Hole", 140, 4)
+                AddMenuButton(form, "Dim kích thước lỗ", 175, 5)
+                AddMenuButton(form, "Dim lỗ Dim về cạnh (Dim ít có bỏ qua lỗ nếu trùng, bỏ qua lỗ array)", 210, 6)
+                AddMenuButton(form, "Dim lỗ Dim về cạnh (Dim tương đối có bỏ qua lỗ nếu trùng, bỏ qua lỗ array)", 245, 7)
+                AddMenuButton(form, "Dim lỗ Dim về cạnh (Nhiều dim ko bỏ qua lỗ, dim tất cả các lỗ)", 280, 8)
+                AddMenuButton(form, "Dim lỗ Base Dimline Set về cạnh", 305, 9)
+                AddMenuButton(form, "Dim lỗ Base Dimline về cạnh", 340, 10)
+                AddMenuButton(form, "Dim lỗ Dim về cạnh (Dim tương đối有 bỏ qua lỗ nếu trùng, bỏ qua lỗ array)", 375, 11)
+                '  AddMenuButton(form, "Dim lỗ Dim về cạnh (Nhiều dim ko bỏ qua lỗ, dim tất cả các lỗ)", 410, 12)
+                '  AddMenuButton(form, "Dim lỗ Base Dimline Set về cạnh", 455, 13)
+                '    AddMenuButton(form, "Dim lỗ Base Dimline về cạnh", 490, 14)
 
                 Dim cancelButton As New Button() With {
-                    .Text = "HỦY", .Left = 20, .Top = 550, .Width = 500, .Height = 32
+                    .Text = "HỦY", .Left = 20, .Top = 700, .Width = 500, .Height = 30
                 }
                 AddHandler cancelButton.Click, Sub() form.Close()
                 form.Controls.Add(cancelButton)
@@ -79,7 +90,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
         Private Sub AddMenuButton(ByVal form As Form, ByVal text As String, ByVal top As Integer, ByVal value As Integer)
             Dim button As New Button() With {
-                .Text = text, .Left = 20, .Top = top, .Width = 500, .Height = 42
+                .Text = text, .Left = 20, .Top = top, .Width = 500, .Height = 30
             }
             AddHandler button.Click, Sub()
                                          form.Tag = value
