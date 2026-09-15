@@ -62,7 +62,7 @@ Namespace ToolInventor2020
                 iconsFolder = System.IO.Path.Combine(assemblyFolder1, "Code addin inventor", "Images", "Part")
             End If
 
-
+#Region "Icon"
             ' Images in project: Code addin inventor\Images\Button\part (should be copied to output)
             ' Dim iconsFolder As String = System.IO.Path.Combine(assemblyFolder1, "Images", "part")
 
@@ -132,6 +132,8 @@ Namespace ToolInventor2020
             Dim part15LargeIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part15LargePath), LoadIconFromPath(Part15LargePath), largeIcon)
             Dim part15SmallIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part15SmallPath), LoadIconFromPath(Part15SmallPath), smallIcon)
 
+#End Region
+
             Dim partBtn1 As ButtonDefinition = controlDefs.AddButtonDefinition("Thêm dung sai vào dim sketch", "ToolInventor2020_Part_Btn1", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                     "Thêm dung sai vào dim sketch" & vbCrLf & "Mô tả: Thêm dung sai (tolerance) vào dimension trong sketch." & vbCrLf & "Ghi chú: chỉnh theo nhu cầu.",
                                                                      "Tooltip: Thêm dung sai vào dim sketch (edit)", part1SmallIcon, part1LargeIcon)
@@ -174,11 +176,11 @@ Namespace ToolInventor2020
             AddHandler partBtn7.OnExecute, AddressOf Assembly.Buttons.Lenhngoaicumlap.Im_EX_step_part.OnExecute
             buttonsList.Add(partBtn7)
 
-            Dim partBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Part Action 8", "ToolInventor2020_Part_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                               "Part Action 8" & vbCrLf & "Mô tả: (chỉnh sửa) Action 8 cho Part.",
-                                                                               "Tooltip: Part Action 8 (edit)", part8SmallIcon, part8LargeIcon)
-            AddHandler partBtn8.OnExecute, AddressOf Part.Buttons.Button8.OnExecute
-            '  buttonsList.Add(partBtn8)
+            Dim partBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Thay màu part", "ToolInventor2020_Part_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                               "Thay màu part" & vbCrLf & "Thay mà theo vật liệu Steel",
+                                                                               Nothing, part8SmallIcon, part8LargeIcon)
+            AddHandler partBtn8.OnExecute, AddressOf Part.Buttons.Part_Solid_7.OnExecute
+            buttonsList.Add(partBtn8)
 
             Dim partBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Part Action 9", "ToolInventor2020_Part_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                "Part Action 9" & vbCrLf & "Mô tả: (chỉnh sửa) Action 9 cho Part.",

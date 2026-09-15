@@ -154,6 +154,17 @@
     <Compile Include="Code addin inventor\Assembly\Buttons\Auto Creating Drawing\Auto drawing ASS top LV.vb" />
     <Compile Include="Code addin inventor\Assembly\CommonKeywords.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_6.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Old\Draw_dim_hole_e-o .vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Old\Draw_dim_hole_d-o.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Old\Draw_dim_hole_c-o.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Old\Draw_dim_hole_b-o.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Old\Draw_dim_hole_a-o.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Liner\old\Draw_dim_base_line_a_old.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Liner\old\Draw_dim_base_line_b_old.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Liner\old\Draw_dim_base_line_c_old.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Liner\old\Draw_dim_chain_line_a_old.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Liner\old\Draw_dim_chain_line_b_old.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Liner\old\Draw_dim_chain_line_c_old.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_Rename_Sheet.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Create_Part_List.vb" />
     <Compile Include="Code addin inventor\ToolButton.vb" />
