@@ -183,7 +183,7 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawView
     '=====================================================
     ' MODULE CHÍNH
     '=====================================================
-    Public Module Draw_8
+    Public Module Draw_Change_scale_view
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
 

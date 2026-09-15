@@ -167,33 +167,33 @@
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Liner\Draw_dim_chain_line_b.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Liner\Draw_dim_chain_line_a.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Liner\Draw_dim_base_line_a.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Draw_2e.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Draw_2d.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Draw_2c.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Draw_dim_hole_e.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Draw_dim_hole_d.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Draw_dim_hole_c.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Liner\old\Draw_dim_base_line_cold.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Draw_1.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_1.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_10.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Draw_11.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Draw_6c.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Draw_13.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\View\Draw_Up_date_view.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Draw Part list 1\Draw_Partlist_1c.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\View\Draw_Rename_View.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_14.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Draw_2a.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Draw_dim_hole_a.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Draw_dim_hole.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_3.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Draw_4.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Draw_5.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Draw_2b.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Draw_6b.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Draw_6a.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_4.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\ResetPartsList.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Hole\Draw_dim_hole_b.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Draw Part list 1\Draw_Partlist_1b.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Draw Part list 1\Draw_Partlist_1a.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_7.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Code addin inventor\Skill Auto\SkillAuto_1.vb" />
     <Compile Include="Code addin inventor\Tool ngoai\Vi_tri_file.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\View\Draw_8.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\View\Draw_Change_scale_view.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_9.vb" />
     <Compile Include="Code addin inventor\AssemblyButtons.vb" />
-    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Draw_6.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Draw Part list 1\Draw_Partlist_1.vb" />
     <Compile Include="Globals.vb" />
     <Compile Include="Basecode.vb" />
     <Compile Include="Code addin inventor\Part\Buttons\Solid\Part_Solid_1.vb" />
@@ -282,8 +282,8 @@
     <EmbeddedResource Include="Code addin inventor\Drawing\Buttons\Delete\Drawdelete.resx">
       <DependentUpon>Drawdelete.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Code addin inventor\Drawing\Buttons\Draw_11.resx">
-      <DependentUpon>Draw_11.vb</DependentUpon>
+    <EmbeddedResource Include="Code addin inventor\Drawing\Buttons\View\Draw_Up_date_view.resx">
+      <DependentUpon>Draw_Up_date_view.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Code addin inventor\Drawing\Buttons\Draw_7.resx">
       <DependentUpon>Draw_7.vb</DependentUpon>

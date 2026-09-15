@@ -5,7 +5,7 @@ Imports Inventor
 
 
 Namespace ToolInventor2020.Drawing.Buttons
-    Public Module Draw_5
+    Public Module Draw_ResetPartsList
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
             Dim invApp As Inventor.Application = System.Runtime.InteropServices.Marshal.GetActiveObject("Inventor.Application")

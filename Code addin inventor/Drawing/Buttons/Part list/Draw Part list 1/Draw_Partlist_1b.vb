@@ -9,7 +9,7 @@ Imports Inventor
 Imports ToolInventor2020.ToolInventor2020.Assembly.Buttons
 
 Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
-    Public Module Draw_6b
+    Public Module Draw_Partlist_1b
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
             Dim app As Inventor.Application = g_inventorApplication

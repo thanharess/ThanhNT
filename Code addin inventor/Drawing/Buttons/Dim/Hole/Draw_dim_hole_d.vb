@@ -6,14 +6,11 @@ Imports System.Collections.Generic
 Imports System.Linq
 
 Namespace ToolInventor2020.Drawing.Buttons.Drawdim
-    Public Module Draw_2e
+    Public Module Draw_dim_hole_d
 
-        Private Const TOL As Double = 0.00
+        Private Const TOL As Double = 0.0
         Private Const RATIO As Double = 0.5
 
-        '=============================================================
-        ' ENTRY POINT
-        '=============================================================
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
             Dim app As Inventor.Application = g_inventorApplication
@@ -90,7 +87,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 For Each oView As DrawingView In selectedViews
 
                     '-------------------------------------------------
-                    ' 1. LẤY TẤT CẢ LỖ TRÒN (loại trùng TÂM)
+                    ' 1. LẤY TẤT CẢ LỖ TRÒN (chỉ loại trùng TÂM)
                     '-------------------------------------------------
                     Dim allHoles As New List(Of HoleInfo)
 
@@ -186,9 +183,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     Dim limitX As Double = minX + viewW * RATIO
                     Dim limitY As Double = maxY - viewH * RATIO
 
-                    Dim usedX As New List(Of Double)
-                    Dim usedY As New List(Of Double)
-
                     '-------------------------------------------------
                     ' 3. DIM TỔNG
                     '-------------------------------------------------
@@ -217,7 +211,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     End Try
 
                     '-------------------------------------------------
-                    ' 4. B1 - HÀNG TRÊN
+                    ' 4. B1 - HÀNG TRÊN (BASE = CẠNH TRÁI)
                     '-------------------------------------------------
                     Dim topRow As List(Of HoleInfo) =
                         allHoles.Where(Function(h) h.Y >= limitY).
@@ -225,16 +219,20 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                     If topRow.Count > 0 Then
                         Dim result As Boolean =
-                            AddBaselineChain(oSheet, app, leftEdge, topRow, True, maxY + 3.2, usedX)
+                            AddBaselineSet(oSheet, app, leftEdge, topRow, True, maxY + 3.2)
+
                         If result Then
                             For Each h As HoleInfo In topRow
                                 h.Dimmed = True
                             Next
+                            countOK += topRow.Count
+                        Else
+                            countFail += 1
                         End If
                     End If
 
                     '-------------------------------------------------
-                    ' 5. B2 - CỘT TRÁI
+                    ' 5. B2 - CỘT TRÁI (BASE = CẠNH TRÊN)
                     '-------------------------------------------------
                     Dim leftCol As List(Of HoleInfo) =
                         allHoles.Where(Function(h) h.X <= limitX).
@@ -242,16 +240,20 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                     If leftCol.Count > 0 Then
                         Dim result As Boolean =
-                            AddBaselineChain(oSheet, app, topEdge, leftCol, False, minX - 3.2, usedY)
+                            AddBaselineSet(oSheet, app, topEdge, leftCol, False, minX - 3.2)
+
                         If result Then
                             For Each h As HoleInfo In leftCol
                                 h.Dimmed = True
                             Next
+                            countOK += leftCol.Count
+                        Else
+                            countFail += 1
                         End If
                     End If
 
                     '-------------------------------------------------
-                    ' 6. B3 - HÀNG DƯỚI
+                    ' 6. B3 - HÀNG DƯỚI (BASE = CẠNH TRÁI)
                     '-------------------------------------------------
                     Dim botRow As List(Of HoleInfo) =
                         allHoles.Where(Function(h) h.Y < limitY).
@@ -259,16 +261,20 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                     If botRow.Count > 0 Then
                         Dim result As Boolean =
-                            AddBaselineChain(oSheet, app, leftEdge, botRow, True, minY - 3.2, usedX)
+                            AddBaselineSet(oSheet, app, leftEdge, botRow, True, minY - 3.2)
+
                         If result Then
                             For Each h As HoleInfo In botRow
                                 h.Dimmed = True
                             Next
+                            countOK += botRow.Count
+                        Else
+                            countFail += 1
                         End If
                     End If
 
                     '-------------------------------------------------
-                    ' 7. B4 - CỘT PHẢI
+                    ' 7. B4 - CỘT PHẢI (BASE = CẠNH TRÊN)
                     '-------------------------------------------------
                     Dim rightCol As List(Of HoleInfo) =
                         allHoles.Where(Function(h) h.X > limitX).
@@ -276,11 +282,15 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                     If rightCol.Count > 0 Then
                         Dim result As Boolean =
-                            AddBaselineChain(oSheet, app, topEdge, rightCol, False, maxX + 3.2, usedY)
+                            AddBaselineSet(oSheet, app, topEdge, rightCol, False, maxX + 3.2)
+
                         If result Then
                             For Each h As HoleInfo In rightCol
                                 h.Dimmed = True
                             Next
+                            countOK += rightCol.Count
+                        Else
+                            countFail += 1
                         End If
                     End If
 
@@ -293,39 +303,31 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     For Each hole As HoleInfo In missingHoles
                         Dim done As Boolean = False
 
-                        Dim canX As Boolean = Not ValueExists(usedX, hole.X)
-                        If canX Then
-                            If hole.X <= limitX Then
-                                done = AddSingleBaseline(oSheet, app, leftEdge, hole.Curve, True, minX - 3.2)
-                            Else
-                                done = AddSingleBaseline(oSheet, app, leftEdge, hole.Curve, True, hole.Y + 2.5)
-                            End If
-
-                            If done Then
-                                usedX.Add(hole.X)
-                                hole.Dimmed = True
-                                countOK += 1
-                                countAdd += 1
-                                Continue For
-                            End If
+                        If hole.X <= limitX Then
+                            done = AddSingleBaseline(oSheet, app, leftEdge, hole.Curve, True, minX - 3.2)
+                        Else
+                            done = AddSingleBaseline(oSheet, app, leftEdge, hole.Curve, True, hole.Y + 2.5)
                         End If
 
-                        Dim canY As Boolean = Not ValueExists(usedY, hole.Y)
-                        If canY Then
-                            If hole.X <= limitX Then
-                                done = AddSingleBaseline(oSheet, app, topEdge, hole.Curve, False, minX - 3.2)
-                            Else
-                                done = AddSingleBaseline(oSheet, app, topEdge, hole.Curve, False, maxX + 3.2)
-                            End If
+                        If done Then
+                            hole.Dimmed = True
+                            countOK += 1
+                            countAdd += 1
+                            Continue For
+                        End If
 
-                            If done Then
-                                usedY.Add(hole.Y)
-                                hole.Dimmed = True
-                                countOK += 1
-                                countAdd += 1
-                            Else
-                                countFail += 1
-                            End If
+                        If hole.X <= limitX Then
+                            done = AddSingleBaseline(oSheet, app, topEdge, hole.Curve, False, minX - 3.2)
+                        Else
+                            done = AddSingleBaseline(oSheet, app, topEdge, hole.Curve, False, maxX + 3.2)
+                        End If
+
+                        If done Then
+                            hole.Dimmed = True
+                            countOK += 1
+                            countAdd += 1
+                        Else
+                            countFail += 1
                         End If
                     Next
 
@@ -337,14 +339,10 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                         Dim ok As Boolean = False
 
-                        If Not ValueExists(usedX, hole.X) Then
-                            ok = AddSingleBaseline(oSheet, app, leftEdge, hole.Curve, True, minX - 4.0)
-                            If ok Then usedX.Add(hole.X)
-                        End If
+                        ok = AddSingleBaseline(oSheet, app, leftEdge, hole.Curve, True, minX - 4.0)
 
-                        If Not ok AndAlso Not ValueExists(usedY, hole.Y) Then
+                        If Not ok Then
                             ok = AddSingleBaseline(oSheet, app, topEdge, hole.Curve, False, maxX + 4.0)
-                            If ok Then usedY.Add(hole.Y)
                         End If
 
                         If ok Then
@@ -354,10 +352,10 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                         End If
                     Next
 
-                Next ' End For Each selectedViews
+                Next ' End selectedViews
 
                 '=====================================================
-                ' ARRANGE AUTO DIMENSIONS — CHỈ DIM THUỘC VIEW ĐÃ CHỌN
+                ' AUTO ARRANGE DIMENSIONS — CHỈ DIM THUỘC VIEW ĐÃ CHỌN
                 '=====================================================
                 Try
                     ArrangeDimensions(oSheet, app, selectedViews)
@@ -372,9 +370,10 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     "Số dim tạo: " & countOK & vbCrLf &
                     "Dim bổ sung: " & countAdd & vbCrLf &
                     "Lỗi: " & countFail & vbCrLf & vbCrLf &
-                    "• Chọn nhiều view liên tục" & vbCrLf &
-                    "• Dim tất cả lỗ" & vbCrLf &
-                    "• Loại trùng TÂM + trùng khoảng cách" & vbCrLf &
+                    "• Chọn nhiều View liên tục" & vbCrLf &
+                    "• Dùng Baseline Dimension" & vbCrLf &
+                    "• Ngang: Base = Cạnh Trái" & vbCrLf &
+                    "• Dọc: Base = Cạnh Trên" & vbCrLf &
                     "• Auto Arrange Dimension (chỉ view đã chọn)",
                     "Dim Baseline lỗ",
                     MessageBoxButtons.OK,
@@ -396,13 +395,13 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
         Private Sub ArrangeDimensions(ByVal oSheet As Sheet,
                                       ByVal app As Inventor.Application,
                                       ByVal selectedViews As List(Of DrawingView))
-
             Try
                 Dim oDims As DrawingDimensions = oSheet.DrawingDimensions
                 If oDims Is Nothing OrElse oDims.Count = 0 Then Exit Sub
 
                 Dim oCol As ObjectCollection = app.TransientObjects.CreateObjectCollection
 
+                '----- Linear / Angular dim -----
                 For Each oDim As DrawingDimension In oDims
                     Try
                         If Not IsDimInAnyView(oDim, selectedViews) Then Continue For
@@ -421,17 +420,31 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     End Try
                 Next
 
-                If oCol.Count > 1 Then
+                '----- Baseline Dimension Set (chỉ set thuộc view đã chọn) -----
+                For Each bSet As BaselineDimensionSet In oDims.BaselineDimensionSets
+                    Try
+                        If Not IsBaselineSetInAnyView(bSet, selectedViews) Then Continue For
+
+                        Try
+                            bSet.ArrangeText()
+                        Catch
+                        End Try
+
+                        oCol.Add(bSet)
+                    Catch
+                    End Try
+                Next
+
+                If oCol.Count > 0 Then
                     oDims.Arrange(oCol)
                 End If
 
             Catch
             End Try
-
         End Sub
 
         '=============================================================
-        ' LỌC DIM THEO VIEW ĐÃ CHỌN (Inventor 2020)
+        ' LỌC DIM THEO VIEW ĐÃ CHỌN
         '=============================================================
         Private Function IsDimInAnyView(ByVal oDim As DrawingDimension,
                                          ByVal views As List(Of DrawingView)) As Boolean
@@ -503,6 +516,65 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
             Return False
         End Function
 
+        '=============================================================
+        ' LỌC BASELINE DIMENSION SET THEO VIEW ĐÃ CHỌN
+        '=============================================================
+        Private Function IsBaselineSetInAnyView(ByVal bSet As BaselineDimensionSet,
+                                                 ByVal views As List(Of DrawingView)) As Boolean
+            If bSet Is Nothing Then Return False
+
+            ' Cách 1: kiểm tra intent của các dim con trong baseline set
+            Try
+                Dim members As DrawingDimensions = bSet.Members
+                If members IsNot Nothing AndAlso members.Count > 0 Then
+                    For Each d As DrawingDimension In members
+                        If IsDimInAnyView(d, views) Then Return True
+                    Next
+                End If
+            Catch
+            End Try
+
+            ' Cách 2: fallback qua vị trí text của baseline set (nếu truy được)
+            Try
+                Dim tp As Point2d = Nothing
+                Try
+                    tp = bSet.Text.Origin
+                Catch
+                    Try
+                        tp = bSet.Text.Position
+                    Catch
+                        tp = Nothing
+                    End Try
+                End Try
+
+                If tp IsNot Nothing Then
+                    Const boxTol As Double = 0.5
+                    For Each v As DrawingView In views
+                        Try
+                            Dim cx As Double = v.Position.X
+                            Dim cy As Double = v.Position.Y
+                            Dim hw As Double = v.Width / 2.0
+                            Dim hh As Double = v.Height / 2.0
+
+                            Dim vL As Double = cx - hw
+                            Dim vR As Double = cx + hw
+                            Dim vB As Double = cy - hh
+                            Dim vT As Double = cy + hh
+
+                            If tp.X >= (vL - boxTol) AndAlso tp.X <= (vR + boxTol) AndAlso
+                               tp.Y >= (vB - boxTol) AndAlso tp.Y <= (vT + boxTol) Then
+                                Return True
+                            End If
+                        Catch
+                        End Try
+                    Next
+                End If
+            Catch
+            End Try
+
+            Return False
+        End Function
+
         Private Function CheckIntentBelongsToView(ByVal intent As Object,
                                                    ByVal views As List(Of DrawingView)) As Boolean
             If intent Is Nothing Then Return False
@@ -556,85 +628,73 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
         End Function
 
         '=============================================================
-        ' KIỂM TRA GIÁ TRỊ ĐÃ TỒN TẠI
+        ' TẠO BASELINE SET
         '=============================================================
-        Private Function ValueExists(
-            ByVal list As List(Of Double),
-            ByVal value As Double) As Boolean
-
-            If list Is Nothing Then Return False
-            For Each v As Double In list
-                If Math.Abs(v - value) <= TOL Then Return True
-            Next
-            Return False
-        End Function
-
-        '=============================================================
-        ' TẠO CHUỖI DIM BASELINE
-        '=============================================================
-        Private Function AddBaselineChain(
+        Private Function AddBaselineSet(
             ByVal oSheet As Sheet,
             ByVal app As Inventor.Application,
             ByVal baseCurve As DrawingCurve,
             ByVal holeList As List(Of HoleInfo),
             ByVal horizontal As Boolean,
-            ByVal offset As Double,
-            ByVal usedCoords As List(Of Double)) As Boolean
+            ByVal offset As Double) As Boolean
 
             Try
                 If baseCurve Is Nothing Then Return False
                 If holeList Is Nothing OrElse holeList.Count = 0 Then Return False
-                If usedCoords Is Nothing Then usedCoords = New List(Of Double)
 
-                Dim dimType As DimensionTypeEnum
-                If horizontal Then
-                    dimType = DimensionTypeEnum.kHorizontalDimensionType
-                Else
-                    dimType = DimensionTypeEnum.kVerticalDimensionType
-                End If
+                Dim intents As ObjectCollection =
+                    app.TransientObjects.CreateObjectCollection()
 
-                Dim baseIntent As GeometryIntent = oSheet.CreateGeometryIntent(baseCurve)
-                Dim okCount As Integer = 0
+                ' Intent đầu tiên = BASE
+                intents.Add(oSheet.CreateGeometryIntent(baseCurve))
 
-                For i As Integer = 0 To holeList.Count - 1
-                    Dim hole As HoleInfo = holeList(i)
+                For Each hole As HoleInfo In holeList
                     If hole Is Nothing OrElse hole.Curve Is Nothing Then Continue For
-
-                    Dim coord As Double = If(horizontal, hole.X, hole.Y)
-
-                    If ValueExists(usedCoords, coord) Then Continue For
-
-                    Try
-                        Dim holeIntent As GeometryIntent =
-                            oSheet.CreateGeometryIntent(hole.Curve, PointIntentEnum.kCenterPointIntent)
-
-                        Dim placement As Point2d
-                        If horizontal Then
-                            placement = app.TransientGeometry.CreatePoint2d(hole.X, offset)
-                        Else
-                            placement = app.TransientGeometry.CreatePoint2d(offset, hole.Y)
-                        End If
-
-                        Dim newDim As GeneralDimension =
-                            oSheet.DrawingDimensions.GeneralDimensions.AddLinear(
-                                placement, baseIntent, holeIntent, dimType)
-
-                        If newDim IsNot Nothing Then
-                            usedCoords.Add(coord)
-                            okCount += 1
-                        End If
-                    Catch
-                    End Try
+                    intents.Add(
+                        oSheet.CreateGeometryIntent(
+                            hole.Curve,
+                            PointIntentEnum.kCenterPointIntent))
                 Next
 
-                Return okCount > 0
+                If intents.Count < 2 Then Return False
+
+                Dim firstHole As HoleInfo = holeList.First()
+                Dim placement As Point2d
+
+                If horizontal Then
+                    placement = app.TransientGeometry.CreatePoint2d(firstHole.X, offset)
+                Else
+                    placement = app.TransientGeometry.CreatePoint2d(offset, firstHole.Y)
+                End If
+
+                Dim dimType As DimensionTypeEnum =
+                    If(horizontal,
+                       DimensionTypeEnum.kHorizontalDimensionType,
+                       DimensionTypeEnum.kVerticalDimensionType)
+
+                Dim baseSets As BaselineDimensionSets =
+                    oSheet.DrawingDimensions.BaselineDimensionSets
+
+                Dim baseSet As BaselineDimensionSet =
+                    baseSets.Add(intents, placement, dimType)
+
+                If baseSet Is Nothing Then Return False
+
+                Try
+                    baseSet.ArrangeText()
+                Catch
+                End Try
+
+                Return True
+
             Catch
                 Return False
             End Try
+
         End Function
 
         '=============================================================
-        ' TẠO 1 DIM RIÊNG
+        ' TẠO 1 BASELINE RIÊNG
         '=============================================================
         Private Function AddSingleBaseline(
             ByVal oSheet As Sheet,
@@ -647,12 +707,17 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
             Try
                 If baseCurve Is Nothing OrElse holeCurve Is Nothing Then Return False
 
+                Dim intents As ObjectCollection =
+                    app.TransientObjects.CreateObjectCollection()
+
+                intents.Add(oSheet.CreateGeometryIntent(baseCurve))
+                intents.Add(
+                    oSheet.CreateGeometryIntent(
+                        holeCurve,
+                        PointIntentEnum.kCenterPointIntent))
+
                 Dim c As Point2d = holeCurve.CenterPoint
                 If c Is Nothing Then Return False
-
-                Dim baseIntent As GeometryIntent = oSheet.CreateGeometryIntent(baseCurve)
-                Dim holeIntent As GeometryIntent =
-                    oSheet.CreateGeometryIntent(holeCurve, PointIntentEnum.kCenterPointIntent)
 
                 Dim placement As Point2d
                 If horizontal Then
@@ -666,14 +731,25 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                        DimensionTypeEnum.kHorizontalDimensionType,
                        DimensionTypeEnum.kVerticalDimensionType)
 
-                Dim newDim As GeneralDimension =
-                    oSheet.DrawingDimensions.GeneralDimensions.AddLinear(
-                        placement, baseIntent, holeIntent, dimType)
+                Dim baseSets As BaselineDimensionSets =
+                    oSheet.DrawingDimensions.BaselineDimensionSets
 
-                Return newDim IsNot Nothing
+                Dim baseSet As BaselineDimensionSet =
+                    baseSets.Add(intents, placement, dimType)
+
+                If baseSet Is Nothing Then Return False
+
+                Try
+                    baseSet.ArrangeText()
+                Catch
+                End Try
+
+                Return True
+
             Catch
                 Return False
             End Try
+
         End Function
 
         '=============================================================

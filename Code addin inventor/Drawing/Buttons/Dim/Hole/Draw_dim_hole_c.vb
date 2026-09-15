@@ -6,9 +6,9 @@ Imports System.Collections.Generic
 Imports System.Linq
 
 Namespace ToolInventor2020.Drawing.Buttons.Drawdim
-    Public Module Draw_2d
+    Public Module Draw_dim_hole_c
 
-        Private Const TOL As Double = 0.0
+        Private Const TOL As Double = 0.03
         Private Const RATIO As Double = 0.5
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
@@ -78,8 +78,8 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                 Dim countOK As Integer = 0
                 Dim countFail As Integer = 0
-                Dim countAdd As Integer = 0
                 Dim countZero As Integer = 0
+                Dim countAdd As Integer = 0
 
                 '=====================================================
                 ' XỬ LÝ TỪNG VIEW ĐÃ CHỌN
@@ -87,7 +87,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 For Each oView As DrawingView In selectedViews
 
                     '-------------------------------------------------
-                    ' 1. LẤY TẤT CẢ LỖ TRÒN (chỉ loại trùng TÂM)
+                    ' 1. LẤY TẤT CẢ LỖ (chỉ loại trùng TÂM)
                     '-------------------------------------------------
                     Dim allHoles As New List(Of HoleInfo)
 
@@ -211,144 +211,278 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     End Try
 
                     '-------------------------------------------------
-                    ' 4. B1 - HÀNG TRÊN (BASE = CẠNH TRÁI)
+                    ' 4. CHUỖI TRÊN
                     '-------------------------------------------------
                     Dim topRow As List(Of HoleInfo) =
                         allHoles.Where(Function(h) h.Y >= limitY).
                         OrderBy(Function(h) h.X).ToList()
 
                     If topRow.Count > 0 Then
-                        Dim result As Boolean =
-                            AddBaselineSet(oSheet, app, leftEdge, topRow, True, maxY + 3.2)
+                        Dim prev As HoleInfo = topRow.First()
 
-                        If result Then
-                            For Each h As HoleInfo In topRow
-                                h.Dimmed = True
-                            Next
-                            countOK += topRow.Count
+                        If Math.Abs(prev.X - minX) > TOL Then
+                            If AddHorizontalDim(oSheet, tg, leftEdge, prev.Curve, (minX + prev.X) / 2, maxY + 3.2) Then
+                                countOK += 1
+                                prev.Dimmed = True
+                            Else
+                                countFail += 1
+                            End If
                         Else
-                            countFail += 1
+                            prev.Dimmed = True
+                        End If
+
+                        For i As Integer = 1 To topRow.Count - 1
+                            Dim h As HoleInfo = topRow(i)
+
+                            If Math.Abs(h.X - prev.X) <= TOL Then
+                                h.Dimmed = True
+                                countZero += 1
+                                Continue For
+                            End If
+
+                            If AddHorizontalDim(oSheet, tg, prev.Curve, h.Curve, (prev.X + h.X) / 2, maxY + 2.5) Then
+                                countOK += 1
+                                prev.Dimmed = True
+                                h.Dimmed = True
+                            Else
+                                countFail += 1
+                            End If
+                            prev = h
+                        Next
+
+                        If Math.Abs(maxX - prev.X) > TOL Then
+                            If AddHorizontalDim(oSheet, tg, prev.Curve, rightEdge, (prev.X + maxX) / 2, maxY + 3.2) Then
+                                countOK += 1
+                                prev.Dimmed = True
+                            Else
+                                countFail += 1
+                            End If
                         End If
                     End If
 
                     '-------------------------------------------------
-                    ' 5. B2 - CỘT TRÁI (BASE = CẠNH TRÊN)
+                    ' 5. CHUỖI TRÁI
                     '-------------------------------------------------
                     Dim leftCol As List(Of HoleInfo) =
                         allHoles.Where(Function(h) h.X <= limitX).
                         OrderByDescending(Function(h) h.Y).ToList()
 
                     If leftCol.Count > 0 Then
-                        Dim result As Boolean =
-                            AddBaselineSet(oSheet, app, topEdge, leftCol, False, minX - 3.2)
+                        Dim prev As HoleInfo = leftCol.First()
 
-                        If result Then
-                            For Each h As HoleInfo In leftCol
-                                h.Dimmed = True
-                            Next
-                            countOK += leftCol.Count
+                        If Math.Abs(maxY - prev.Y) > TOL Then
+                            If AddVerticalDim(oSheet, tg, topEdge, prev.Curve, minX - 3.2, (maxY + prev.Y) / 2) Then
+                                countOK += 1
+                                prev.Dimmed = True
+                            Else
+                                countFail += 1
+                            End If
                         Else
-                            countFail += 1
+                            prev.Dimmed = True
+                        End If
+
+                        For i As Integer = 1 To leftCol.Count - 1
+                            Dim h As HoleInfo = leftCol(i)
+
+                            If Math.Abs(prev.Y - h.Y) <= TOL Then
+                                h.Dimmed = True
+                                countZero += 1
+                                Continue For
+                            End If
+
+                            If AddVerticalDim(oSheet, tg, prev.Curve, h.Curve, minX - 2.5, (prev.Y + h.Y) / 2) Then
+                                countOK += 1
+                                prev.Dimmed = True
+                                h.Dimmed = True
+                            Else
+                                countFail += 1
+                            End If
+                            prev = h
+                        Next
+
+                        If Math.Abs(prev.Y - minY) > TOL Then
+                            If AddVerticalDim(oSheet, tg, prev.Curve, bottomEdge, minX - 3.2, (prev.Y + minY) / 2) Then
+                                countOK += 1
+                                prev.Dimmed = True
+                            Else
+                                countFail += 1
+                            End If
                         End If
                     End If
 
                     '-------------------------------------------------
-                    ' 6. B3 - HÀNG DƯỚI (BASE = CẠNH TRÁI)
+                    ' 6. CHUỖI DƯỚI
                     '-------------------------------------------------
                     Dim botRow As List(Of HoleInfo) =
                         allHoles.Where(Function(h) h.Y < limitY).
                         OrderBy(Function(h) h.X).ToList()
 
                     If botRow.Count > 0 Then
-                        Dim result As Boolean =
-                            AddBaselineSet(oSheet, app, leftEdge, botRow, True, minY - 3.2)
+                        Dim prev As HoleInfo = botRow.First()
 
-                        If result Then
-                            For Each h As HoleInfo In botRow
-                                h.Dimmed = True
-                            Next
-                            countOK += botRow.Count
+                        If Math.Abs(prev.X - minX) > TOL Then
+                            If AddHorizontalDim(oSheet, tg, leftEdge, prev.Curve, (minX + prev.X) / 2, minY - 3.2) Then
+                                countOK += 1
+                                prev.Dimmed = True
+                            Else
+                                countFail += 1
+                            End If
                         Else
-                            countFail += 1
+                            prev.Dimmed = True
+                        End If
+
+                        For i As Integer = 1 To botRow.Count - 1
+                            Dim h As HoleInfo = botRow(i)
+
+                            If Math.Abs(h.X - prev.X) <= TOL Then
+                                h.Dimmed = True
+                                countZero += 1
+                                Continue For
+                            End If
+
+                            If AddHorizontalDim(oSheet, tg, prev.Curve, h.Curve, (prev.X + h.X) / 2, minY - 2.5) Then
+                                countOK += 1
+                                prev.Dimmed = True
+                                h.Dimmed = True
+                            Else
+                                countFail += 1
+                            End If
+                            prev = h
+                        Next
+
+                        If Math.Abs(maxX - prev.X) > TOL Then
+                            If AddHorizontalDim(oSheet, tg, prev.Curve, rightEdge, (prev.X + maxX) / 2, minY - 3.2) Then
+                                countOK += 1
+                                prev.Dimmed = True
+                            Else
+                                countFail += 1
+                            End If
                         End If
                     End If
 
                     '-------------------------------------------------
-                    ' 7. B4 - CỘT PHẢI (BASE = CẠNH TRÊN)
+                    ' 7. CHUỖI PHẢI
                     '-------------------------------------------------
                     Dim rightCol As List(Of HoleInfo) =
                         allHoles.Where(Function(h) h.X > limitX).
                         OrderByDescending(Function(h) h.Y).ToList()
 
                     If rightCol.Count > 0 Then
-                        Dim result As Boolean =
-                            AddBaselineSet(oSheet, app, topEdge, rightCol, False, maxX + 3.2)
+                        Dim prev As HoleInfo = rightCol.First()
 
-                        If result Then
-                            For Each h As HoleInfo In rightCol
-                                h.Dimmed = True
-                            Next
-                            countOK += rightCol.Count
+                        If Math.Abs(maxY - prev.Y) > TOL Then
+                            If AddVerticalDim(oSheet, tg, topEdge, prev.Curve, maxX + 3.2, (maxY + prev.Y) / 2) Then
+                                countOK += 1
+                                prev.Dimmed = True
+                            Else
+                                countFail += 1
+                            End If
                         Else
-                            countFail += 1
+                            prev.Dimmed = True
+                        End If
+
+                        For i As Integer = 1 To rightCol.Count - 1
+                            Dim h As HoleInfo = rightCol(i)
+
+                            If Math.Abs(prev.Y - h.Y) <= TOL Then
+                                h.Dimmed = True
+                                countZero += 1
+                                Continue For
+                            End If
+
+                            If AddVerticalDim(oSheet, tg, prev.Curve, h.Curve, maxX + 2.5, (prev.Y + h.Y) / 2) Then
+                                countOK += 1
+                                prev.Dimmed = True
+                                h.Dimmed = True
+                            Else
+                                countFail += 1
+                            End If
+                            prev = h
+                        Next
+
+                        If Math.Abs(prev.Y - minY) > TOL Then
+                            If AddVerticalDim(oSheet, tg, prev.Curve, bottomEdge, maxX + 3.2, (prev.Y + minY) / 2) Then
+                                countOK += 1
+                                prev.Dimmed = True
+                            Else
+                                countFail += 1
+                            End If
                         End If
                     End If
 
                     '-------------------------------------------------
-                    ' 8. QUÉT LẠI LỖ CHƯA ĐƯỢC DIM
-                    '-------------------------------------------------
-                    Dim missingHoles As List(Of HoleInfo) =
-                        allHoles.Where(Function(h) Not h.Dimmed).ToList()
-
-                    For Each hole As HoleInfo In missingHoles
-                        Dim done As Boolean = False
-
-                        If hole.X <= limitX Then
-                            done = AddSingleBaseline(oSheet, app, leftEdge, hole.Curve, True, minX - 3.2)
-                        Else
-                            done = AddSingleBaseline(oSheet, app, leftEdge, hole.Curve, True, hole.Y + 2.5)
-                        End If
-
-                        If done Then
-                            hole.Dimmed = True
-                            countOK += 1
-                            countAdd += 1
-                            Continue For
-                        End If
-
-                        If hole.X <= limitX Then
-                            done = AddSingleBaseline(oSheet, app, topEdge, hole.Curve, False, minX - 3.2)
-                        Else
-                            done = AddSingleBaseline(oSheet, app, topEdge, hole.Curve, False, maxX + 3.2)
-                        End If
-
-                        If done Then
-                            hole.Dimmed = True
-                            countOK += 1
-                            countAdd += 1
-                        Else
-                            countFail += 1
-                        End If
-                    Next
-
-                    '-------------------------------------------------
-                    ' 9. QUÉT LẦN CUỐI
+                    ' 8. QUÉT LẠI LỖ CÒN THIẾU
                     '-------------------------------------------------
                     For Each hole As HoleInfo In allHoles
                         If hole.Dimmed Then Continue For
 
-                        Dim ok As Boolean = False
+                        ' Tìm lỗ cùng hàng
+                        Dim sameRow As New List(Of HoleInfo)
+                        For Each other As HoleInfo In allHoles
+                            If other Is hole Then Continue For
+                            If Math.Abs(other.Y - hole.Y) <= TOL Then
+                                sameRow.Add(other)
+                            End If
+                        Next
 
-                        ok = AddSingleBaseline(oSheet, app, leftEdge, hole.Curve, True, minX - 4.0)
+                        If sameRow.Count > 0 Then
+                            Dim nearest As HoleInfo =
+                                sameRow.OrderBy(Function(h) Math.Abs(h.X - hole.X)).First()
 
-                        If Not ok Then
-                            ok = AddSingleBaseline(oSheet, app, topEdge, hole.Curve, False, maxX + 4.0)
+                            If Math.Abs(nearest.X - hole.X) > TOL Then
+                                Dim yPos As Double = If(hole.Y >= limitY, maxY + 2.5, minY - 2.5)
+
+                                If AddHorizontalDim(oSheet, tg, hole.Curve, nearest.Curve, (hole.X + nearest.X) / 2, yPos) Then
+                                    countOK += 1
+                                    countAdd += 1
+                                    hole.Dimmed = True
+                                    Continue For
+                                Else
+                                    countFail += 1
+                                End If
+                            End If
                         End If
 
-                        If ok Then
-                            hole.Dimmed = True
-                            countOK += 1
-                            countAdd += 1
+                        ' Tìm lỗ cùng cột
+                        Dim sameCol As New List(Of HoleInfo)
+                        For Each other As HoleInfo In allHoles
+                            If other Is hole Then Continue For
+                            If Math.Abs(other.X - hole.X) <= TOL Then
+                                sameCol.Add(other)
+                            End If
+                        Next
+
+                        If sameCol.Count > 0 Then
+                            Dim nearest As HoleInfo =
+                                sameCol.OrderBy(Function(h) Math.Abs(h.Y - hole.Y)).First()
+
+                            If Math.Abs(nearest.Y - hole.Y) > TOL Then
+                                Dim xPos As Double = If(hole.X <= limitX, minX - 2.5, maxX + 2.5)
+
+                                If AddVerticalDim(oSheet, tg, hole.Curve, nearest.Curve, xPos, (hole.Y + nearest.Y) / 2) Then
+                                    countOK += 1
+                                    countAdd += 1
+                                    hole.Dimmed = True
+                                    Continue For
+                                Else
+                                    countFail += 1
+                                End If
+                            End If
+                        End If
+
+                        ' Dim đến cạnh gần nhất
+                        If hole.X <= limitX Then
+                            If AddHorizontalDim(oSheet, tg, leftEdge, hole.Curve, (minX + hole.X) / 2, minX - 3.2) Then
+                                countOK += 1
+                                countAdd += 1
+                                hole.Dimmed = True
+                            End If
+                        Else
+                            If AddHorizontalDim(oSheet, tg, hole.Curve, rightEdge, (hole.X + maxX) / 2, maxX + 3.2) Then
+                                countOK += 1
+                                countAdd += 1
+                                hole.Dimmed = True
+                            End If
                         End If
                     Next
 
@@ -367,22 +501,21 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 MessageBox.Show(
                     "Hoàn tất!" & vbCrLf & vbCrLf &
                     "Số view đã xử lý: " & selectedViews.Count & vbCrLf &
-                    "Số dim tạo: " & countOK & vbCrLf &
+                    "Tổng số dim: " & countOK & vbCrLf &
                     "Dim bổ sung: " & countAdd & vbCrLf &
+                    "Bỏ dim = 0: " & countZero & vbCrLf &
                     "Lỗi: " & countFail & vbCrLf & vbCrLf &
                     "• Chọn nhiều View liên tục" & vbCrLf &
-                    "• Dùng Baseline Dimension" & vbCrLf &
-                    "• Ngang: Base = Cạnh Trái" & vbCrLf &
-                    "• Dọc: Base = Cạnh Trên" & vbCrLf &
+                    "• Dim Chain lỗ" & vbCrLf &
                     "• Auto Arrange Dimension (chỉ view đã chọn)",
-                    "Dim Baseline lỗ",
+                    "Dim Chain lỗ",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information)
 
             Catch ex As Exception
                 MessageBox.Show(
                     "Lỗi:" & vbCrLf & ex.Message,
-                    "Dim Baseline lỗ",
+                    "Dim Chain lỗ",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error)
             End Try
@@ -401,36 +534,18 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                 Dim oCol As ObjectCollection = app.TransientObjects.CreateObjectCollection
 
-                '----- Linear / Angular dim -----
                 For Each oDim As DrawingDimension In oDims
                     Try
                         If Not IsDimInAnyView(oDim, selectedViews) Then Continue For
 
                         If TypeOf oDim Is LinearGeneralDimension OrElse
                            TypeOf oDim Is AngularGeneralDimension Then
-
                             Try
                                 oDim.CenterText()
                             Catch
                             End Try
-
                             oCol.Add(oDim)
                         End If
-                    Catch
-                    End Try
-                Next
-
-                '----- Baseline Dimension Set (chỉ set thuộc view đã chọn) -----
-                For Each bSet As BaselineDimensionSet In oDims.BaselineDimensionSets
-                    Try
-                        If Not IsBaselineSetInAnyView(bSet, selectedViews) Then Continue For
-
-                        Try
-                            bSet.ArrangeText()
-                        Catch
-                        End Try
-
-                        oCol.Add(bSet)
                     Catch
                     End Try
                 Next
@@ -438,13 +553,12 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 If oCol.Count > 0 Then
                     oDims.Arrange(oCol)
                 End If
-
             Catch
             End Try
         End Sub
 
         '=============================================================
-        ' LỌC DIM THEO VIEW ĐÃ CHỌN
+        ' LỌC DIM THEO VIEW ĐÃ CHỌN (Inventor 2020)
         '=============================================================
         Private Function IsDimInAnyView(ByVal oDim As DrawingDimension,
                                          ByVal views As List(Of DrawingView)) As Boolean
@@ -516,65 +630,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
             Return False
         End Function
 
-        '=============================================================
-        ' LỌC BASELINE DIMENSION SET THEO VIEW ĐÃ CHỌN
-        '=============================================================
-        Private Function IsBaselineSetInAnyView(ByVal bSet As BaselineDimensionSet,
-                                                 ByVal views As List(Of DrawingView)) As Boolean
-            If bSet Is Nothing Then Return False
-
-            ' Cách 1: kiểm tra intent của các dim con trong baseline set
-            Try
-                Dim members As DrawingDimensions = bSet.Members
-                If members IsNot Nothing AndAlso members.Count > 0 Then
-                    For Each d As DrawingDimension In members
-                        If IsDimInAnyView(d, views) Then Return True
-                    Next
-                End If
-            Catch
-            End Try
-
-            ' Cách 2: fallback qua vị trí text của baseline set (nếu truy được)
-            Try
-                Dim tp As Point2d = Nothing
-                Try
-                    tp = bSet.Text.Origin
-                Catch
-                    Try
-                        tp = bSet.Text.Position
-                    Catch
-                        tp = Nothing
-                    End Try
-                End Try
-
-                If tp IsNot Nothing Then
-                    Const boxTol As Double = 0.5
-                    For Each v As DrawingView In views
-                        Try
-                            Dim cx As Double = v.Position.X
-                            Dim cy As Double = v.Position.Y
-                            Dim hw As Double = v.Width / 2.0
-                            Dim hh As Double = v.Height / 2.0
-
-                            Dim vL As Double = cx - hw
-                            Dim vR As Double = cx + hw
-                            Dim vB As Double = cy - hh
-                            Dim vT As Double = cy + hh
-
-                            If tp.X >= (vL - boxTol) AndAlso tp.X <= (vR + boxTol) AndAlso
-                               tp.Y >= (vB - boxTol) AndAlso tp.Y <= (vT + boxTol) Then
-                                Return True
-                            End If
-                        Catch
-                        End Try
-                    Next
-                End If
-            Catch
-            End Try
-
-            Return False
-        End Function
-
         Private Function CheckIntentBelongsToView(ByVal intent As Object,
                                                    ByVal views As List(Of DrawingView)) As Boolean
             If intent Is Nothing Then Return False
@@ -628,65 +683,26 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
         End Function
 
         '=============================================================
-        ' TẠO BASELINE SET
+        ' TẠO DIM NGANG
         '=============================================================
-        Private Function AddBaselineSet(
+        Private Function AddHorizontalDim(
             ByVal oSheet As Sheet,
-            ByVal app As Inventor.Application,
-            ByVal baseCurve As DrawingCurve,
-            ByVal holeList As List(Of HoleInfo),
-            ByVal horizontal As Boolean,
-            ByVal offset As Double) As Boolean
+            ByVal tg As TransientGeometry,
+            ByVal c1 As DrawingCurve,
+            ByVal c2 As DrawingCurve,
+            ByVal x As Double,
+            ByVal y As Double) As Boolean
 
             Try
-                If baseCurve Is Nothing Then Return False
-                If holeList Is Nothing OrElse holeList.Count = 0 Then Return False
+                Dim tp As Point2d = tg.CreatePoint2d(x, y)
 
-                Dim intents As ObjectCollection =
-                    app.TransientObjects.CreateObjectCollection()
-
-                ' Intent đầu tiên = BASE
-                intents.Add(oSheet.CreateGeometryIntent(baseCurve))
-
-                For Each hole As HoleInfo In holeList
-                    If hole Is Nothing OrElse hole.Curve Is Nothing Then Continue For
-                    intents.Add(
-                        oSheet.CreateGeometryIntent(
-                            hole.Curve,
-                            PointIntentEnum.kCenterPointIntent))
-                Next
-
-                If intents.Count < 2 Then Return False
-
-                Dim firstHole As HoleInfo = holeList.First()
-                Dim placement As Point2d
-
-                If horizontal Then
-                    placement = app.TransientGeometry.CreatePoint2d(firstHole.X, offset)
-                Else
-                    placement = app.TransientGeometry.CreatePoint2d(offset, firstHole.Y)
-                End If
-
-                Dim dimType As DimensionTypeEnum =
-                    If(horizontal,
-                       DimensionTypeEnum.kHorizontalDimensionType,
-                       DimensionTypeEnum.kVerticalDimensionType)
-
-                Dim baseSets As BaselineDimensionSets =
-                    oSheet.DrawingDimensions.BaselineDimensionSets
-
-                Dim baseSet As BaselineDimensionSet =
-                    baseSets.Add(intents, placement, dimType)
-
-                If baseSet Is Nothing Then Return False
-
-                Try
-                    baseSet.ArrangeText()
-                Catch
-                End Try
+                oSheet.DrawingDimensions.GeneralDimensions.AddLinear(
+                    tp,
+                    oSheet.CreateGeometryIntent(c1, PointIntentEnum.kCenterPointIntent),
+                    oSheet.CreateGeometryIntent(c2, PointIntentEnum.kCenterPointIntent),
+                    DimensionTypeEnum.kHorizontalDimensionType)
 
                 Return True
-
             Catch
                 Return False
             End Try
@@ -694,58 +710,26 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
         End Function
 
         '=============================================================
-        ' TẠO 1 BASELINE RIÊNG
+        ' TẠO DIM DỌC
         '=============================================================
-        Private Function AddSingleBaseline(
+        Private Function AddVerticalDim(
             ByVal oSheet As Sheet,
-            ByVal app As Inventor.Application,
-            ByVal baseCurve As DrawingCurve,
-            ByVal holeCurve As DrawingCurve,
-            ByVal horizontal As Boolean,
-            ByVal offset As Double) As Boolean
+            ByVal tg As TransientGeometry,
+            ByVal c1 As DrawingCurve,
+            ByVal c2 As DrawingCurve,
+            ByVal x As Double,
+            ByVal y As Double) As Boolean
 
             Try
-                If baseCurve Is Nothing OrElse holeCurve Is Nothing Then Return False
+                Dim tp As Point2d = tg.CreatePoint2d(x, y)
 
-                Dim intents As ObjectCollection =
-                    app.TransientObjects.CreateObjectCollection()
-
-                intents.Add(oSheet.CreateGeometryIntent(baseCurve))
-                intents.Add(
-                    oSheet.CreateGeometryIntent(
-                        holeCurve,
-                        PointIntentEnum.kCenterPointIntent))
-
-                Dim c As Point2d = holeCurve.CenterPoint
-                If c Is Nothing Then Return False
-
-                Dim placement As Point2d
-                If horizontal Then
-                    placement = app.TransientGeometry.CreatePoint2d(c.X, offset)
-                Else
-                    placement = app.TransientGeometry.CreatePoint2d(offset, c.Y)
-                End If
-
-                Dim dimType As DimensionTypeEnum =
-                    If(horizontal,
-                       DimensionTypeEnum.kHorizontalDimensionType,
-                       DimensionTypeEnum.kVerticalDimensionType)
-
-                Dim baseSets As BaselineDimensionSets =
-                    oSheet.DrawingDimensions.BaselineDimensionSets
-
-                Dim baseSet As BaselineDimensionSet =
-                    baseSets.Add(intents, placement, dimType)
-
-                If baseSet Is Nothing Then Return False
-
-                Try
-                    baseSet.ArrangeText()
-                Catch
-                End Try
+                oSheet.DrawingDimensions.GeneralDimensions.AddLinear(
+                    tp,
+                    oSheet.CreateGeometryIntent(c1, PointIntentEnum.kCenterPointIntent),
+                    oSheet.CreateGeometryIntent(c2, PointIntentEnum.kCenterPointIntent),
+                    DimensionTypeEnum.kVerticalDimensionType)
 
                 Return True
-
             Catch
                 Return False
             End Try

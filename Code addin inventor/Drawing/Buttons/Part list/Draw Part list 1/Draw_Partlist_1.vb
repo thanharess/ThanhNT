@@ -6,17 +6,17 @@ Imports Inventor
 
 Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
 
-    Public Module draw_6
+    Public Module Draw_Partlist_1
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Select Case ShowSheetMetalMenu()
 
                 Case 1
-                    Draw_6a.OnExecute(Context)
+                    Draw_Partlist_1a.OnExecute(Context)
                 Case 2
-                    Draw_6b.OnExecute(Context)
+                    Draw_Partlist_1b.OnExecute(Context)
                 Case 3
-                    Draw_6c.OnExecute(Context)
+                    Draw_Partlist_1c.OnExecute(Context)
             End Select
         End Sub
 

@@ -8,7 +8,7 @@ Imports ToolInventor2020.ToolInventor2020.Assembly.Buttons
 
 Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
 
-    Public Module Draw_6c
+    Public Module Draw_Partlist_1c
 
         ' Property Set ID của Document Summary Information
         Private Const DOC_SUMMARY_PROPSET As String = "{D5CDD502-2E9C-101B-9397-08002B2CF9AE}"

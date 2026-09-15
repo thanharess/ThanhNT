@@ -19,15 +19,15 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 Case 4
                     Draw_dim_chain_line_b.OnExecute(Context)
                 Case 5
-                    Draw_2a.OnExecute(Context)
+                    Draw_dim_hole_a.OnExecute(Context)
                 Case 6
-                    Draw_2b.OnExecute(Context)
+                    Draw_dim_hole_b.OnExecute(Context)
                 Case 7
-                    Draw_2c.OnExecute(Context)
+                    Draw_dim_hole_c.OnExecute(Context)
                 Case 8
-                    Draw_2d.OnExecute(Context)
+                    Draw_dim_hole_d.OnExecute(Context)
                 Case 9
-                    Draw_2e.OnExecute(Context)
+                    Draw_dim_hole_e.OnExecute(Context)
                 Case 10
                     Draw_dim_hole.OnExecute(Context)
                 Case 11

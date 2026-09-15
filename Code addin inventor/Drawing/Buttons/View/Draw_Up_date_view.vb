@@ -4,9 +4,9 @@ Option Strict Off
 Imports Inventor
 Imports System.Windows.Forms
 
-Namespace ToolInventor2020.Drawing.Buttons
+Namespace ToolInventor2020.Drawing.Buttons.DrawView
 
-    Public Module Vi_tri_file
+    Public Module Draw_Up_date_view
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
 

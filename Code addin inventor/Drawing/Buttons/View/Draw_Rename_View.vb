@@ -5,9 +5,9 @@ Imports Inventor
 Imports System.Windows.Forms
 Imports System.Drawing
 
-Namespace ToolInventor2020.Drawing.Buttons
+Namespace ToolInventor2020.Drawing.Buttons.DrawView
 
-    Public Module draw_13
+    Public Module Draw_Rename_View
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
 

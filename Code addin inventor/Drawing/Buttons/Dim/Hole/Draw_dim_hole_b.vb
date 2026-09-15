@@ -6,7 +6,7 @@ Imports System.Collections.Generic
 Imports System.Linq
 
 Namespace ToolInventor2020.Drawing.Buttons.Drawdim
-    Public Module Draw_2b
+    Public Module Draw_dim_hole_b
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Dim app As Inventor.Application = g_inventorApplication
