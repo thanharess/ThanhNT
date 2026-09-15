@@ -702,7 +702,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
             Dim frm As New Form With {
                 .Text = "Hướng chuẩn Baseline",
-                .ClientSize = New Size(420, 525),
+                .ClientSize = New Size(460, 525),
                 .StartPosition = FormStartPosition.CenterScreen,
                 .FormBorderStyle = FormBorderStyle.FixedDialog,
                 .MaximizeBox = False,

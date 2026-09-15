@@ -46,7 +46,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
             Using form As New Form()
                 form.Text = "Auto dim"
-                form.Width = 480
+                form.Width = 530
                 form.Height = 600
                 form.StartPosition = FormStartPosition.CenterScreen
                 form.FormBorderStyle = FormBorderStyle.FixedDialog
@@ -55,7 +55,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                 Dim title As New Label() With {
                     .Text = "Auto dim Liner - Hole", .Left = 20, .Top = 15,
-                    .Width = 425, .Height = 28
+                    .Width = 470, .Height = 28
                 }
                 form.Controls.Add(title)
 
@@ -76,7 +76,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 '    AddMenuButton(form, "Dim lỗ Base Dimline về cạnh", 505, 14)
 
                 Dim cancelButton As New Button() With {
-                    .Text = "HỦY", .Left = 20, .Top = 510, .Width = 425, .Height = 30
+                    .Text = "HỦY", .Left = 20, .Top = 510, .Width = 470, .Height = 30
                 }
                 AddHandler cancelButton.Click, Sub() form.Close()
                 form.Controls.Add(cancelButton)
@@ -90,7 +90,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
         Private Sub AddMenuButton(ByVal form As Form, ByVal text As String, ByVal top As Integer, ByVal value As Integer)
             Dim button As New Button() With {
-                .Text = text, .Left = 20, .Top = top, .Width = 425, .Height = 30
+                .Text = text, .Left = 20, .Top = top, .Width = 470, .Height = 30
             }
             AddHandler button.Click, Sub()
                                          form.Tag = value

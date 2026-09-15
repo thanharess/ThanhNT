@@ -10,12 +10,11 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
     Public Module Draw_dim_chain_line_a
 
         Private Const TOL As Double = 0.03
-        Private Const CHAIN_GAP As Double = 3.2    ' khoảng cách chain dim
-        Private Const TOTAL_GAP As Double = 12.0   ' khoảng cách dim tổng (xa hơn)
+        Private Const CHAIN_GAP As Double = 3.2
+        Private Const TOTAL_GAP As Double = 12.0
 
         '=============================================================
         Public Sub OnExecute(ByVal Context As NameValueMap)
-
             Dim app As Inventor.Application = g_inventorApplication
 
             Try
@@ -35,6 +34,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 Do
                     Dim oSS As SelectSet = oDrawDoc.SelectSet
                     oSS.Clear()
+
                     Dim oView As DrawingView = Nothing
                     Try
                         oView = CType(app.CommandManager.Pick(
@@ -43,6 +43,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     Catch
                         Exit Do
                     End Try
+
                     If oView Is Nothing Then Exit Do
                     If Not selectedViews.Contains(oView) Then selectedViews.Add(oView)
                 Loop
@@ -61,7 +62,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 Dim nFail As Integer = 0
 
                 For Each oView As DrawingView In selectedViews
-
                     '===== 1. LẤY CẠNH, GỘP TRÙNG =====
                     Dim xs As New List(Of Double)
                     Dim ys As New List(Of Double)
@@ -90,14 +90,17 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                 Dim xv As Double = (p1.X + p2.X) / 2.0
                                 If p1.X < minX Then minX = p1.X
                                 If p1.X > maxX Then maxX = p1.X
+
                                 If Not HasNear(xs, xv) Then
                                     xs.Add(xv)
                                     xCurve(xv) = oCurve
                                 End If
+
                             ElseIf dy < TOL Then
                                 Dim yv As Double = (p1.Y + p2.Y) / 2.0
                                 If p1.Y < minY Then minY = p1.Y
                                 If p1.Y > maxY Then maxY = p1.Y
+
                                 If Not HasNear(ys, yv) Then
                                     ys.Add(yv)
                                     yCurve(yv) = oCurve
@@ -113,10 +116,8 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     ys.Sort()
 
                     '===== 2. VỊ TRÍ DIM LINE =====
-                    ' Chain ở gần, Tổng ở xa hơn
                     Dim chainY As Double = If(chainTop, maxY + CHAIN_GAP, minY - CHAIN_GAP)
                     Dim totalY As Double = If(chainTop, maxY + TOTAL_GAP, minY - TOTAL_GAP)
-
                     Dim chainX As Double = If(chainLeft, minX - CHAIN_GAP, maxX + CHAIN_GAP)
                     Dim totalX As Double = If(chainLeft, minX - TOTAL_GAP, maxX + TOTAL_GAP)
 
@@ -142,7 +143,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                             End Try
                         Next
 
-                        '----- DIM TỔNG NGANG (ngoài cùng) -----
                         If addTotal Then
                             Try
                                 Dim placement As Point2d =
@@ -182,7 +182,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                             End Try
                         Next
 
-                        '----- DIM TỔNG DỌC (ngoài cùng) -----
                         If addTotal Then
                             Try
                                 Dim placement As Point2d =
@@ -199,20 +198,22 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                             End Try
                         End If
                     End If
-
                 Next
 
-                '===== ARRANGE =====
+                '===== ARRANGE — CHỈ DIM THUỘC VIEW ĐÃ CHỌN =====
                 Try
                     Dim oDims As DrawingDimensions = oSheet.DrawingDimensions
                     Dim col As ObjectCollection = app.TransientObjects.CreateObjectCollection
+
                     For Each d As DrawingDimension In oDims
                         Try
+                            If Not IsDimInAnyView(d, selectedViews) Then Continue For
                             d.CenterText()
                             col.Add(d)
                         Catch
                         End Try
                     Next
+
                     If col.Count > 1 Then oDims.Arrange(col)
                 Catch
                 End Try
@@ -232,7 +233,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                 "Chain Line cạnh",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
-
         End Sub
 
         '=============================================================
@@ -245,10 +245,135 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
         End Function
 
         '=============================================================
-        ' FORM CHỌN HƯỚNG CHAIN  — dùng ShowDialog() để chắc chắn mở
+        ' LỌC DIM THEO VIEW ĐÃ CHỌN (Inventor 2020)
         '=============================================================
-        '=============================================================
-        ' FORM CHỌN HƯỚNG CHAIN  — style giống form baseline
+        Private Function IsDimInAnyView(ByVal oDim As DrawingDimension,
+                                         ByVal views As List(Of DrawingView)) As Boolean
+
+            Try
+                Dim linDim As LinearGeneralDimension = TryCast(oDim, LinearGeneralDimension)
+                If linDim IsNot Nothing Then
+                    If CheckIntentBelongsToView(linDim.IntentOne, views) Then Return True
+                    If CheckIntentBelongsToView(linDim.IntentTwo, views) Then Return True
+                End If
+            Catch
+            End Try
+
+            Try
+                Dim ent As Object = Nothing
+                Try
+                    ent = oDim.AttachedEntity
+                Catch
+                End Try
+
+                If ent IsNot Nothing Then
+                    Dim parentView As DrawingView = TryCast(GetParentView(ent), DrawingView)
+                    If parentView IsNot Nothing Then
+                        For Each v As DrawingView In views
+                            If v Is parentView Then Return True
+                        Next
+                    End If
+                End If
+            Catch
+            End Try
+
+            Try
+                Dim tp As Point2d = Nothing
+                Try
+                    tp = oDim.Text.Origin
+                Catch
+                    Try
+                        tp = oDim.Text.Position
+                    Catch
+                        Return False
+                    End Try
+                End Try
+
+                If tp Is Nothing Then Return False
+
+                Const boxTol As Double = 0.5
+
+                For Each v As DrawingView In views
+                    Try
+                        Dim cx As Double = v.Position.X
+                        Dim cy As Double = v.Position.Y
+                        Dim hw As Double = v.Width / 2.0
+                        Dim hh As Double = v.Height / 2.0
+
+                        Dim vL As Double = cx - hw
+                        Dim vR As Double = cx + hw
+                        Dim vB As Double = cy - hh
+                        Dim vT As Double = cy + hh
+
+                        If tp.X >= (vL - boxTol) AndAlso tp.X <= (vR + boxTol) AndAlso
+                           tp.Y >= (vB - boxTol) AndAlso tp.Y <= (vT + boxTol) Then
+                            Return True
+                        End If
+                    Catch
+                    End Try
+                Next
+            Catch
+            End Try
+
+            Return False
+        End Function
+
+        Private Function CheckIntentBelongsToView(ByVal intent As Object,
+                                                   ByVal views As List(Of DrawingView)) As Boolean
+            If intent Is Nothing Then Return False
+
+            Try
+                Dim gi As GeometryIntent = TryCast(intent, GeometryIntent)
+                If gi Is Nothing Then Return False
+
+                Dim geom As Object = Nothing
+                Try
+                    geom = gi.Geometry
+                Catch
+                    Return False
+                End Try
+
+                If geom Is Nothing Then Return False
+
+                Dim parentView As DrawingView = TryCast(GetParentView(geom), DrawingView)
+                If parentView Is Nothing Then Return False
+
+                For Each v As DrawingView In views
+                    If v Is parentView Then Return True
+                Next
+            Catch
+            End Try
+
+            Return False
+        End Function
+
+        Private Function GetParentView(ByVal obj As Object) As DrawingView
+            If obj Is Nothing Then Return Nothing
+
+            Try
+                Dim p As Object = Nothing
+                Try
+                    p = obj.Parent
+                Catch
+                End Try
+
+                Dim dv As DrawingView = TryCast(p, DrawingView)
+                If dv IsNot Nothing Then Return dv
+
+                Try
+                    If p IsNot Nothing Then
+                        Dim p2 As Object = p.Parent
+                        dv = TryCast(p2, DrawingView)
+                        If dv IsNot Nothing Then Return dv
+                    End If
+                Catch
+                End Try
+            Catch
+            End Try
+
+            Return Nothing
+        End Function
+
         '=============================================================
         Private Function ShowChainForm(ByRef chainTop As Boolean,
                                        ByRef chainLeft As Boolean,

@@ -15,7 +15,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
         '=============================================================
         Public Sub OnExecute(ByVal Context As NameValueMap)
-
             Dim app As Inventor.Application = g_inventorApplication
 
             Try
@@ -35,6 +34,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 Do
                     Dim oSS As SelectSet = oDrawDoc.SelectSet
                     oSS.Clear()
+
                     Dim oView As DrawingView = Nothing
                     Try
                         oView = CType(app.CommandManager.Pick(
@@ -43,6 +43,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     Catch
                         Exit Do
                     End Try
+
                     If oView Is Nothing Then Exit Do
                     If Not selectedViews.Contains(oView) Then selectedViews.Add(oView)
                 Loop
@@ -62,11 +63,9 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 Dim nFail As Integer = 0
 
                 For Each oView As DrawingView In selectedViews
-
                     '===== 1. THU THẬP CẠNH + LỖ =====
-                    Dim xAnchors As New List(Of AnchorInfo)   ' sắp theo X
-                    Dim yAnchors As New List(Of AnchorInfo)   ' sắp theo Y
-                    Dim allAnchors As New List(Of AnchorInfo) ' tất cả (để tìm min/max + dim tổng)
+                    Dim xAnchors As New List(Of AnchorInfo)
+                    Dim yAnchors As New List(Of AnchorInfo)
 
                     Dim minX As Double = Double.MaxValue
                     Dim maxX As Double = Double.MinValue
@@ -75,7 +74,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                     For Each oCurve As DrawingCurve In oView.DrawingCurves
                         Try
-                            '---------- CẠNH ĐỨNG / NGANG ----------
                             If oCurve.CurveType = CurveTypeEnum.kLineCurve OrElse
                                oCurve.CurveType = CurveTypeEnum.kLineSegmentCurve Then
 
@@ -88,10 +86,10 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                 If dx < TOL AndAlso dy < TOL Then Continue For
 
                                 If dx < TOL Then
-                                    ' cạnh đứng → X
                                     Dim xv As Double = (p1.X + p2.X) / 2.0
                                     If p1.X < minX Then minX = p1.X
                                     If p1.X > maxX Then maxX = p1.X
+
                                     If Not HasNearAnchor(xAnchors, xv) Then
                                         Dim a As New AnchorInfo
                                         a.Type = AnchorType.Edge
@@ -101,10 +99,10 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                     End If
 
                                 ElseIf dy < TOL Then
-                                    ' cạnh ngang → Y
                                     Dim yv As Double = (p1.Y + p2.Y) / 2.0
                                     If p1.Y < minY Then minY = p1.Y
                                     If p1.Y > maxY Then maxY = p1.Y
+
                                     If Not HasNearAnchor(yAnchors, yv) Then
                                         Dim a As New AnchorInfo
                                         a.Type = AnchorType.Edge
@@ -114,20 +112,17 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                     End If
                                 End If
 
-                                '---------- LỖ TRÒN ----------
                             ElseIf includeHoles AndAlso
                                    oCurve.CurveType = CurveTypeEnum.kCircleCurve Then
 
                                 Dim c As Point2d = oCurve.CenterPoint
                                 If c Is Nothing Then Continue For
 
-                                ' cập nhật min/max
                                 If c.X < minX Then minX = c.X
                                 If c.X > maxX Then maxX = c.X
                                 If c.Y < minY Then minY = c.Y
                                 If c.Y > maxY Then maxY = c.Y
 
-                                ' thêm vào list X (nếu chưa trùng)
                                 If Not HasNearAnchor(xAnchors, c.X) Then
                                     Dim ax As New AnchorInfo
                                     ax.Type = AnchorType.Hole
@@ -137,7 +132,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                     xAnchors.Add(ax)
                                 End If
 
-                                ' thêm vào list Y (nếu chưa trùng)
                                 If Not HasNearAnchor(yAnchors, c.Y) Then
                                     Dim ay As New AnchorInfo
                                     ay.Type = AnchorType.Hole
@@ -147,7 +141,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                     yAnchors.Add(ay)
                                 End If
                             End If
-
                         Catch
                         End Try
                     Next
@@ -166,7 +159,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                     '===== 4. CHAIN DIM NGANG =====
                     If xAnchors.Count >= 2 Then
-
                         For i As Integer = 0 To xAnchors.Count - 2
                             Dim a1 As AnchorInfo = xAnchors(i)
                             Dim a2 As AnchorInfo = xAnchors(i + 1)
@@ -187,7 +179,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                             End Try
                         Next
 
-                        '----- DIM TỔNG NGANG -----
                         If addTotal Then
                             Try
                                 Dim aFirst As AnchorInfo = xAnchors.First()
@@ -209,7 +200,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                     '===== 5. CHAIN DIM DỌC =====
                     If yAnchors.Count >= 2 Then
-
                         For i As Integer = 0 To yAnchors.Count - 2
                             Dim a1 As AnchorInfo = yAnchors(i)
                             Dim a2 As AnchorInfo = yAnchors(i + 1)
@@ -230,7 +220,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                             End Try
                         Next
 
-                        '----- DIM TỔNG DỌC -----
                         If addTotal Then
                             Try
                                 Dim aFirst As AnchorInfo = yAnchors.First()
@@ -249,20 +238,22 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                             End Try
                         End If
                     End If
-
                 Next
 
-                '===== ARRANGE =====
+                '===== ARRANGE — CHỈ DIM THUỘC VIEW ĐÃ CHỌN =====
                 Try
                     Dim oDims As DrawingDimensions = oSheet.DrawingDimensions
                     Dim col As ObjectCollection = app.TransientObjects.CreateObjectCollection
+
                     For Each d As DrawingDimension In oDims
                         Try
+                            If Not IsDimInAnyView(d, selectedViews) Then Continue For
                             d.CenterText()
                             col.Add(d)
                         Catch
                         End Try
                     Next
+
                     If col.Count > 1 Then oDims.Arrange(col)
                 Catch
                 End Try
@@ -282,11 +273,8 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                 "Chain Line cạnh + lỗ",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
-
         End Sub
 
-        '=============================================================
-        ' TẠO GeometryIntent phù hợp với loại anchor (Edge vs Hole)
         '=============================================================
         Private Function MakeIntent(ByVal oSheet As Sheet,
                                     ByVal a As AnchorInfo) As GeometryIntent
@@ -300,8 +288,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
         End Function
 
         '=============================================================
-        ' Kiểm tra toạ độ gần value trong list anchor
-        '=============================================================
         Private Function HasNearAnchor(ByVal list As List(Of AnchorInfo),
                                        ByVal value As Double) As Boolean
             For Each a As AnchorInfo In list
@@ -311,7 +297,138 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
         End Function
 
         '=============================================================
-        ' FORM — style giống baseline
+        ' LỌC DIM THEO VIEW ĐÃ CHỌN (Inventor 2020)
+        '=============================================================
+        Private Function IsDimInAnyView(ByVal oDim As DrawingDimension,
+                                         ByVal views As List(Of DrawingView)) As Boolean
+
+            ' 1. IntentOne / IntentTwo
+            Try
+                Dim linDim As LinearGeneralDimension = TryCast(oDim, LinearGeneralDimension)
+                If linDim IsNot Nothing Then
+                    If CheckIntentBelongsToView(linDim.IntentOne, views) Then Return True
+                    If CheckIntentBelongsToView(linDim.IntentTwo, views) Then Return True
+                End If
+            Catch
+            End Try
+
+            ' 2. AttachedEntity
+            Try
+                Dim ent As Object = Nothing
+                Try
+                    ent = oDim.AttachedEntity
+                Catch
+                End Try
+
+                If ent IsNot Nothing Then
+                    Dim parentView As DrawingView = TryCast(GetParentView(ent), DrawingView)
+                    If parentView IsNot Nothing Then
+                        For Each v As DrawingView In views
+                            If v Is parentView Then Return True
+                        Next
+                    End If
+                End If
+            Catch
+            End Try
+
+            ' 3. Bounding box text
+            Try
+                Dim tp As Point2d = Nothing
+                Try
+                    tp = oDim.Text.Origin
+                Catch
+                    Try
+                        tp = oDim.Text.Position
+                    Catch
+                        Return False
+                    End Try
+                End Try
+
+                If tp Is Nothing Then Return False
+
+                Const boxTol As Double = 0.5
+
+                For Each v As DrawingView In views
+                    Try
+                        Dim cx As Double = v.Position.X
+                        Dim cy As Double = v.Position.Y
+                        Dim hw As Double = v.Width / 2.0
+                        Dim hh As Double = v.Height / 2.0
+
+                        Dim vL As Double = cx - hw
+                        Dim vR As Double = cx + hw
+                        Dim vB As Double = cy - hh
+                        Dim vT As Double = cy + hh
+
+                        If tp.X >= (vL - boxTol) AndAlso tp.X <= (vR + boxTol) AndAlso
+                           tp.Y >= (vB - boxTol) AndAlso tp.Y <= (vT + boxTol) Then
+                            Return True
+                        End If
+                    Catch
+                    End Try
+                Next
+            Catch
+            End Try
+
+            Return False
+        End Function
+
+        Private Function CheckIntentBelongsToView(ByVal intent As Object,
+                                                   ByVal views As List(Of DrawingView)) As Boolean
+            If intent Is Nothing Then Return False
+
+            Try
+                Dim gi As GeometryIntent = TryCast(intent, GeometryIntent)
+                If gi Is Nothing Then Return False
+
+                Dim geom As Object = Nothing
+                Try
+                    geom = gi.Geometry
+                Catch
+                    Return False
+                End Try
+
+                If geom Is Nothing Then Return False
+
+                Dim parentView As DrawingView = TryCast(GetParentView(geom), DrawingView)
+                If parentView Is Nothing Then Return False
+
+                For Each v As DrawingView In views
+                    If v Is parentView Then Return True
+                Next
+            Catch
+            End Try
+
+            Return False
+        End Function
+
+        Private Function GetParentView(ByVal obj As Object) As DrawingView
+            If obj Is Nothing Then Return Nothing
+
+            Try
+                Dim p As Object = Nothing
+                Try
+                    p = obj.Parent
+                Catch
+                End Try
+
+                Dim dv As DrawingView = TryCast(p, DrawingView)
+                If dv IsNot Nothing Then Return dv
+
+                Try
+                    If p IsNot Nothing Then
+                        Dim p2 As Object = p.Parent
+                        dv = TryCast(p2, DrawingView)
+                        If dv IsNot Nothing Then Return dv
+                    End If
+                Catch
+                End Try
+            Catch
+            End Try
+
+            Return Nothing
+        End Function
+
         '=============================================================
         Private Function ShowChainForm(ByRef chainTop As Boolean,
                                        ByRef chainLeft As Boolean,
@@ -421,8 +538,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
         End Function
 
         '=============================================================
-        ' ANCHOR INFO — gộp cạnh & lỗ
-        '=============================================================
         Public Enum AnchorType
             Edge
             Hole
@@ -430,9 +545,9 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
         Public Class AnchorInfo
             Public Type As AnchorType
-            Public Coord As Double          ' X nếu nằm trong list X, Y nếu nằm trong list Y
+            Public Coord As Double
             Public Curve As DrawingCurve
-            Public Center As Point2d        ' chỉ dùng cho Hole
+            Public Center As Point2d
         End Class
 
     End Module

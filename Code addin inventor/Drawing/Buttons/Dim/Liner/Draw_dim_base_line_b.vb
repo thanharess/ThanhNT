@@ -15,10 +15,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
         Private Const TOTAL_GAP As Double = 5.5
 
         '=============================================================
-        ' ENTRY POINT
-        '=============================================================
         Public Sub OnExecute(ByVal Context As NameValueMap)
-
             Dim app As Inventor.Application = g_inventorApplication
 
             Try
@@ -37,7 +34,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 ' CHỌN NHIỀU VIEW
                 '=====================================================
                 Dim selectedViews As New List(Of DrawingView)
-
                 Do
                     Dim oSS As SelectSet = oDrawDoc.SelectSet
                     oSS.Clear()
@@ -59,7 +55,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     For Each v As DrawingView In selectedViews
                         If v Is oView Then already = True : Exit For
                     Next
-
                     If Not already Then selectedViews.Add(oView)
                 Loop
 
@@ -83,7 +78,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                 Dim countOK As Integer = 0
                 Dim countFail As Integer = 0
-
                 Dim dimmedCurves As List(Of DrawingCurve) = CollectDimmedCurves(oSheet)
 
                 '=====================================================
@@ -91,9 +85,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 '=====================================================
                 For Each oView As DrawingView In selectedViews
 
-                    '-------------------------------------------------
-                    ' 1. LẤY TẤT CẢ CẠNH + LỖ
-                    '-------------------------------------------------
                     Dim allEdges As New List(Of EdgeInfo)
 
                     For Each oCurve As DrawingCurve In oView.DrawingCurves
@@ -166,13 +157,12 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     allEdges = uniqueEdges
 
                     '-------------------------------------------------
-                    ' 2. TÌM 4 CẠNH NGOÀI  (chỉ dùng cạnh, bỏ qua lỗ)
+                    ' 2. TÌM 4 CẠNH NGOÀI
                     '-------------------------------------------------
                     Dim leftEdge As DrawingCurve = Nothing
                     Dim rightEdge As DrawingCurve = Nothing
                     Dim topEdge As DrawingCurve = Nothing
                     Dim bottomEdge As DrawingCurve = Nothing
-
                     Dim minX As Double = Double.MaxValue
                     Dim maxX As Double = Double.MinValue
                     Dim minY As Double = Double.MaxValue
@@ -257,7 +247,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     End If
 
                     '-------------------------------------------------
-                    ' 6. DIM CẠNH ĐỨNG + LỖ (X) — TỪ BASE NGANG
+                    ' 6. DIM CẠNH ĐỨNG + LỖ (X)
                     '-------------------------------------------------
                     Dim xTargets As List(Of EdgeInfo) =
                         allEdges.Where(Function(e) e.IsVertical OrElse e.IsHole).ToList()
@@ -295,7 +285,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     Next
 
                     '-------------------------------------------------
-                    ' 7. DIM CẠNH NGANG + LỖ (Y) — TỪ BASE DỌC
+                    ' 7. DIM CẠNH NGANG + LỖ (Y)
                     '-------------------------------------------------
                     Dim yTargets As List(Of EdgeInfo) =
                         allEdges.Where(Function(e) e.IsHorizontal OrElse e.IsHole).ToList()
@@ -336,7 +326,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     ' 8. QUÉT LẠI
                     '-------------------------------------------------
                     For Each e As EdgeInfo In allEdges
-                        ' X-axis
                         If (e.IsVertical OrElse e.IsHole) AndAlso
                            Not ValueExists(usedX, e.X) AndAlso
                            Not CurveHasDim(dimmedCurves, e.Curve) AndAlso
@@ -345,10 +334,12 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                 Dim baseIntent As GeometryIntent = oSheet.CreateGeometryIntent(hBaseEdge)
                                 Dim edgeIntent As GeometryIntent = MakeIntent(oSheet, e)
                                 Dim placement As Point2d = tg.CreatePoint2d(e.X, hDimLineY - 1.5)
+
                                 Dim newDim As GeneralDimension =
                                     oSheet.DrawingDimensions.GeneralDimensions.AddLinear(
                                         placement, baseIntent, edgeIntent,
                                         DimensionTypeEnum.kHorizontalDimensionType)
+
                                 If newDim IsNot Nothing Then
                                     usedX.Add(e.X)
                                     e.Dimmed = True
@@ -360,7 +351,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                             End Try
                         End If
 
-                        ' Y-axis
                         If (e.IsHorizontal OrElse e.IsHole) AndAlso
                            Not ValueExists(usedY, e.Y) AndAlso
                            Not CurveHasDim(dimmedCurves, e.Curve) AndAlso
@@ -369,10 +359,12 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                 Dim baseIntent As GeometryIntent = oSheet.CreateGeometryIntent(vBaseEdge)
                                 Dim edgeIntent As GeometryIntent = MakeIntent(oSheet, e)
                                 Dim placement As Point2d = tg.CreatePoint2d(vDimLineX - 1.5, e.Y)
+
                                 Dim newDim As GeneralDimension =
                                     oSheet.DrawingDimensions.GeneralDimensions.AddLinear(
                                         placement, baseIntent, edgeIntent,
                                         DimensionTypeEnum.kVerticalDimensionType)
+
                                 If newDim IsNot Nothing Then
                                     usedY.Add(e.Y)
                                     e.Dimmed = True
@@ -384,11 +376,11 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                             End Try
                         End If
                     Next
+                Next
 
-                Next ' End For Each selectedViews
-
+                '===== ARRANGE — CHỈ DIM THUỘC VIEW ĐÃ CHỌN =====
                 Try
-                    ArrangeDimensions(oSheet, app)
+                    ArrangeDimensions(oSheet, app, selectedViews)
                 Catch
                 End Try
 
@@ -407,11 +399,8 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                 "Dim Baseline cạnh + lỗ",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
-
         End Sub
 
-        '=============================================================
-        ' TẠO GeometryIntent phù hợp
         '=============================================================
         Private Function MakeIntent(ByVal oSheet As Sheet,
                                     ByVal e As EdgeInfo) As GeometryIntent
@@ -423,8 +412,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
             End If
         End Function
 
-        '=============================================================
-        ' KIỂM TRA CẠNH CÓ THUỘC VIEW
         '=============================================================
         Private Function EdgeInView(ByVal edge As DrawingCurve,
                                     ByVal view As DrawingView) As Boolean
@@ -438,8 +425,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
             Return False
         End Function
 
-        '=============================================================
-        ' FORM CHỌN HƯỚNG + PICK CẠNH BASE + TÙY CHỌN LỖ
         '=============================================================
         Private Function ShowDirectionDialog(
             ByRef hFromRight As Boolean,
@@ -537,12 +522,10 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
             btnCancel.SetBounds(295, 305, 85, 28)
             frm.Controls.Add(btnCancel)
 
-            '----------- Handlers -----------
             AddHandler btnOK.Click, Sub()
                                         okClicked = True
                                         frm.Close()
                                     End Sub
-
             AddHandler btnCancel.Click, Sub()
                                             okClicked = False
                                             frm.Close()
@@ -602,7 +585,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                            frm.Activate()
                                        End Sub
 
-            '----------- MODELESS -----------
             frm.Show()
             Do While frm.Visible
                 System.Windows.Forms.Application.DoEvents()
@@ -620,9 +602,11 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
         End Function
 
         '=============================================================
-        ' ARRANGE
+        ' ARRANGE — CHỈ DIM THUỘC VIEW ĐÃ CHỌN
         '=============================================================
-        Private Sub ArrangeDimensions(ByVal oSheet As Sheet, ByVal app As Inventor.Application)
+        Private Sub ArrangeDimensions(ByVal oSheet As Sheet,
+                                      ByVal app As Inventor.Application,
+                                      ByVal selectedViews As List(Of DrawingView))
             Try
                 Dim oDims As DrawingDimensions = oSheet.DrawingDimensions
                 If oDims Is Nothing OrElse oDims.Count = 0 Then Exit Sub
@@ -631,6 +615,8 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                 For Each oDim As DrawingDimension In oDims
                     Try
+                        If Not IsDimInAnyView(oDim, selectedViews) Then Continue For
+
                         If TypeOf oDim Is LinearGeneralDimension OrElse
                            TypeOf oDim Is AngularGeneralDimension Then
                             Try
@@ -649,6 +635,131 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
         End Sub
 
         '=============================================================
+        ' LỌC DIM THEO VIEW ĐÃ CHỌN (Inventor 2020)
+        '=============================================================
+        Private Function IsDimInAnyView(ByVal oDim As DrawingDimension,
+                                         ByVal views As List(Of DrawingView)) As Boolean
+            Try
+                Dim linDim As LinearGeneralDimension = TryCast(oDim, LinearGeneralDimension)
+                If linDim IsNot Nothing Then
+                    If CheckIntentBelongsToView(linDim.IntentOne, views) Then Return True
+                    If CheckIntentBelongsToView(linDim.IntentTwo, views) Then Return True
+                End If
+            Catch
+            End Try
+
+            Try
+                Dim ent As Object = Nothing
+                Try
+                    ent = oDim.AttachedEntity
+                Catch
+                End Try
+
+                If ent IsNot Nothing Then
+                    Dim parentView As DrawingView = TryCast(GetParentView(ent), DrawingView)
+                    If parentView IsNot Nothing Then
+                        For Each v As DrawingView In views
+                            If v Is parentView Then Return True
+                        Next
+                    End If
+                End If
+            Catch
+            End Try
+
+            Try
+                Dim tp As Point2d = Nothing
+                Try
+                    tp = oDim.Text.Origin
+                Catch
+                    Try
+                        tp = oDim.Text.Position
+                    Catch
+                        Return False
+                    End Try
+                End Try
+
+                If tp Is Nothing Then Return False
+
+                Const boxTol As Double = 0.5
+
+                For Each v As DrawingView In views
+                    Try
+                        Dim cx As Double = v.Position.X
+                        Dim cy As Double = v.Position.Y
+                        Dim hw As Double = v.Width / 2.0
+                        Dim hh As Double = v.Height / 2.0
+
+                        Dim vL As Double = cx - hw
+                        Dim vR As Double = cx + hw
+                        Dim vB As Double = cy - hh
+                        Dim vT As Double = cy + hh
+
+                        If tp.X >= (vL - boxTol) AndAlso tp.X <= (vR + boxTol) AndAlso
+                           tp.Y >= (vB - boxTol) AndAlso tp.Y <= (vT + boxTol) Then
+                            Return True
+                        End If
+                    Catch
+                    End Try
+                Next
+            Catch
+            End Try
+
+            Return False
+        End Function
+
+        Private Function CheckIntentBelongsToView(ByVal intent As Object,
+                                                   ByVal views As List(Of DrawingView)) As Boolean
+            If intent Is Nothing Then Return False
+            Try
+                Dim gi As GeometryIntent = TryCast(intent, GeometryIntent)
+                If gi Is Nothing Then Return False
+
+                Dim geom As Object = Nothing
+                Try
+                    geom = gi.Geometry
+                Catch
+                    Return False
+                End Try
+
+                If geom Is Nothing Then Return False
+
+                Dim parentView As DrawingView = TryCast(GetParentView(geom), DrawingView)
+                If parentView Is Nothing Then Return False
+
+                For Each v As DrawingView In views
+                    If v Is parentView Then Return True
+                Next
+            Catch
+            End Try
+            Return False
+        End Function
+
+        Private Function GetParentView(ByVal obj As Object) As DrawingView
+            If obj Is Nothing Then Return Nothing
+            Try
+                Dim p As Object = Nothing
+                Try
+                    p = obj.Parent
+                Catch
+                End Try
+
+                Dim dv As DrawingView = TryCast(p, DrawingView)
+                If dv IsNot Nothing Then Return dv
+
+                Try
+                    If p IsNot Nothing Then
+                        Dim p2 As Object = p.Parent
+                        dv = TryCast(p2, DrawingView)
+                        If dv IsNot Nothing Then Return dv
+                    End If
+                Catch
+                End Try
+            Catch
+            End Try
+            Return Nothing
+        End Function
+
+        '=============================================================
         Private Function ValueExists(ByVal list As List(Of Double),
                                      ByVal value As Double) As Boolean
             If list Is Nothing Then Return False
@@ -658,9 +769,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
             Return False
         End Function
 
-        '=============================================================
-        ' So sánh 2 cạnh theo hình học
-        '=============================================================
         Private Function SameSegment(ByVal c1 As DrawingCurve,
                                      ByVal c2 As DrawingCurve) As Boolean
             If c1 Is Nothing OrElse c2 Is Nothing Then Return False
@@ -685,9 +793,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
             Return False
         End Function
 
-        '=============================================================
-        ' So sánh 2 lỗ theo tâm
-        '=============================================================
         Private Function SameCircle(ByVal c1 As DrawingCurve,
                                     ByVal c2 As DrawingCurve) As Boolean
             If c1 Is Nothing OrElse c2 Is Nothing Then Return False
@@ -702,9 +807,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
             Return False
         End Function
 
-        '=============================================================
-        ' THU THẬP CURVE ĐÃ CÓ DIM
-        '=============================================================
         Private Function CollectDimmedCurves(ByVal oSheet As Sheet) As List(Of DrawingCurve)
             Dim result As New List(Of DrawingCurve)
             Try
@@ -712,7 +814,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     Try
                         Dim atts As ObjectCollection = oDim.AttachedEntities
                         If atts Is Nothing Then Continue For
-
                         For i As Integer = 1 To atts.Count
                             Dim ent As Object = atts.Item(i)
                             If ent Is Nothing Then Continue For
@@ -742,9 +843,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
             Return result
         End Function
 
-        '=============================================================
-        ' KIỂM TRA CURVE ĐÃ CÓ DIM
-        '=============================================================
         Private Function CurveHasDim(ByVal dimmed As List(Of DrawingCurve),
                                      ByVal c As DrawingCurve) As Boolean
             If dimmed Is Nothing OrElse c Is Nothing Then Return False
@@ -756,9 +854,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
             Return False
         End Function
 
-        '=============================================================
-        ' EDGE INFO
-        '=============================================================
         Public Class EdgeInfo
             Public Curve As DrawingCurve
             Public IsVertical As Boolean
@@ -769,11 +864,9 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
             Public Dimmed As Boolean
         End Class
 
-        '=============================================================
-        ' HOLDER cho lambda
-        '=============================================================
         Public Class EdgePickHolder
             Public Edge As DrawingCurve
         End Class
+
     End Module
 End Namespace
