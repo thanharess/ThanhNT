@@ -355,10 +355,10 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 Next ' End selectedViews
 
                 '=====================================================
-                ' AUTO ARRANGE DIMENSIONS (ĐÚNG API)
+                ' AUTO ARRANGE DIMENSIONS — CHỈ DIM THUỘC VIEW ĐÃ CHỌN
                 '=====================================================
                 Try
-                    ArrangeDimensions(oSheet, app)
+                    ArrangeDimensions(oSheet, app, selectedViews)
                 Catch
                 End Try
 
@@ -374,7 +374,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     "• Dùng Baseline Dimension" & vbCrLf &
                     "• Ngang: Base = Cạnh Trái" & vbCrLf &
                     "• Dọc: Base = Cạnh Trên" & vbCrLf &
-                    "• Auto Arrange Dimension",
+                    "• Auto Arrange Dimension (chỉ view đã chọn)",
                     "Dim Baseline lỗ",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information)
@@ -390,19 +390,22 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
         End Sub
 
         '=============================================================
-        ' AUTO ARRANGE - ĐÚNG API INVENTOR
+        ' ARRANGE — CHỈ DIM THUỘC VIEW ĐÃ CHỌN (giống Draw_2b)
         '=============================================================
-        Private Sub ArrangeDimensions(ByVal oSheet As Sheet, ByVal app As Inventor.Application)
-
+        Private Sub ArrangeDimensions(ByVal oSheet As Sheet,
+                                      ByVal app As Inventor.Application,
+                                      ByVal selectedViews As List(Of DrawingView))
             Try
                 Dim oDims As DrawingDimensions = oSheet.DrawingDimensions
                 If oDims Is Nothing OrElse oDims.Count = 0 Then Exit Sub
 
                 Dim oCol As ObjectCollection = app.TransientObjects.CreateObjectCollection
 
+                '----- Linear / Angular dim -----
                 For Each oDim As DrawingDimension In oDims
                     Try
-                        ' Linear + Angular
+                        If Not IsDimInAnyView(oDim, selectedViews) Then Continue For
+
                         If TypeOf oDim Is LinearGeneralDimension OrElse
                            TypeOf oDim Is AngularGeneralDimension Then
 
@@ -417,22 +420,212 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     End Try
                 Next
 
-                ' Baseline Dimension Set cũng đưa vào
+                '----- Baseline Dimension Set (chỉ set thuộc view đã chọn) -----
                 For Each bSet As BaselineDimensionSet In oDims.BaselineDimensionSets
                     Try
+                        If Not IsBaselineSetInAnyView(bSet, selectedViews) Then Continue For
+
+                        Try
+                            bSet.ArrangeText()
+                        Catch
+                        End Try
+
                         oCol.Add(bSet)
                     Catch
                     End Try
                 Next
 
                 If oCol.Count > 0 Then
-                    oDims.Arrange(oCol)          ' <-- Lệnh chính thức
+                    oDims.Arrange(oCol)
                 End If
 
             Catch
             End Try
-
         End Sub
+
+        '=============================================================
+        ' LỌC DIM THEO VIEW ĐÃ CHỌN
+        '=============================================================
+        Private Function IsDimInAnyView(ByVal oDim As DrawingDimension,
+                                         ByVal views As List(Of DrawingView)) As Boolean
+            Try
+                Dim linDim As LinearGeneralDimension = TryCast(oDim, LinearGeneralDimension)
+                If linDim IsNot Nothing Then
+                    If CheckIntentBelongsToView(linDim.IntentOne, views) Then Return True
+                    If CheckIntentBelongsToView(linDim.IntentTwo, views) Then Return True
+                End If
+            Catch
+            End Try
+
+            Try
+                Dim ent As Object = Nothing
+                Try
+                    ent = oDim.AttachedEntity
+                Catch
+                End Try
+
+                If ent IsNot Nothing Then
+                    Dim parentView As DrawingView = TryCast(GetParentView(ent), DrawingView)
+                    If parentView IsNot Nothing Then
+                        For Each v As DrawingView In views
+                            If v Is parentView Then Return True
+                        Next
+                    End If
+                End If
+            Catch
+            End Try
+
+            Try
+                Dim tp As Point2d = Nothing
+                Try
+                    tp = oDim.Text.Origin
+                Catch
+                    Try
+                        tp = oDim.Text.Position
+                    Catch
+                        Return False
+                    End Try
+                End Try
+
+                If tp Is Nothing Then Return False
+
+                Const boxTol As Double = 0.5
+
+                For Each v As DrawingView In views
+                    Try
+                        Dim cx As Double = v.Position.X
+                        Dim cy As Double = v.Position.Y
+                        Dim hw As Double = v.Width / 2.0
+                        Dim hh As Double = v.Height / 2.0
+
+                        Dim vL As Double = cx - hw
+                        Dim vR As Double = cx + hw
+                        Dim vB As Double = cy - hh
+                        Dim vT As Double = cy + hh
+
+                        If tp.X >= (vL - boxTol) AndAlso tp.X <= (vR + boxTol) AndAlso
+                           tp.Y >= (vB - boxTol) AndAlso tp.Y <= (vT + boxTol) Then
+                            Return True
+                        End If
+                    Catch
+                    End Try
+                Next
+            Catch
+            End Try
+
+            Return False
+        End Function
+
+        '=============================================================
+        ' LỌC BASELINE DIMENSION SET THEO VIEW ĐÃ CHỌN
+        '=============================================================
+        Private Function IsBaselineSetInAnyView(ByVal bSet As BaselineDimensionSet,
+                                                 ByVal views As List(Of DrawingView)) As Boolean
+            If bSet Is Nothing Then Return False
+
+            ' Cách 1: kiểm tra intent của các dim con trong baseline set
+            Try
+                Dim members As DrawingDimensions = bSet.Members
+                If members IsNot Nothing AndAlso members.Count > 0 Then
+                    For Each d As DrawingDimension In members
+                        If IsDimInAnyView(d, views) Then Return True
+                    Next
+                End If
+            Catch
+            End Try
+
+            ' Cách 2: fallback qua vị trí text của baseline set (nếu truy được)
+            Try
+                Dim tp As Point2d = Nothing
+                Try
+                    tp = bSet.Text.Origin
+                Catch
+                    Try
+                        tp = bSet.Text.Position
+                    Catch
+                        tp = Nothing
+                    End Try
+                End Try
+
+                If tp IsNot Nothing Then
+                    Const boxTol As Double = 0.5
+                    For Each v As DrawingView In views
+                        Try
+                            Dim cx As Double = v.Position.X
+                            Dim cy As Double = v.Position.Y
+                            Dim hw As Double = v.Width / 2.0
+                            Dim hh As Double = v.Height / 2.0
+
+                            Dim vL As Double = cx - hw
+                            Dim vR As Double = cx + hw
+                            Dim vB As Double = cy - hh
+                            Dim vT As Double = cy + hh
+
+                            If tp.X >= (vL - boxTol) AndAlso tp.X <= (vR + boxTol) AndAlso
+                               tp.Y >= (vB - boxTol) AndAlso tp.Y <= (vT + boxTol) Then
+                                Return True
+                            End If
+                        Catch
+                        End Try
+                    Next
+                End If
+            Catch
+            End Try
+
+            Return False
+        End Function
+
+        Private Function CheckIntentBelongsToView(ByVal intent As Object,
+                                                   ByVal views As List(Of DrawingView)) As Boolean
+            If intent Is Nothing Then Return False
+            Try
+                Dim gi As GeometryIntent = TryCast(intent, GeometryIntent)
+                If gi Is Nothing Then Return False
+
+                Dim geom As Object = Nothing
+                Try
+                    geom = gi.Geometry
+                Catch
+                    Return False
+                End Try
+
+                If geom Is Nothing Then Return False
+
+                Dim parentView As DrawingView = TryCast(GetParentView(geom), DrawingView)
+                If parentView Is Nothing Then Return False
+
+                For Each v As DrawingView In views
+                    If v Is parentView Then Return True
+                Next
+            Catch
+            End Try
+            Return False
+        End Function
+
+        Private Function GetParentView(ByVal obj As Object) As DrawingView
+            If obj Is Nothing Then Return Nothing
+            Try
+                Dim p As Object = Nothing
+                Try
+                    p = obj.Parent
+                Catch
+                End Try
+
+                Dim dv As DrawingView = TryCast(p, DrawingView)
+                If dv IsNot Nothing Then Return dv
+
+                Try
+                    If p IsNot Nothing Then
+                        Dim p2 As Object = p.Parent
+                        dv = TryCast(p2, DrawingView)
+                        If dv IsNot Nothing Then Return dv
+                    End If
+                Catch
+                End Try
+            Catch
+            End Try
+            Return Nothing
+        End Function
 
         '=============================================================
         ' TẠO BASELINE SET

@@ -9,13 +9,11 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
     Public Module Draw_2b
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
-
             Dim app As Inventor.Application = g_inventorApplication
 
             Try
                 If app.ActiveDocument Is Nothing OrElse
                    app.ActiveDocument.DocumentType <> DocumentTypeEnum.kDrawingDocumentObject Then
-
                     MessageBox.Show("Vui lòng mở file Drawing (.idw)!", "Lỗi",
                                     MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Exit Sub
@@ -34,16 +32,14 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 Const ARRAY_RADIUS As Double = 30.0
 
                 '=====================================================
-                ' CHỌN NHIỀU VIEW SAU KHI CHẠY CODE
+                ' CHỌN NHIỀU VIEW
                 '=====================================================
                 Dim selectedViews As New List(Of DrawingView)
-
                 Do
                     Dim oSS As SelectSet = oDrawDoc.SelectSet
                     oSS.Clear()
 
                     Dim oView As DrawingView = Nothing
-
                     Try
                         oView = CType(
                             app.CommandManager.Pick(
@@ -56,7 +52,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                     If oView Is Nothing Then Exit Do
 
-                    ' Tránh chọn trùng
                     Dim already As Boolean = False
                     For Each v As DrawingView In selectedViews
                         If v Is oView Then
@@ -64,11 +59,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                             Exit For
                         End If
                     Next
-
-                    If Not already Then
-                        selectedViews.Add(oView)
-                    End If
-
+                    If Not already Then selectedViews.Add(oView)
                 Loop
 
                 If selectedViews.Count = 0 Then
@@ -83,15 +74,12 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                     '===== 1. Lấy đường tròn + lọc ARRAY =====
                     Dim allHoles As New List(Of HoleInfo)
-
                     For Each oCurve As DrawingCurve In oView.DrawingCurves
                         Try
                             If oCurve.CurveType <> CurveTypeEnum.kCircleCurve Then Continue For
-
                             Dim c As Point2d = oCurve.CenterPoint
                             If c Is Nothing Then Continue For
 
-                            ' --- Kiểm tra Circular Pattern ---
                             Dim isArray As Boolean = False
                             Try
                                 Dim modelGeom As Object = oCurve.ModelGeometry
@@ -124,12 +112,10 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                 hi.Radius = 1.5
                             End Try
                             allHoles.Add(hi)
-
                         Catch
                         End Try
                     Next
 
-                    ' Lọc thêm bằng mật độ
                     Dim cleanHoles As New List(Of HoleInfo)
                     For Each h In allHoles
                         Dim nearby = allHoles.Where(Function(o) o IsNot h AndAlso
@@ -137,7 +123,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                         If nearby >= 3 Then Continue For
                         cleanHoles.Add(h)
                     Next
-
                     If cleanHoles.Count = 0 Then cleanHoles = allHoles
                     If cleanHoles.Count = 0 Then Continue For
 
@@ -146,7 +131,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     Dim rightEdge As DrawingCurve = Nothing
                     Dim topEdge As DrawingCurve = Nothing
                     Dim bottomEdge As DrawingCurve = Nothing
-
                     Dim minX As Double = Double.MaxValue
                     Dim maxX As Double = Double.MinValue
                     Dim maxY As Double = Double.MinValue
@@ -181,7 +165,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                     bottomEdge = oCurve
                                 End If
                             End If
-
                         Catch
                         End Try
                     Next
@@ -221,13 +204,11 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     End If
 
                     '=====================================================
-                    ' b1: Trái → Phải (phía trên) + đến mặt phải
+                    ' b1: Trái → Phải (phía trên)
                     '=====================================================
                     Dim topRow = cleanHoles.Where(Function(h) h.Y >= limitY).OrderBy(Function(h) h.X).ToList()
-
                     If topRow.Count > 0 AndAlso leftEdge IsNot Nothing Then
                         Dim prev = topRow.First()
-
                         If (prev.X - minX) > TOL Then
                             Try
                                 Dim tp = tg.CreatePoint2d((minX + prev.X) / 2, maxY + 3.2)
@@ -249,7 +230,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                 countZero += 1
                                 Continue For
                             End If
-
                             Try
                                 Dim tp = tg.CreatePoint2d((prev.X + h.X) / 2, maxY + 2.5)
                                 oSheet.DrawingDimensions.GeneralDimensions.AddLinear(
@@ -280,11 +260,10 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     End If
 
                     '=====================================================
-                    ' b2: Trên → Dưới (bên trái) + đến mặt dưới
+                    ' b2: Trên → Dưới (bên trái)
                     '=====================================================
                     Dim leftCol = cleanHoles.Where(Function(h) h.X <= limitX) _
                                             .OrderByDescending(Function(h) h.Y).ToList()
-
                     Dim uniqueLeft As New List(Of HoleInfo)
                     Dim lastY As Double = Double.MaxValue
                     For Each h In leftCol
@@ -295,7 +274,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                     If uniqueLeft.Count > 0 AndAlso topEdge IsNot Nothing Then
                         Dim prev = uniqueLeft.First()
-
                         If (maxY - prev.Y) > TOL Then
                             Try
                                 Dim tp = tg.CreatePoint2d(minX - 3.2, (maxY + prev.Y) / 2)
@@ -317,7 +295,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                 countZero += 1
                                 Continue For
                             End If
-
                             Try
                                 Dim tp = tg.CreatePoint2d(minX - 2.5, (prev.Y + h.Y) / 2)
                                 oSheet.DrawingDimensions.GeneralDimensions.AddLinear(
@@ -348,13 +325,11 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     End If
 
                     '=====================================================
-                    ' b3: Trái → Phải (phía dưới) + đến mặt phải
+                    ' b3: Trái → Phải (phía dưới)
                     '=====================================================
                     Dim botRow = cleanHoles.Where(Function(h) h.Y < limitY).OrderBy(Function(h) h.X).ToList()
-
                     If botRow.Count > 0 AndAlso leftEdge IsNot Nothing Then
                         Dim prev = botRow.First()
-
                         If (prev.X - minX) > TOL Then
                             Try
                                 Dim tp = tg.CreatePoint2d((minX + prev.X) / 2, minY - 3.2)
@@ -376,7 +351,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                 countZero += 1
                                 Continue For
                             End If
-
                             Try
                                 Dim tp = tg.CreatePoint2d((prev.X + h.X) / 2, minY - 2.5)
                                 oSheet.DrawingDimensions.GeneralDimensions.AddLinear(
@@ -407,14 +381,12 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     End If
 
                     '=====================================================
-                    ' b4: Trên → Dưới (bên phải) + đến mặt dưới
+                    ' b4: Trên → Dưới (bên phải)
                     '=====================================================
                     Dim rightCol = cleanHoles.Where(Function(h) h.X > limitX) _
                                              .OrderByDescending(Function(h) h.Y).ToList()
-
                     If rightCol.Count > 0 AndAlso topEdge IsNot Nothing Then
                         Dim prev = rightCol.First()
-
                         If (maxY - prev.Y) > TOL Then
                             Try
                                 Dim tp = tg.CreatePoint2d(maxX + 3.2, (maxY + prev.Y) / 2)
@@ -436,7 +408,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                 countZero += 1
                                 Continue For
                             End If
-
                             Try
                                 Dim tp = tg.CreatePoint2d(maxX + 2.5, (prev.Y + h.Y) / 2)
                                 oSheet.DrawingDimensions.GeneralDimensions.AddLinear(
@@ -465,14 +436,11 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                             End Try
                         End If
                     End If
+                Next
 
-                Next ' End selectedViews
-
-                '=====================================================
-                ' AUTO ARRANGE DIMENSIONS
-                '=====================================================
+                '===== ARRANGE — CHỈ DIM THUỘC VIEW ĐÃ CHỌN =====
                 Try
-                    ArrangeDimensions(oSheet, app)
+                    ArrangeDimensions(oSheet, app, selectedViews)
                 Catch
                 End Try
 
@@ -486,7 +454,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     "Lỗi: " & countFail & vbCrLf & vbCrLf &
                     "• Chọn nhiều View liên tục" & vbCrLf &
                     "• Lọc Array bằng Feature + mật độ" & vbCrLf &
-                    "• Auto Arrange Dimension",
+                    "• Auto Arrange Dimension (chỉ view đã chọn)",
                     "Dim Chain lỗ",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information)
@@ -497,14 +465,14 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Error)
             End Try
-
         End Sub
 
         '=============================================================
-        ' AUTO ARRANGE - ĐÚNG API INVENTOR
+        ' ARRANGE — CHỈ DIM THUỘC VIEW ĐÃ CHỌN
         '=============================================================
-        Private Sub ArrangeDimensions(ByVal oSheet As Sheet, ByVal app As Inventor.Application)
-
+        Private Sub ArrangeDimensions(ByVal oSheet As Sheet,
+                                      ByVal app As Inventor.Application,
+                                      ByVal selectedViews As List(Of DrawingView))
             Try
                 Dim oDims As DrawingDimensions = oSheet.DrawingDimensions
                 If oDims Is Nothing OrElse oDims.Count = 0 Then Exit Sub
@@ -513,14 +481,14 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                 For Each oDim As DrawingDimension In oDims
                     Try
+                        If Not IsDimInAnyView(oDim, selectedViews) Then Continue For
+
                         If TypeOf oDim Is LinearGeneralDimension OrElse
                            TypeOf oDim Is AngularGeneralDimension Then
-
                             Try
                                 oDim.CenterText()
                             Catch
                             End Try
-
                             oCol.Add(oDim)
                         End If
                     Catch
@@ -530,11 +498,134 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 If oCol.Count > 0 Then
                     oDims.Arrange(oCol)
                 End If
+            Catch
+            End Try
+        End Sub
 
+        '=============================================================
+        ' LỌC DIM THEO VIEW ĐÃ CHỌN (Inventor 2020)
+        '=============================================================
+        Private Function IsDimInAnyView(ByVal oDim As DrawingDimension,
+                                         ByVal views As List(Of DrawingView)) As Boolean
+            Try
+                Dim linDim As LinearGeneralDimension = TryCast(oDim, LinearGeneralDimension)
+                If linDim IsNot Nothing Then
+                    If CheckIntentBelongsToView(linDim.IntentOne, views) Then Return True
+                    If CheckIntentBelongsToView(linDim.IntentTwo, views) Then Return True
+                End If
             Catch
             End Try
 
-        End Sub
+            Try
+                Dim ent As Object = Nothing
+                Try
+                    ent = oDim.AttachedEntity
+                Catch
+                End Try
+
+                If ent IsNot Nothing Then
+                    Dim parentView As DrawingView = TryCast(GetParentView(ent), DrawingView)
+                    If parentView IsNot Nothing Then
+                        For Each v As DrawingView In views
+                            If v Is parentView Then Return True
+                        Next
+                    End If
+                End If
+            Catch
+            End Try
+
+            Try
+                Dim tp As Point2d = Nothing
+                Try
+                    tp = oDim.Text.Origin
+                Catch
+                    Try
+                        tp = oDim.Text.Position
+                    Catch
+                        Return False
+                    End Try
+                End Try
+
+                If tp Is Nothing Then Return False
+
+                Const boxTol As Double = 0.5
+
+                For Each v As DrawingView In views
+                    Try
+                        Dim cx As Double = v.Position.X
+                        Dim cy As Double = v.Position.Y
+                        Dim hw As Double = v.Width / 2.0
+                        Dim hh As Double = v.Height / 2.0
+
+                        Dim vL As Double = cx - hw
+                        Dim vR As Double = cx + hw
+                        Dim vB As Double = cy - hh
+                        Dim vT As Double = cy + hh
+
+                        If tp.X >= (vL - boxTol) AndAlso tp.X <= (vR + boxTol) AndAlso
+                           tp.Y >= (vB - boxTol) AndAlso tp.Y <= (vT + boxTol) Then
+                            Return True
+                        End If
+                    Catch
+                    End Try
+                Next
+            Catch
+            End Try
+
+            Return False
+        End Function
+
+        Private Function CheckIntentBelongsToView(ByVal intent As Object,
+                                                   ByVal views As List(Of DrawingView)) As Boolean
+            If intent Is Nothing Then Return False
+            Try
+                Dim gi As GeometryIntent = TryCast(intent, GeometryIntent)
+                If gi Is Nothing Then Return False
+
+                Dim geom As Object = Nothing
+                Try
+                    geom = gi.Geometry
+                Catch
+                    Return False
+                End Try
+
+                If geom Is Nothing Then Return False
+
+                Dim parentView As DrawingView = TryCast(GetParentView(geom), DrawingView)
+                If parentView Is Nothing Then Return False
+
+                For Each v As DrawingView In views
+                    If v Is parentView Then Return True
+                Next
+            Catch
+            End Try
+            Return False
+        End Function
+
+        Private Function GetParentView(ByVal obj As Object) As DrawingView
+            If obj Is Nothing Then Return Nothing
+            Try
+                Dim p As Object = Nothing
+                Try
+                    p = obj.Parent
+                Catch
+                End Try
+
+                Dim dv As DrawingView = TryCast(p, DrawingView)
+                If dv IsNot Nothing Then Return dv
+
+                Try
+                    If p IsNot Nothing Then
+                        Dim p2 As Object = p.Parent
+                        dv = TryCast(p2, DrawingView)
+                        If dv IsNot Nothing Then Return dv
+                    End If
+                Catch
+                End Try
+            Catch
+            End Try
+            Return Nothing
+        End Function
 
         Public Class HoleInfo
             Public Curve As DrawingCurve

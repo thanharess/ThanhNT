@@ -357,10 +357,10 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 Next ' End For Each selectedViews
 
                 '=====================================================
-                ' ARRANGE AUTO DIMENSIONS
+                ' ARRANGE AUTO DIMENSIONS — CHỈ DIM THUỘC VIEW ĐÃ CHỌN
                 '=====================================================
                 Try
-                    ArrangeDimensions(oSheet, app)
+                    ArrangeDimensions(oSheet, app, selectedViews)
                 Catch
                 End Try
 
@@ -375,7 +375,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                     "• Chọn nhiều view liên tục" & vbCrLf &
                     "• Dim tất cả lỗ" & vbCrLf &
                     "• Loại trùng TÂM + trùng khoảng cách" & vbCrLf &
-                    "• Auto Arrange Dimension",
+                    "• Auto Arrange Dimension (chỉ view đã chọn)",
                     "Dim Baseline lỗ",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information)
@@ -391,9 +391,11 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
         End Sub
 
         '=============================================================
-        ' ARRANGE AUTO - GIÃN CÁCH DIMENSION
+        ' ARRANGE — CHỈ DIM THUỘC VIEW ĐÃ CHỌN (giống Draw_2b)
         '=============================================================
-        Private Sub ArrangeDimensions(ByVal oSheet As Sheet, ByVal app As Inventor.Application)
+        Private Sub ArrangeDimensions(ByVal oSheet As Sheet,
+                                      ByVal app As Inventor.Application,
+                                      ByVal selectedViews As List(Of DrawingView))
 
             Try
                 Dim oDims As DrawingDimensions = oSheet.DrawingDimensions
@@ -403,10 +405,11 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
 
                 For Each oDim As DrawingDimension In oDims
                     Try
-                        If TypeOf oDim Is LinearGeneralDimension OrElse
-                   TypeOf oDim Is AngularGeneralDimension Then
+                        If Not IsDimInAnyView(oDim, selectedViews) Then Continue For
 
-                            ' Center text
+                        If TypeOf oDim Is LinearGeneralDimension OrElse
+                           TypeOf oDim Is AngularGeneralDimension Then
+
                             Try
                                 oDim.CenterText()
                             Catch
@@ -419,13 +422,138 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 Next
 
                 If oCol.Count > 1 Then
-                    oDims.Arrange(oCol)          ' <-- Lệnh chính thức của Inventor
+                    oDims.Arrange(oCol)
                 End If
 
             Catch
             End Try
 
         End Sub
+
+        '=============================================================
+        ' LỌC DIM THEO VIEW ĐÃ CHỌN (Inventor 2020)
+        '=============================================================
+        Private Function IsDimInAnyView(ByVal oDim As DrawingDimension,
+                                         ByVal views As List(Of DrawingView)) As Boolean
+            Try
+                Dim linDim As LinearGeneralDimension = TryCast(oDim, LinearGeneralDimension)
+                If linDim IsNot Nothing Then
+                    If CheckIntentBelongsToView(linDim.IntentOne, views) Then Return True
+                    If CheckIntentBelongsToView(linDim.IntentTwo, views) Then Return True
+                End If
+            Catch
+            End Try
+
+            Try
+                Dim ent As Object = Nothing
+                Try
+                    ent = oDim.AttachedEntity
+                Catch
+                End Try
+
+                If ent IsNot Nothing Then
+                    Dim parentView As DrawingView = TryCast(GetParentView(ent), DrawingView)
+                    If parentView IsNot Nothing Then
+                        For Each v As DrawingView In views
+                            If v Is parentView Then Return True
+                        Next
+                    End If
+                End If
+            Catch
+            End Try
+
+            Try
+                Dim tp As Point2d = Nothing
+                Try
+                    tp = oDim.Text.Origin
+                Catch
+                    Try
+                        tp = oDim.Text.Position
+                    Catch
+                        Return False
+                    End Try
+                End Try
+
+                If tp Is Nothing Then Return False
+
+                Const boxTol As Double = 0.5
+
+                For Each v As DrawingView In views
+                    Try
+                        Dim cx As Double = v.Position.X
+                        Dim cy As Double = v.Position.Y
+                        Dim hw As Double = v.Width / 2.0
+                        Dim hh As Double = v.Height / 2.0
+
+                        Dim vL As Double = cx - hw
+                        Dim vR As Double = cx + hw
+                        Dim vB As Double = cy - hh
+                        Dim vT As Double = cy + hh
+
+                        If tp.X >= (vL - boxTol) AndAlso tp.X <= (vR + boxTol) AndAlso
+                           tp.Y >= (vB - boxTol) AndAlso tp.Y <= (vT + boxTol) Then
+                            Return True
+                        End If
+                    Catch
+                    End Try
+                Next
+            Catch
+            End Try
+
+            Return False
+        End Function
+
+        Private Function CheckIntentBelongsToView(ByVal intent As Object,
+                                                   ByVal views As List(Of DrawingView)) As Boolean
+            If intent Is Nothing Then Return False
+            Try
+                Dim gi As GeometryIntent = TryCast(intent, GeometryIntent)
+                If gi Is Nothing Then Return False
+
+                Dim geom As Object = Nothing
+                Try
+                    geom = gi.Geometry
+                Catch
+                    Return False
+                End Try
+
+                If geom Is Nothing Then Return False
+
+                Dim parentView As DrawingView = TryCast(GetParentView(geom), DrawingView)
+                If parentView Is Nothing Then Return False
+
+                For Each v As DrawingView In views
+                    If v Is parentView Then Return True
+                Next
+            Catch
+            End Try
+            Return False
+        End Function
+
+        Private Function GetParentView(ByVal obj As Object) As DrawingView
+            If obj Is Nothing Then Return Nothing
+            Try
+                Dim p As Object = Nothing
+                Try
+                    p = obj.Parent
+                Catch
+                End Try
+
+                Dim dv As DrawingView = TryCast(p, DrawingView)
+                If dv IsNot Nothing Then Return dv
+
+                Try
+                    If p IsNot Nothing Then
+                        Dim p2 As Object = p.Parent
+                        dv = TryCast(p2, DrawingView)
+                        If dv IsNot Nothing Then Return dv
+                    End If
+                Catch
+                End Try
+            Catch
+            End Try
+            Return Nothing
+        End Function
 
         '=============================================================
         ' KIỂM TRA GIÁ TRỊ ĐÃ TỒN TẠI
