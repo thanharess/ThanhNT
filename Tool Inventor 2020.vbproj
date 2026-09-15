@@ -158,6 +158,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Code addin inventor\Bản code quan trọng cần lưu giữ\Draw_dim_1.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Delete\Drawdelete_small_dims.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Draw_2.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Liner\Draw_dim_base_line_c.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Liner\Draw_dim_base_line_b.vb" />
