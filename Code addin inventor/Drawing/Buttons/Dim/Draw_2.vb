@@ -68,11 +68,11 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawdim
                 AddMenuButton(form, "Dim lỗ Dim về cạnh (Dim ít có bỏ qua lỗ nếu trùng, bỏ qua lỗ array)", 225, 6)
                 AddMenuButton(form, "Dim lỗ Dim về cạnh (Dim tương đối có bỏ qua lỗ nếu trùng, bỏ qua lỗ array)", 260, 7)
                 AddMenuButton(form, "Dim lỗ Dim về cạnh (Nhiều dim ko bỏ qua lỗ, dim tất cả các lỗ)", 295, 8)
-                AddMenuButton(form, "Dim lỗ Base Dimline Set về cạnh", 320, 9)
-                AddMenuButton(form, "Dim lỗ Base Dimline về cạnh", 355, 10)
-                AddMenuButton(form, "Base Dim view Auto + Hole + KC tối thiểu)", 390, 11)
-                AddMenuButton(form, "Chain Dim view Auto + Hole + KC tối thiểu)", 425, 12)
-                AddMenuButton(form, "xóa dim", 460, 13)
+                AddMenuButton(form, "Dim lỗ Base Dimline Set về cạnh", 330, 9)
+                AddMenuButton(form, "Dim lỗ Base Dimline về cạnh", 365, 10)
+                AddMenuButton(form, "Base Dim view Auto + Hole + KC tối thiểu)", 400, 11)
+                AddMenuButton(form, "Chain Dim view Auto + Hole + KC tối thiểu)", 435, 12)
+                AddMenuButton(form, "xóa dim", 470, 13)
                 '    AddMenuButton(form, "Dim lỗ Base Dimline về cạnh", 505, 14)
 
                 Dim cancelButton As New Button() With {
