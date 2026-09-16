@@ -35,7 +35,7 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
             Dim result As Integer = 0
 
             Using form As New Form()
-                form.Text = "Sheet Metal Unfold"
+                form.Text = "Bóc tách Part"
                 form.Width = 550
                 form.Height = 540
                 form.StartPosition = FormStartPosition.CenterScreen
@@ -44,7 +44,7 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhboctach.part
                 form.MinimizeBox = False
 
                 Dim title As New Label() With {
-                    .Text = "BTVT Theo lựa chọn phía dưới", .Left = 20, .Top = 15,
+                    .Text = "Bóc tách Theo lựa chọn phía dưới", .Left = 20, .Top = 15,
                     .Width = 500, .Height = 28
                 }
                 form.Controls.Add(title)

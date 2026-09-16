@@ -252,13 +252,14 @@ Namespace ToolInventor2020
             AddHandler assemblyBtn6.OnExecute, AddressOf Assembly.Buttons.part.Ass_Part_1.OnExecute
             buttonsList.Add(assemblyBtn6)
 
-            Dim assemblyBtn7 As ButtonDefinition = controlDefs.AddButtonDefinition("Đổi đơn vị", "ToolInventor2020_Assembly_Btn7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon7, ass1LargeIcon7)
-            AddHandler assemblyBtn7.OnExecute, AddressOf Assembly.Buttons.part.Ass_Part_2.OnExecute
+            Dim assemblyBtn7 As ButtonDefinition = controlDefs.AddButtonDefinition("Combo part 1", "ToolInventor2020_Assembly_Btn7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
+                                                                                   "Thay đổi vật liệu, màu, đơn vị part, thông số part", ass1SmallIcon7, ass1LargeIcon7)
+            AddHandler assemblyBtn7.OnExecute, AddressOf Assembly.Buttons.Part.Ass_Part_list_1.OnExecute
             buttonsList.Add(assemblyBtn7)
 
-            Dim assemblyBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Generic to steel", "ToolInventor2020_Assembly_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
-                                                                                   "Thay đổi vật liệu part từ generic sang steel", ass1SmallIcon8, ass1LargeIcon8)
-            AddHandler assemblyBtn8.OnExecute, AddressOf Assembly.Buttons.part.Ass_Part_3.OnExecute
+            Dim assemblyBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Combo part 1", "ToolInventor2020_Assembly_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
+                                                                                   "Thay đổi vật liệu, màu, đơn vị part, thông số part", ass1SmallIcon8, ass1LargeIcon8)
+            AddHandler assemblyBtn8.OnExecute, AddressOf Assembly.Buttons.Part.Ass_LG_SheetMetal.OnExecute
             buttonsList.Add(assemblyBtn8)
 
             Dim assemblyBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Trải ALL Sheetmetal", "ToolInventor2020_Assembly_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon9, ass1LargeIcon9)
@@ -270,8 +271,8 @@ Namespace ToolInventor2020
             buttonsList.Add(assemblyBtn14)
 
             Dim assemblyBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Xoa mau ghi de len part", "ToolInventor2020_Assembly_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon12, ass1LargeIcon12)
-            AddHandler assemblyBtn12.OnExecute, AddressOf Assembly.Buttons.Part.Ass_Part_6.OnExecute
-            buttonsList.Add(assemblyBtn12)
+            '  AddHandler assemblyBtn12.OnExecute, AddressOf Assembly.Buttons.Part.Ass_Part_6.OnExecute
+            '  buttonsList.Add(assemblyBtn12)
 
             Dim assemblyBtn11 As ButtonDefinition = controlDefs.AddButtonDefinition("An all plane part", "ToolInventor2020_Assembly_Btn11", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon11, ass1LargeIcon11)
             AddHandler assemblyBtn11.OnExecute, AddressOf Assembly.Buttons.Part.Ass_Part_7.OnExecute
@@ -279,13 +280,13 @@ Namespace ToolInventor2020
 
             Dim assemblyBtn22 As ButtonDefinition = controlDefs.AddButtonDefinition("Thông số part", "ToolInventor2020_Assembly_Btn22", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing, "Hiển thị chi tiết thông số part", ass1SmallIcon22, ass1LargeIcon22)
-            AddHandler assemblyBtn22.OnExecute, AddressOf Assembly.Buttons.Part.Ass_Part_8.OnExecute
-            buttonsList.Add(assemblyBtn22)
+            '  AddHandler assemblyBtn22.OnExecute, AddressOf Assembly.Buttons.Part.Ass_Part_8.OnExecute
+            ' buttonsList.Add(assemblyBtn22)
 
             Dim assemblyBtn17 As ButtonDefinition = controlDefs.AddButtonDefinition("Thay màu part", "ToolInventor2020_Assembly_Btn17", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                     Nothing, "Thay đổi màu sắc của chi tiết, thay vật liệu all", ass1SmallIcon17, ass1LargeIcon17)
-            AddHandler assemblyBtn17.OnExecute, AddressOf Assembly.Buttons.Part.Ass_Part_9.OnExecute
-            buttonsList.Add(assemblyBtn17)
+            ' AddHandler assemblyBtn17.OnExecute, AddressOf Assembly.Buttons.Part.Ass_Part_9.OnExecute
+            '  buttonsList.Add(assemblyBtn17)
 
 
 #End Region

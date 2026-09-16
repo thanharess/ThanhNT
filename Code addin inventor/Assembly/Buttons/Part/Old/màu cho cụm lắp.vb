@@ -7,7 +7,7 @@ Imports System.Collections.Generic
 
 Namespace ToolInventor2020.Assembly.Buttons.Part
 
-    Public Module Ass_Part_9
+    Public Module màuuuuuuuu
 
         '=========================================================
         ' 24 MATERIAL
@@ -276,75 +276,208 @@ Namespace ToolInventor2020.Assembly.Buttons.Part
         ' XỬ LÝ 1 PART
         '=========================================================
         Private Sub ProcessPart(
-    ByVal oApp As Inventor.Application,
-    ByVal partDoc As PartDocument,
-    ByVal rand As Random,
-    ByVal processedParts As HashSet(Of String))
+            ByVal oApp As Inventor.Application,
+            ByVal partDoc As PartDocument,
+            ByVal rand As Random,
+            ByVal processedParts As HashSet(Of String))
+
+
             Try
+
                 If partDoc Is Nothing Then Return
 
-                '--- Content Center check ---
+
+                '=================================================
+                ' KIỂM TRA CONTENT CENTER LẦN NỮA
+                '=================================================
                 Try
-                    If partDoc.ComponentDefinition.IsContentCenterMember Then Return
+
+                    If partDoc.ComponentDefinition.IsContentCenterMember Then
+                        Return
+                    End If
+
                 Catch
                 End Try
 
-                '--- BOM check ---
+
+                '=================================================
+                ' KIỂM TRA BOM STRUCTURE CỦA PART
+                '=================================================
                 Try
-                    Dim bom As BOMStructureEnum = partDoc.ComponentDefinition.BOMStructure
-                    If bom = BOMStructureEnum.kPurchasedBOMStructure Then Return
-                    If bom = BOMStructureEnum.kPhantomBOMStructure Then Return
+
+                    Dim bom As BOMStructureEnum =
+                        partDoc.ComponentDefinition.BOMStructure
+
+
+                    If bom =
+                        BOMStructureEnum.kPurchasedBOMStructure Then
+                        Return
+                    End If
+
+
+                    If bom =
+                        BOMStructureEnum.kPhantomBOMStructure Then
+                        Return
+                    End If
+
                 Catch
                 End Try
 
-                '--- File name ---
+
+                '=================================================
+                ' LẤY TÊN FILE
+                '=================================================
                 Dim fileName As String = ""
+
+
                 Try
                     fileName = partDoc.FullFileName
                 Catch
                 End Try
+
+
                 If String.IsNullOrEmpty(fileName) Then
+
                     Try
                         fileName = partDoc.DisplayName
                     Catch
                         Return
                     End Try
+
                 End If
 
-                '--- Đã xử lý ---
-                If processedParts.Contains(fileName) Then Return
+
+                '=================================================
+                ' PART ĐÃ XỬ LÝ
+                '=================================================
+                If processedParts.Contains(fileName) Then
+                    Return
+                End If
+
+
                 processedParts.Add(fileName)
 
-                '--- Random material name ---
-                Dim index As Integer = rand.Next(0, MaterialNames.Length)
-                Dim materialName As String = MaterialNames(index)
 
-                '--- Lấy material từ library + copy cả material lẫn appearance ---
-                Dim materialAsset As MaterialAsset = GetMaterialAsset(oApp, partDoc, materialName)
-                If materialAsset Is Nothing Then Return
+                '=================================================
+                ' RANDOM 1 TRONG 24 MATERIAL
+                '=================================================
+                Dim index As Integer =
+                    rand.Next(
+                        0,
+                        MaterialNames.Length)
 
-                '--- Gán material ---
-                Try
-                    partDoc.ActiveMaterial = materialAsset
-                Catch
+
+                Dim materialName As String =
+                    MaterialNames(index)
+
+
+                '=================================================
+                ' TÌM MATERIAL
+                '=================================================
+                Dim materialAsset As MaterialAsset =
+                    GetMaterialAsset(
+                        oApp,
+                        partDoc,
+                        materialName)
+
+
+                If materialAsset Is Nothing Then
                     Return
+                End If
+
+
+                '=================================================
+                ' GÁN MATERIAL
+                '=================================================
+                Try
+
+                    partDoc.ActiveMaterial =
+                        materialAsset
+
+                Catch
+
+                    Return
+
                 End Try
 
-                '--- Bắt buộc: dùng appearance CỦA MATERIAL (không phải appearance rời) ---
+
+                '=================================================
+                ' LẤY APPEARANCE ĐI KÈM MATERIAL
+                '=================================================
                 Try
-                    partDoc.AppearanceSourceType = AppearanceSourceTypeEnum.kMaterialAppearance
+
+                    Dim matAppearance As Asset =
+                        materialAsset.AppearanceAsset
+
+
+                    If matAppearance IsNot Nothing Then
+
+                        Dim localAppearance As Asset =
+                            FindAppearance(
+                                partDoc,
+                                matAppearance.DisplayName)
+
+
+                        If localAppearance Is Nothing Then
+
+                            localAppearance =
+                                CopyAppearanceToDocument(
+                                    oApp,
+                                    partDoc,
+                                    matAppearance.DisplayName)
+
+                        End If
+
+
+                        If localAppearance IsNot Nothing Then
+
+                            Try
+
+                                partDoc.ActiveAppearance =
+                                    localAppearance
+
+                            Catch
+                            End Try
+
+                        End If
+
+                    End If
+
+                Catch
+
+                    ' Appearance lỗi -> bỏ qua
+
+                End Try
+
+
+                '=================================================
+                ' DÙNG APPEARANCE CỦA MATERIAL
+                '=================================================
+                Try
+
+                    partDoc.AppearanceSourceType =
+                        AppearanceSourceTypeEnum.kMaterialAppearance
+
                 Catch
                 End Try
 
-                '--- Update ---
+
+                '=================================================
+                ' UPDATE
+                '=================================================
                 Try
                     partDoc.Update()
                 Catch
                 End Try
 
+
             Catch
+
+                ' Part lỗi -> bỏ qua
                 Return
+
             End Try
+
         End Sub
 
 
@@ -352,102 +485,157 @@ Namespace ToolInventor2020.Assembly.Buttons.Part
         ' TÌM MATERIAL
         '=========================================================
         Private Function GetMaterialAsset(
-    ByVal oApp As Inventor.Application,
-    ByVal oPartDoc As PartDocument,
-    ByVal materialName As String) As MaterialAsset
+            ByVal oApp As Inventor.Application,
+            ByVal oPartDoc As PartDocument,
+            ByVal materialName As String) As MaterialAsset
+
 
             '=====================================================
-            ' 1. TÌM TRONG DOCUMENT TRƯỚC (đã có sẵn thì dùng luôn)
+            ' 1. DOCUMENT MATERIALS
             '=====================================================
             Try
-                For Each mat As MaterialAsset In oPartDoc.MaterialAssets
+
+                For Each mat As MaterialAsset In
+                    oPartDoc.MaterialAssets
+
                     Try
-                        If mat IsNot Nothing AndAlso
-                   String.Equals(mat.DisplayName, materialName,
-                                 StringComparison.OrdinalIgnoreCase) Then
-                            Return mat
+
+                        If mat Is Nothing Then
+                            Continue For
                         End If
+
+
+                        If String.Equals(
+                            mat.DisplayName,
+                            materialName,
+                            StringComparison.OrdinalIgnoreCase) Then
+
+                            Return mat
+
+                        End If
+
                     Catch
                     End Try
+
                 Next
+
             Catch
             End Try
 
+
             '=====================================================
-            ' 2. TÌM TRONG LIBRARY (ưu tiên "Màu sắc 1" trước)
+            ' 2. MATERIAL LIBRARIES
             '=====================================================
             Try
-                For Each libqq As AssetLibrary In oApp.AssetLibraries
 
-                    Dim libMat As MaterialAsset = Nothing
+                For Each libqq As AssetLibrary In
+                    oApp.AssetLibraries
+
                     Try
-                        For Each mat As MaterialAsset In libqq.MaterialAssets
+
+                        Dim libraryMaterial As MaterialAsset =
+                            Nothing
+
+
+                        '-----------------------------------------
+                        ' TÌM MATERIAL
+                        '-----------------------------------------
+                        For Each mat As MaterialAsset In
+                            libqq.MaterialAssets
+
                             Try
-                                If mat IsNot Nothing AndAlso
-                           String.Equals(mat.DisplayName, materialName,
-                                         StringComparison.OrdinalIgnoreCase) Then
-                                    libMat = mat
-                                    Exit For
+
+                                If mat Is Nothing Then
+                                    Continue For
                                 End If
+
+
+                                If String.Equals(
+                                    mat.DisplayName,
+                                    materialName,
+                                    StringComparison.OrdinalIgnoreCase) Then
+
+                                    libraryMaterial = mat
+                                    Exit For
+
+                                End If
+
                             Catch
                             End Try
+
                         Next
-                    Catch
-                    End Try
 
-                    If libMat Is Nothing Then Continue For
 
-                    '-----------------------------------------
-                    ' COPY MATERIAL VÀO DOCUMENT
-                    '-----------------------------------------
-                    Dim copiedMat As MaterialAsset = Nothing
-                    Try
-                        Dim copied As Asset = libMat.CopyTo(oPartDoc)
-                        copiedMat = TryCast(copied, MaterialAsset)
-                    Catch
-                    End Try
-
-                    If copiedMat Is Nothing Then Continue For
-
-                    '-----------------------------------------
-                    ' COPY APPEARANCE ĐI KÈM MATERIAL
-                    ' (đây là bước làm cho màu xuất hiện đúng)
-                    '-----------------------------------------
-                    Try
-                        Dim libAppearance As Asset = libMat.AppearanceAsset
-                        If libAppearance IsNot Nothing Then
-
-                            ' Kiểm tra appearance đã có trong document chưa
-                            Dim localAppearance As Asset =
-                        FindAppearance(oPartDoc, libAppearance.DisplayName)
-
-                            ' Chưa có → copy từ library sang
-                            If localAppearance Is Nothing Then
-                                Try
-                                    localAppearance = libAppearance.CopyTo(oPartDoc)
-                                Catch
-                                    localAppearance = Nothing
-                                End Try
-                            End If
-
-                            ' Gán appearance này làm appearance của material
-                            ' → part sau khi gán material sẽ mang đúng màu
-                            If localAppearance IsNot Nothing Then
-                                Try
-                                    copiedMat.AppearanceAsset = localAppearance
-                                Catch
-                                End Try
-                            End If
+                        If libraryMaterial Is Nothing Then
+                            Continue For
                         End If
+
+
+                        '-----------------------------------------
+                        ' COPY VÀO DOCUMENT
+                        '-----------------------------------------
+                        Try
+
+                            Dim copied As Asset =
+                                libraryMaterial.CopyTo(
+                                    oPartDoc)
+
+
+                            If copied IsNot Nothing Then
+
+                                Dim copiedMaterial As MaterialAsset =
+                                    TryCast(
+                                        copied,
+                                        MaterialAsset)
+
+
+                                If copiedMaterial IsNot Nothing Then
+                                    Return copiedMaterial
+                                End If
+
+                            End If
+
+                        Catch
+                        End Try
+
+
+                        '-----------------------------------------
+                        ' TÌM LẠI TRONG DOCUMENT
+                        '-----------------------------------------
+                        Try
+
+                            For Each mat As MaterialAsset In
+                                oPartDoc.MaterialAssets
+
+                                If String.Equals(
+                                    mat.DisplayName,
+                                    materialName,
+                                    StringComparison.OrdinalIgnoreCase) Then
+
+                                    Return mat
+
+                                End If
+
+                            Next
+
+                        Catch
+                        End Try
+
+
                     Catch
+
+                        ' Library lỗi -> bỏ qua
+
                     End Try
 
-                    Return copiedMat
                 Next
+
             Catch
             End Try
 
+
             Return Nothing
+
         End Function
 
 

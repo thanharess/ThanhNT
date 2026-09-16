@@ -1,6 +1,4 @@
-
 Option Explicit On
-
 Imports Inventor
 Imports System.Windows.Forms
 Imports System.Drawing
@@ -11,10 +9,12 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
-            Dim invApp As Inventor.Application = System.Runtime.InteropServices.Marshal.GetActiveObject("Inventor.Application")
+            Dim invApp As Inventor.Application =
+                System.Runtime.InteropServices.Marshal.GetActiveObject("Inventor.Application")
 
             If invApp.ActiveDocumentType <> DocumentTypeEnum.kAssemblyDocumentObject Then
-                MessageBox.Show("Vui lòng mở Assembly trước!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                MessageBox.Show("Vui lòng mở Assembly trước!", "Thông báo",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 Exit Sub
             End If
 
@@ -22,7 +22,7 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
             Dim oDef As AssemblyComponentDefinition = asmDoc.ComponentDefinition
 
             '=====================================================
-            ' TẠO FORM CHỌN CHỨC NĂNG
+            ' FORM
             '=====================================================
             Dim frm As New Form()
             frm.Text = "Ẩn Component - Inventor 2020"
@@ -33,7 +33,6 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
             frm.MinimizeBox = False
             frm.Font = New Font("Segoe UI", 9)
 
-            '----- Tạo các nút -----
             Dim btn1 As New Button() With {.Text = "1. Ẩn Referent", .Location = New System.Drawing.Point(40, 20), .Size = New Size(280, 35)}
             Dim btn2 As New Button() With {.Text = "2. Ẩn Phantom", .Location = New System.Drawing.Point(40, 60), .Size = New Size(280, 35)}
             Dim btn3 As New Button() With {.Text = "3. Ẩn Purchased (đồ mua)", .Location = New System.Drawing.Point(40, 100), .Size = New Size(280, 35)}
@@ -44,58 +43,54 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
             Dim btn8 As New Button() With {.Text = "8. Hiện tất cả + chỉ ẩn Referent", .Location = New System.Drawing.Point(40, 300), .Size = New Size(280, 35), .BackColor = System.Drawing.Color.LightYellow}
             Dim btn0 As New Button() With {.Text = "0. Hiện lại tất cả", .Location = New System.Drawing.Point(40, 340), .Size = New Size(280, 35), .BackColor = System.Drawing.Color.LightGreen}
 
-            '----- Gán sự kiện -----
             AddHandler btn1.Click, Sub()
-                                       HideByType(oDef, "Referent")
+                                       Dim c As Integer = HideByType(oDef, "Referent")
+                                       MessageBox.Show("Đã ẩn " & c & " Referent", "Hoàn tất")
                                        frm.Close()
                                    End Sub
-
             AddHandler btn2.Click, Sub()
-                                       HideByType(oDef, "Phantom")
+                                       Dim c As Integer = HideByType(oDef, "Phantom")
+                                       MessageBox.Show("Đã ẩn " & c & " Phantom", "Hoàn tất")
                                        frm.Close()
                                    End Sub
-
             AddHandler btn3.Click, Sub()
-                                       HideByType(oDef, "Purchased")
+                                       Dim c As Integer = HideByType(oDef, "Purchased")
+                                       MessageBox.Show("Đã ẩn " & c & " Purchased", "Hoàn tất")
                                        frm.Close()
                                    End Sub
-
             AddHandler btn4.Click, Sub()
-                                       HideByType(oDef, "Weldment")
+                                       Dim c As Integer = HideByType(oDef, "Weldment")
+                                       MessageBox.Show("Đã ẩn " & c & " Weldment", "Hoàn tất")
                                        frm.Close()
                                    End Sub
-
             AddHandler btn5.Click, Sub()
-                                       HideByType(oDef, "Part")
+                                       Dim c As Integer = HideByType(oDef, "Part")
+                                       MessageBox.Show("Đã ẩn " & c & " Part", "Hoàn tất")
                                        frm.Close()
                                    End Sub
-
             AddHandler btn6.Click, Sub()
-                                       HideByType(oDef, "SheetMetal")
+                                       Dim c As Integer = HideByType(oDef, "SheetMetal")
+                                       MessageBox.Show("Đã ẩn " & c & " Sheet Metal", "Hoàn tất")
                                        frm.Close()
                                    End Sub
-
             AddHandler btn7.Click, Sub()
-                                       HideByType(oDef, "All")
+                                       Dim c As Integer = HideByType(oDef, "All")
+                                       MessageBox.Show("Đã ẩn " & c & " component", "Hoàn tất")
                                        frm.Close()
                                    End Sub
-
             AddHandler btn8.Click, Sub()
                                        ShowAll(oDef)
-                                       HideByType(oDef, "Referent")
+                                       Dim c As Integer = HideByType(oDef, "Referent")
+                                       MessageBox.Show("Đã hiện tất cả + ẩn " & c & " Referent", "Hoàn tất")
                                        frm.Close()
                                    End Sub
-
             AddHandler btn0.Click, Sub()
                                        ShowAll(oDef)
-                                       MessageBox.Show("Đã hiện lại tất cả component!", "Hoàn tất", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                                       MessageBox.Show("Đã hiện lại tất cả component!", "Hoàn tất")
                                        frm.Close()
                                    End Sub
 
-            '----- Thêm nút vào form -----
             frm.Controls.AddRange({btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn0})
-
-            '----- Hiện form -----
             frm.ShowDialog()
 
             asmDoc.Update2(True)
@@ -103,137 +98,158 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
         End Sub
 
         '=====================================================
-        ' HÀM ẨN THEO LOẠI
+        ' ẨN THEO LOẠI (ĐỆ QUY TOÀN BỘ)
         '=====================================================
-        Private Sub HideByType(ByVal oDef As AssemblyComponentDefinition, ByVal mode As String)
+        Private Function HideByType(ByVal oDef As AssemblyComponentDefinition, ByVal mode As String) As Integer
 
-            For Each occ As ComponentOccurrence In oDef.Occurrences
+            Dim count As Integer = 0
+            HideRecursive(oDef.Occurrences, mode, count)
+            Return count
 
+        End Function
+
+        Private Sub HideRecursive(ByVal occs As ComponentOccurrences, ByVal mode As String, ByRef count As Integer)
+
+            For Each occ As ComponentOccurrence In occs
                 Try
                     If occ.Suppressed Then Continue For
 
                     Dim shouldHide As Boolean = False
 
                     Select Case mode
-
                         Case "Referent"
-                            If IsReferent(occ) Then shouldHide = True
-
+                            shouldHide = IsReferent(occ)
                         Case "Phantom"
-                            If IsPhantom(occ) Then shouldHide = True
-
+                            shouldHide = IsPhantom(occ)
                         Case "Purchased"
-                            If IsPurchased(occ) Then shouldHide = True
-
+                            shouldHide = IsPurchased(occ)
                         Case "Weldment"
-                            If IsWeldment(occ) Then shouldHide = True
-
+                            shouldHide = IsWeldment(occ)
                         Case "Part"
-                            If IsPart(occ) Then shouldHide = True
-
+                            shouldHide = IsPart(occ)
                         Case "SheetMetal"
-                            If IsSheetMetal(occ) Then shouldHide = True
-
+                            shouldHide = IsSheetMetal(occ)
                         Case "All"
-                            If IsReferent(occ) OrElse
-                               IsPhantom(occ) OrElse
-                               IsPurchased(occ) OrElse
-                               IsWeldment(occ) OrElse
-                               IsPart(occ) OrElse
-                               IsSheetMetal(occ) Then
-                                shouldHide = True
-                            End If
-
+                            shouldHide = IsReferent(occ) OrElse IsPhantom(occ) OrElse
+                                         IsPurchased(occ) OrElse IsWeldment(occ) OrElse
+                                         IsPart(occ) OrElse IsSheetMetal(occ)
                     End Select
 
                     If shouldHide Then
                         occ.Visible = False
-                        ' occ.Suppress()   ' Bỏ comment nếu muốn Suppress
+                        count += 1
+                    End If
+
+                    ' Đệ quy vào sub-assembly
+                    If occ.DefinitionDocumentType = DocumentTypeEnum.kAssemblyDocumentObject Then
+                        Try
+                            Dim subDef As AssemblyComponentDefinition =
+                                CType(occ.Definition, AssemblyComponentDefinition)
+                            HideRecursive(subDef.Occurrences, mode, count)
+                        Catch
+                        End Try
                     End If
 
                 Catch
                 End Try
-
             Next
-
-            MessageBox.Show("Đã ẩn xong theo chế độ: " & mode, "Hoàn tất", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
         End Sub
 
         '=====================================================
-        ' HIỆN LẠI TẤT CẢ
+        ' HIỆN LẠI TẤT CẢ (ĐỆ QUY)
         '=====================================================
         Private Sub ShowAll(ByVal oDef As AssemblyComponentDefinition)
+            ShowRecursive(oDef.Occurrences)
+        End Sub
 
-            For Each occ As ComponentOccurrence In oDef.Occurrences
+        Private Sub ShowRecursive(ByVal occs As ComponentOccurrences)
+            For Each occ As ComponentOccurrence In occs
                 Try
                     occ.Visible = True
                     If occ.Suppressed Then occ.Unsuppress()
+
+                    If occ.DefinitionDocumentType = DocumentTypeEnum.kAssemblyDocumentObject Then
+                        Try
+                            Dim subDef As AssemblyComponentDefinition =
+                                CType(occ.Definition, AssemblyComponentDefinition)
+                            ShowRecursive(subDef.Occurrences)
+                        Catch
+                        End Try
+                    End If
                 Catch
                 End Try
             Next
-
         End Sub
 
         '=====================================================
-        ' KIỂM TRA TỪNG LOẠI
+        ' 1. REFERENT  (đã sửa mạnh)
         '=====================================================
         Private Function IsReferent(ByVal occ As ComponentOccurrence) As Boolean
             Try
+                ' Ưu tiên BOM Structure
+                If occ.BOMStructure = BOMStructureEnum.kReferenceBOMStructure Then Return True
+
+                ' Content Center
                 If occ.IsContentMember Then Return True
 
+                ' Part Reference
                 If occ.DefinitionDocumentType = DocumentTypeEnum.kPartDocumentObject Then
-                    Dim pDoc As PartDocument = occ.Definition.Document
-                    If pDoc.ComponentDefinition.IsReferencePart Then Return True
+                    Dim pDoc As PartDocument = TryCast(occ.Definition.Document, PartDocument)
+                    If pDoc IsNot Nothing AndAlso pDoc.ComponentDefinition.IsReferencePart Then
+                        Return True
+                    End If
                 End If
+
             Catch
             End Try
             Return False
         End Function
 
+        '=====================================================
+        ' 2. PHANTOM
+        '=====================================================
         Private Function IsPhantom(ByVal occ As ComponentOccurrence) As Boolean
             Try
-                If occ.BOMStructure = BOMStructureEnum.kPhantomBOMStructure Then Return True
+                Return (occ.BOMStructure = BOMStructureEnum.kPhantomBOMStructure)
             Catch
             End Try
             Return False
         End Function
 
+        '=====================================================
+        ' 3. PURCHASED
+        '=====================================================
         Private Function IsPurchased(ByVal occ As ComponentOccurrence) As Boolean
             Try
+                If occ.BOMStructure = BOMStructureEnum.kPurchasedBOMStructure Then Return True
+
                 Dim doc As Document = occ.Definition.Document
                 Dim designProps As PropertySet = doc.PropertySets.Item("Design Tracking Properties")
+
                 Dim desc As String = ""
                 Try
                     desc = designProps.Item("Description").Value.ToString()
                 Catch
                 End Try
 
-                If LCase(desc).Contains("purchased") OrElse LCase(desc).Contains("đồ mua") Then Return True
-                If occ.BOMStructure = BOMStructureEnum.kPurchasedBOMStructure Then Return True
+                If LCase(desc).Contains("purchased") OrElse LCase(desc).Contains("đồ mua") Then
+                    Return True
+                End If
 
             Catch
             End Try
             Return False
         End Function
 
+        '=====================================================
+        ' 4. WELDMENT
+        '=====================================================
         Private Function IsWeldment(ByVal occ As ComponentOccurrence) As Boolean
             Try
                 If occ.DefinitionDocumentType = DocumentTypeEnum.kAssemblyDocumentObject Then
-                    Dim aDoc As AssemblyDocument = occ.Definition.Document
-                    If aDoc.ComponentDefinition.IsWeldment Then Return True
-                End If
-            Catch
-            End Try
-            Return False
-        End Function
-
-        Private Function IsPart(ByVal occ As ComponentOccurrence) As Boolean
-            Try
-                If occ.DefinitionDocumentType = DocumentTypeEnum.kPartDocumentObject Then
-                    Dim pDoc As PartDocument = occ.Definition.Document
-                    If Not pDoc.ComponentDefinition.IsSheetMetal AndAlso
-                       Not pDoc.ComponentDefinition.IsReferencePart Then
+                    Dim aDoc As AssemblyDocument = TryCast(occ.Definition.Document, AssemblyDocument)
+                    If aDoc IsNot Nothing AndAlso aDoc.ComponentDefinition.IsWeldment Then
                         Return True
                     End If
                 End If
@@ -242,17 +258,114 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
             Return False
         End Function
 
-        Private Function IsSheetMetal(ByVal occ As ComponentOccurrence) As Boolean
+        '=====================================================
+        ' 5. PART THƯỜNG
+        ' Điều kiện:  Là PartComponentDefinition
+        '          + KHÔNG phải Sheet Metal
+        '          + KHÔNG phải Reference Part
+        '          + KHÔNG phải Content Center member
+        '          + BOM không thuộc {Reference, Phantom, Purchased}
+        '=====================================================
+        Private Function IsPart(ByVal occ As ComponentOccurrence) As Boolean
+            If occ Is Nothing Then Return False
+
             Try
-                If occ.DefinitionDocumentType = DocumentTypeEnum.kPartDocumentObject Then
-                    Dim pDoc As PartDocument = occ.Definition.Document
-                    If pDoc.ComponentDefinition.IsSheetMetal Then Return True
-                End If
+                ' Bỏ qua occurrence đang suppress (tránh exception khi truy cập Definition)
+                If occ.Suppressed Then Return False
+
+                ' 1) Phải là Part (không phải Assembly/IAM)
+                Dim pDef As PartComponentDefinition = TryCast(occ.Definition, PartComponentDefinition)
+                If pDef Is Nothing Then Return False
+
+                ' 2) Loại trừ Sheet Metal (xử lý riêng ở IsSheetMetal)
+                If pDef.IsSheetMetal Then Return False
+
+                ' 3) Loại trừ Reference Part (part được tạo dạng tham chiếu)
+                If SafeIsReferencePart(pDef) Then Return False
+
+                ' 4) Loại trừ Content Center member (bulông, đai ốc... thư viện chuẩn)
+                If SafeIsContentMember(occ) Then Return False
+
+                ' 5) Loại trừ theo BOM Structure
+                Select Case occ.BOMStructure
+                    Case BOMStructureEnum.kReferenceBOMStructure,
+                 BOMStructureEnum.kPhantomBOMStructure,
+                 BOMStructureEnum.kPurchasedBOMStructure
+                        Return False
+                End Select
+
+                ' Đủ điều kiện = Part thường
+                Return True
+
             Catch
+                Return False
             End Try
-            Return False
         End Function
 
-    End Module
+        '=====================================================
+        ' 6. SHEET METAL
+        ' Điều kiện:  Là PartComponentDefinition
+        '          + LÀ Sheet Metal
+        '          + KHÔNG phải Reference Part
+        '          + KHÔNG phải Content Center member
+        '          + BOM không thuộc {Reference, Phantom, Purchased}
+        '=====================================================
+        Private Function IsSheetMetal(ByVal occ As ComponentOccurrence) As Boolean
+            If occ Is Nothing Then Return False
 
+            Try
+                ' Bỏ qua occurrence đang suppress
+                If occ.Suppressed Then Return False
+
+                ' 1) Phải là Part
+                Dim pDef As PartComponentDefinition = TryCast(occ.Definition, PartComponentDefinition)
+                If pDef Is Nothing Then Return False
+
+                ' 2) BẮT BUỘC phải là Sheet Metal — check sớm để tránh truy cập prop khác
+                If Not pDef.IsSheetMetal Then Return False
+
+                ' 3) Loại trừ Reference Part
+                If SafeIsReferencePart(pDef) Then Return False
+
+                ' 4) Loại trừ Content Center member
+                If SafeIsContentMember(occ) Then Return False
+
+                ' 5) Loại trừ theo BOM Structure
+                Select Case occ.BOMStructure
+                    Case BOMStructureEnum.kReferenceBOMStructure,
+                 BOMStructureEnum.kPhantomBOMStructure,
+                 BOMStructureEnum.kPurchasedBOMStructure
+                        Return False
+                End Select
+
+                ' Đủ điều kiện = Sheet Metal
+                Return True
+
+            Catch
+                Return False
+            End Try
+        End Function
+
+        '=====================================================
+        ' HELPERS — bọc try/catch riêng để 1 prop lỗi không làm hỏng cả hàm
+        '=====================================================
+        Private Function SafeIsReferencePart(ByVal pDef As PartComponentDefinition) As Boolean
+            If pDef Is Nothing Then Return False
+            Try
+                Return pDef.IsReferencePart
+            Catch
+                Return False
+            End Try
+        End Function
+
+        Private Function SafeIsContentMember(ByVal occ As ComponentOccurrence) As Boolean
+            If occ Is Nothing Then Return False
+            Try
+                Return True = occ.IsContentMember
+            Catch
+                ' Property này đôi khi ném exception với occurrence chưa resolve
+                Return False
+            End Try
+        End Function
+    End Module
 End Namespace
