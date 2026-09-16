@@ -1,4 +1,5 @@
 Imports Inventor
+Imports ToolInventor2020.ToolInventor2020.Drawing.Buttons.Drawtext
 
 Namespace ToolInventor2020
     Public Class DrawingButtons
@@ -225,9 +226,23 @@ Namespace ToolInventor2020
 
             buttonsList.Add(DrawingBtn18)
 
+            Dim DrawingBtn19 As ButtonDefinition = controlDefs.AddButtonDefinition("Text Replace", "ToolInventor2020_Drawing_Btn19", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
+                                                                                   "Thay thế văn bản", Dra1SmallIcon19, Dra1LargeIcon19)
+            AddHandler DrawingBtn19.OnExecute, AddressOf Drawing.Buttons.Drawtext.TextReplaceModule.OnExecute
 
+            buttonsList.Add(DrawingBtn19)
 
+            Dim DrawingBtn20 As ButtonDefinition = controlDefs.AddButtonDefinition("Đổi chữ hoa", "ToolInventor2020_Drawing_Btn20", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
+                                                                                   "Thay thế văn bản", Dra1SmallIcon20, Dra1LargeIcon20)
+            AddHandler DrawingBtn20.OnExecute, AddressOf Drawing.Buttons.Drawtext.Doichuhoa.OnExecute
 
+            buttonsList.Add(DrawingBtn20)
+
+            Dim DrawingBtn21 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa hoặc đổi chữ", "ToolInventor2020_Drawing_Btn21", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
+                                                                                   "Thay thế văn bản", Dra1SmallIcon21, Dra1LargeIcon21)
+            AddHandler DrawingBtn21.OnExecute, AddressOf Drawing.Buttons.Drawtext.ThayChuTrongTextModule.OnExecute
+
+            buttonsList.Add(DrawingBtn21)
 
             ''''''''' tool ngoài
 

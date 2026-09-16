@@ -257,10 +257,10 @@ Namespace ToolInventor2020
             AddHandler assemblyBtn7.OnExecute, AddressOf Assembly.Buttons.Part.Ass_Part_list_1.OnExecute
             buttonsList.Add(assemblyBtn7)
 
-            Dim assemblyBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Combo part 1", "ToolInventor2020_Assembly_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
+            Dim assemblyBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Com", "ToolInventor2020_Assembly_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
                                                                                    "Thay đổi vật liệu, màu, đơn vị part, thông số part", ass1SmallIcon8, ass1LargeIcon8)
-            AddHandler assemblyBtn8.OnExecute, AddressOf Assembly.Buttons.Part.Ass_LG_SheetMetal.OnExecute
-            buttonsList.Add(assemblyBtn8)
+            '     AddHandler assemblyBtn8.OnExecute, AddressOf Assembly.Buttons.Part.Ass_LG_SheetMetal.OnExecute
+            '     buttonsList.Add(assemblyBtn8)
 
             Dim assemblyBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Trải ALL Sheetmetal", "ToolInventor2020_Assembly_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon9, ass1LargeIcon9)
             AddHandler assemblyBtn9.OnExecute, AddressOf Assembly.Buttons.part.Ass_Part_4.OnExecute

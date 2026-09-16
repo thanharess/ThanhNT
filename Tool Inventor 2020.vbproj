@@ -172,6 +172,11 @@
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Liner\old\Draw_dim_chain_line_c_old.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_Rename_Sheet.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Create_Part_List.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Text\TextReplace.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Text\ThayChuTrongText.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Text\Thay_chu_in_hoa.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Code addin inventor\ToolButton.vb" />
     <Compile Include="Code addin inventor\DrawingButtons.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Delete\Drawdelete.vb">
@@ -304,6 +309,9 @@
     <EmbeddedResource Include="Code addin inventor\Drawing\Buttons\Delete\Drawdelete.resx">
       <DependentUpon>Drawdelete.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Code addin inventor\Drawing\Buttons\Text\Thay_chu_in_hoa.resx">
+      <DependentUpon>Thay_chu_in_hoa.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Code addin inventor\Drawing\Buttons\View\Draw_Up_date_view.resx">
       <DependentUpon>Draw_Up_date_view.vb</DependentUpon>
     </EmbeddedResource>
@@ -316,12 +324,24 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Code addin inventor\Images\Assembly\i19 1.png" />
-    <Content Include="Code addin inventor\Images\Assembly\i19.png" />
-    <Content Include="Code addin inventor\Images\Assembly\note.png" />
-    <Content Include="Code addin inventor\Images\Assembly\repair.png" />
-    <Content Include="Code addin inventor\Images\Assembly\test.png" />
-    <Content Include="Code addin inventor\Images\Drawing\design.png" />
+    <Content Include="Code addin inventor\Images\Assembly\i19 1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Code addin inventor\Images\Assembly\i19.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Code addin inventor\Images\Assembly\note.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Code addin inventor\Images\Assembly\repair.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Code addin inventor\Images\Assembly\test.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Code addin inventor\Images\Drawing\design.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Code addin inventor\Images\Part\i1 1.bmp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
