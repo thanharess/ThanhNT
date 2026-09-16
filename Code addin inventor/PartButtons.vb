@@ -179,7 +179,7 @@ Namespace ToolInventor2020
             Dim partBtn8 As ButtonDefinition = controlDefs.AddButtonDefinition("Thay màu part", "ToolInventor2020_Part_Btn8", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                "Thay màu part" & vbCrLf & "Thay mà theo vật liệu Steel",
                                                                                Nothing, part8SmallIcon, part8LargeIcon)
-            AddHandler partBtn8.OnExecute, AddressOf Part.Buttons.Part_Solid_7.OnExecute
+            AddHandler partBtn8.OnExecute, AddressOf Part.Buttons.Part_Solid_7e.OnExecute
             buttonsList.Add(partBtn8)
 
             Dim partBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Part Action 9", "ToolInventor2020_Part_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID,

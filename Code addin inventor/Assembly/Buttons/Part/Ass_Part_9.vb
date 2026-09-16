@@ -1,388 +1,786 @@
-Imports System.Windows.Forms
-Imports System.Collections.Generic
-Imports System.IO
+Option Explicit On
+Option Strict Off
+
 Imports Inventor
+Imports System
+Imports System.Collections.Generic
 
 Namespace ToolInventor2020.Assembly.Buttons.Part
 
-    Public Class Ass_Part_9
+    Public Module Ass_Part_9
 
-        ' ========== CẤU HÌNH DỄ SỬA ==========
-        Private Const USE_3_CHARS As Boolean = True
-        Private Const DEFAULT_MATERIAL As String = "Steel"
-        Private Const SHEETMETAL_MATERIAL As String = "Steel"
-        Private Const SKIP_SUPPRESSED As Boolean = True
-        Private Const SKIP_CONTENT_CENTER As Boolean = True
-
-        ' ⚠️ Có đổi Appearance không?
-        Private Const CHANGE_APPEARANCE As Boolean = True
-
-        ' ⚠️ Nếu Material không có trong bảng map → dùng appearance mặc định
-        Private Const DEFAULT_APPEARANCE As String = "Semi-Polished"
-
-        '=====================================================
-        ' ENTRY POINT
-        '=====================================================
-        Public Shared Sub OnExecute(ByVal Context As NameValueMap)
-            Try
-                Dim invApp As Inventor.Application = GetInventorApp()
-                If invApp Is Nothing Then
-                    MessageBox.Show("Không lấy được Inventor Application!", "Change Material")
-                    Return
-                End If
-
-                If invApp.ActiveDocumentType <> DocumentTypeEnum.kAssemblyDocumentObject Then
-                    MessageBox.Show("Mở file Assembly trước", "Change Material")
-                    Return
-                End If
-
-                Dim asmDoc As AssemblyDocument = CType(invApp.ActiveDocument, AssemblyDocument)
-
-                ' ========== BẢNG LỌC PREFIX → VẬT LIỆU ==========
-                Dim matMap As New Dictionary(Of String, String)
-                matMap.Add("ST", "Steel")
-                matMap.Add("AL", "Aluminum 6061")
-                matMap.Add("SS", "Stainless Steel")
-                matMap.Add("CU", "Copper")
-                matMap.Add("BR", "Brass")
-                matMap.Add("MID", "Mild Steel")
-                matMap.Add("STL", "Steel")
-                matMap.Add("S45", "Steel")
-                matMap.Add("SUS", "Stainless Steel")
-                matMap.Add("AL6", "Aluminum 6061")
-                matMap.Add("PVC", "PVC")
-                matMap.Add("NYL", "Nylon")
-                matMap.Add("ABS", "ABS Plastic")
-
-                ' ========== BẢNG MAP VẬT LIỆU → MÀU (APPEARANCE) ==========
-                ' Sửa theo bộ vật liệu/ngoại quan thực tế của bạn
-                Dim matToAppearance As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
-                matToAppearance("Steel") = "Semi-Polished"
-                matToAppearance("Mild Steel") = "Semi-Polished(1)"
-                matToAppearance("Stainless Steel") = "Semi-Polished(2)"
-                matToAppearance("Aluminum 6061") = "Semi-Polished(3)"
-                matToAppearance("Copper") = "Semi-Polished(4)"
-                matToAppearance("Brass") = "Semi-Polished(5)"
-                matToAppearance("PVC") = "Semi-Polished(6)"
-                matToAppearance("Nylon") = "Semi-Polished(7)"
-                matToAppearance("ABS Plastic") = "Semi-Polished(8)"
+        '=========================================================
+        ' 24 MATERIAL
+        '=========================================================
+        Private ReadOnly MaterialNames As String() =
+            BuildMaterialNames()
 
 
-                ' ========== MAP CHO TỪNG STEEL MILD 1→25 ==========
-                ' Nếu muốn mỗi Mild có màu riêng thì bật khối này:
-                For i As Integer = 1 To 25
-                    ' Ví dụ: Steel, Mild 1 → Semi-Polished(9)
-                    '       Steel, Mild 2 → Semi-Polished(10)
-                    '       ... đến hết 23, rồi quay lại từ đầu
-                    Dim appIdx As Integer = 8 + i   ' 9, 10, ..., 33
-                    If appIdx > 23 Then appIdx = ((appIdx - 1) Mod 23) + 1
-                    matToAppearance("Steel, Mild " & i) = "Semi-Polished(" & appIdx & ")"
-                Next
-                matToAppearance("Steel, Mild") = "Semi-Polished"
+        Private Function BuildMaterialNames() As String()
 
-                invApp.SilentOperation = True
+            Dim list As New List(Of String)
 
-                Dim countChanged As Integer = 0
-                Dim countSkipped As Integer = 0
-                Dim countNotFound As Integer = 0
-                Dim notFoundList As New List(Of String)
+            list.Add("Steel, Mild")
 
-                ProcessAssembly(invApp, asmDoc, matMap, matToAppearance,
-                                countChanged, countSkipped, countNotFound, notFoundList)
+            For i As Integer = 1 To 23
+                list.Add("Steel, Mild " & i.ToString())
+            Next
 
-                asmDoc.Update2(True)
-                ' asmDoc.Save2(True)
+            Return list.ToArray()
 
-                invApp.SilentOperation = False
-
-                Dim msg As String = "Hoàn tất!" & vbCrLf &
-                                    "Đã thay vật liệu + màu: " & countChanged & vbCrLf &
-                                    "Bỏ qua (suppress/content): " & countSkipped & vbCrLf &
-                                    "Không tìm thấy vật liệu: " & countNotFound
-
-                If countNotFound > 0 AndAlso notFoundList.Count > 0 Then
-                    msg &= vbCrLf & vbCrLf & "Danh sách part bị bỏ qua (tối đa 20):" & vbCrLf
-                    Dim show As Integer = Math.Min(20, notFoundList.Count)
-                    For i As Integer = 0 To show - 1
-                        msg &= "  • " & notFoundList(i) & vbCrLf
-                    Next
-                    If notFoundList.Count > 20 Then
-                        msg &= "  ... và " & (notFoundList.Count - 20) & " part khác"
-                    End If
-                End If
-
-                MessageBox.Show(msg, "Change Material")
-
-            Catch ex As Exception
-                MessageBox.Show("Lỗi: " & ex.Message, "Change Material")
-            End Try
-        End Sub
-
-        '=====================================================
-        ' LẤY INVENTOR APPLICATION
-        '=====================================================
-        Private Shared Function GetInventorApp() As Inventor.Application
-            Try
-                Dim invApp As Inventor.Application = Nothing
-                invApp = CType(System.Runtime.InteropServices.Marshal.GetActiveObject("Inventor.Application"), Inventor.Application)
-                Return invApp
-            Catch
-                Return Nothing
-            End Try
         End Function
 
-        '=====================================================
-        ' PROCESS ASSEMBLY
-        '=====================================================
-        Private Shared Sub ProcessAssembly(
-            invApp As Inventor.Application,
-            asmDoc As AssemblyDocument,
-            matMap As Dictionary(Of String, String),
-            matToAppearance As Dictionary(Of String, String),
-            ByRef countChanged As Integer,
-            ByRef countSkipped As Integer,
-            ByRef countNotFound As Integer,
-            ByRef notFoundList As List(Of String))
 
-            For Each occ As ComponentOccurrence In asmDoc.ComponentDefinition.Occurrences
+        '=========================================================
+        ' MAIN
+        '=========================================================
+        Public Sub OnExecute(ByVal Context As NameValueMap)
+
+            Try
+
+                Dim oApp As Inventor.Application =
+                    g_inventorApplication
+
+                If oApp Is Nothing Then Return
+
+
+                Dim oDoc As Document =
+                    oApp.ActiveDocument
+
+                If oDoc Is Nothing Then Return
+
+
+                Dim oAssDoc As AssemblyDocument =
+                    TryCast(oDoc, AssemblyDocument)
+
+                If oAssDoc Is Nothing Then Return
+
+
+                Dim rand As New Random()
+
+
+                '=================================================
+                ' PART ĐÃ XỬ LÝ
+                '=================================================
+                Dim processedParts As New HashSet(Of String)(
+                    StringComparer.OrdinalIgnoreCase)
+
+
+                '=================================================
+                ' QUÉT TOÀN BỘ ASSEMBLY
+                '=================================================
+                ProcessOccurrences(
+                    oApp,
+                    oAssDoc.ComponentDefinition.Occurrences,
+                    rand,
+                    processedParts)
+
+
                 Try
-                    If SKIP_SUPPRESSED AndAlso occ.Suppressed Then
-                        countSkipped += 1
-                        Continue For
-                    End If
+                    oAssDoc.Update()
+                Catch
+                End Try
 
-                    If SKIP_CONTENT_CENTER AndAlso occ.IsContentMember Then
-                        countSkipped += 1
-                        Continue For
-                    End If
 
-                    Dim doc As Document = occ.Definition.Document
+                PostStatus(
+                    "Đã random Material cho Part thường.")
 
-                    If doc.DocumentType = DocumentTypeEnum.kPartDocumentObject Then
+            Catch
 
-                        Dim partDoc As PartDocument = CType(doc, PartDocument)
-                        Dim isSheetMetal As Boolean = False
+                ' Không hiện MsgBox
+                Return
+
+            End Try
+
+        End Sub
+
+
+        '=========================================================
+        ' XỬ LÝ OCCURRENCES
+        '=========================================================
+        Private Sub ProcessOccurrences(
+            ByVal oApp As Inventor.Application,
+            ByVal occurrences As ComponentOccurrences,
+            ByVal rand As Random,
+            ByVal processedParts As HashSet(Of String))
+
+
+            If occurrences Is Nothing Then Return
+
+
+            For Each occ As ComponentOccurrence In occurrences
+
+                Try
+
+                    If occ Is Nothing Then Continue For
+
+
+                    '=================================================
+                    ' BỎ QUA SUPPRESS
+                    '=================================================
+                    Try
+
+                        If occ.Suppressed Then
+                            Continue For
+                        End If
+
+                    Catch
+                    End Try
+
+
+                    '=================================================
+                    ' BỎ QUA STANDARD / CONTENT CENTER
+                    '=================================================
+                    Try
+
+                        If occ.IsContentCenterMember Then
+                            Continue For
+                        End If
+
+                    Catch
+                    End Try
+
+
+                    '=================================================
+                    ' KIỂM TRA BOM STRUCTURE
+                    '
+                    ' PURCHASED
+                    ' PHANTOM
+                    '=================================================
+                    Dim bomStructure As BOMStructureEnum =
+                        BOMStructureEnum.kNormalBOMStructure
+
+
+                    Try
+
+                        bomStructure =
+                            occ.Definition.BOMStructure
+
+                    Catch
 
                         Try
-                            If partDoc.SubType = "{9C464203-9BAE-11D3-8BAD-0060B0CE6BB4}" OrElse
-                               TypeOf partDoc.ComponentDefinition Is SheetMetalComponentDefinition Then
-                                isSheetMetal = True
-                            End If
+                            bomStructure = occ.BOMStructure
                         Catch
                         End Try
 
-                        Dim targetMat As String = ""
+                    End Try
 
-                        If isSheetMetal Then
-                            targetMat = SHEETMETAL_MATERIAL
-                        Else
-                            Dim pn As String = ""
-                            Try
-                                Dim designProps As PropertySet = partDoc.PropertySets.Item("Design Tracking Properties")
-                                pn = designProps.Item("Part Number").Value.ToString().Trim().ToUpper()
-                            Catch
-                                pn = System.IO.Path.GetFileNameWithoutExtension(partDoc.FullFileName).ToUpper()
-                            End Try
 
-                            Dim prefix As String = ""
-                            If USE_3_CHARS Then
-                                If pn.Length >= 3 Then
-                                    prefix = pn.Substring(0, 3)
-                                ElseIf pn.Length >= 2 Then
-                                    prefix = pn.Substring(0, 2)
-                                End If
-                            Else
-                                If pn.Length >= 2 Then
-                                    prefix = pn.Substring(0, 2)
-                                End If
-                            End If
+                    '=================================================
+                    ' BỎ QUA PURCHASED
+                    '=================================================
+                    If bomStructure =
+                        BOMStructureEnum.kPurchasedBOMStructure Then
 
-                            If matMap.ContainsKey(prefix) Then
-                                targetMat = matMap(prefix)
-                            Else
-                                targetMat = DEFAULT_MATERIAL
-                            End If
-                        End If
+                        Continue For
 
-                        If targetMat <> "" Then
-                            ' ===== XÁC ĐỊNH APPEARANCE MỤC TIÊU =====
-                            Dim targetAppearance As String = ""
-                            If CHANGE_APPEARANCE Then
-                                If matToAppearance.ContainsKey(targetMat) Then
-                                    targetAppearance = matToAppearance(targetMat)
-                                Else
-                                    targetAppearance = DEFAULT_APPEARANCE
-                                End If
-                            End If
+                    End If
 
-                            Dim result As Integer = SetMaterialAndAppearance(
-                                invApp, partDoc, targetMat, targetAppearance)
 
-                            If result = 1 Then
-                                countChanged += 1
-                            ElseIf result = 0 Then
-                                countNotFound += 1
-                                Try
-                                    Dim name As String = System.IO.Path.GetFileNameWithoutExtension(partDoc.FullFileName)
-                                    If String.IsNullOrEmpty(name) Then name = occ.Name
-                                    notFoundList.Add(name & " → " & targetMat)
-                                Catch
-                                    notFoundList.Add(occ.Name & " → " & targetMat)
-                                End Try
-                            Else
-                                countSkipped += 1
-                            End If
-                        Else
-                            countSkipped += 1
-                        End If
+                    '=================================================
+                    ' BỎ QUA PHANTOM
+                    '=================================================
+                    If bomStructure =
+                        BOMStructureEnum.kPhantomBOMStructure Then
 
-                    ElseIf doc.DocumentType = DocumentTypeEnum.kAssemblyDocumentObject Then
-                        ProcessAssembly(invApp, CType(doc, AssemblyDocument), matMap, matToAppearance,
-                                        countChanged, countSkipped, countNotFound, notFoundList)
+                        Continue For
+
+                    End If
+
+
+                    '=================================================
+                    ' LẤY DOCUMENT
+                    '=================================================
+                    Dim occDoc As Document = Nothing
+
+                    Try
+
+                        occDoc =
+                            occ.Definition.Document
+
+                    Catch
+
+                        occDoc = Nothing
+
+                    End Try
+
+
+                    If occDoc Is Nothing Then
+                        Continue For
+                    End If
+
+
+                    '=================================================
+                    ' PART
+                    '=================================================
+                    Dim partDoc As PartDocument =
+                        TryCast(occDoc, PartDocument)
+
+
+                    If partDoc IsNot Nothing Then
+
+                        ProcessPart(
+                            oApp,
+                            partDoc,
+                            rand,
+                            processedParts)
+
+                        Continue For
+
+                    End If
+
+
+                    '=================================================
+                    ' SUB ASSEMBLY
+                    '=================================================
+                    Dim subAssDoc As AssemblyDocument =
+                        TryCast(occDoc, AssemblyDocument)
+
+
+                    If subAssDoc IsNot Nothing Then
+
+                        Try
+
+                            ProcessOccurrences(
+                                oApp,
+                                subAssDoc.
+                                    ComponentDefinition.
+                                    Occurrences,
+                                rand,
+                                processedParts)
+
+                        Catch
+
+                            ' SubAssembly lỗi -> bỏ qua
+
+                        End Try
+
+                    End If
+
+
+                Catch
+
+                    '=================================================
+                    ' OCCURRENCE LỖI -> BỎ QUA
+                    '=================================================
+                    Continue For
+
+                End Try
+
+            Next
+
+        End Sub
+
+
+        '=========================================================
+        ' XỬ LÝ 1 PART
+        '=========================================================
+        Private Sub ProcessPart(
+            ByVal oApp As Inventor.Application,
+            ByVal partDoc As PartDocument,
+            ByVal rand As Random,
+            ByVal processedParts As HashSet(Of String))
+
+
+            Try
+
+                If partDoc Is Nothing Then Return
+
+
+                '=================================================
+                ' KIỂM TRA CONTENT CENTER LẦN NỮA
+                '=================================================
+                Try
+
+                    If partDoc.ComponentDefinition.IsContentCenterMember Then
+                        Return
                     End If
 
                 Catch
-                    countSkipped += 1
                 End Try
-            Next
-        End Sub
 
-        '=====================================================
-        ' SET MATERIAL + APPEARANCE
-        ' Trả về:  1 = OK
-        '          0 = không tìm thấy vật liệu (bỏ qua)
-        '         -1 = lỗi khác
-        '=====================================================
-        Private Shared Function SetMaterialAndAppearance(
-            invApp As Inventor.Application,
-            partDoc As PartDocument,
-            materialName As String,
-            appearanceName As String) As Integer
 
-            Try
-                Dim changed As Boolean = False
+                '=================================================
+                ' KIỂM TRA BOM STRUCTURE CỦA PART
+                '=================================================
+                Try
 
-                ' ---------- 1. ĐỔI VẬT LIỆU ----------
-                Dim needMaterial As Boolean = True
-                If partDoc.ActiveMaterial IsNot Nothing Then
-                    If String.Compare(partDoc.ActiveMaterial.DisplayName, materialName, True) = 0 Then
-                        needMaterial = False
+                    Dim bom As BOMStructureEnum =
+                        partDoc.ComponentDefinition.BOMStructure
+
+
+                    If bom =
+                        BOMStructureEnum.kPurchasedBOMStructure Then
+                        Return
                     End If
-                End If
 
-                If needMaterial Then
-                    Dim matAsset As Inventor.MaterialAsset = Nothing
 
-                    ' Tìm trong document
+                    If bom =
+                        BOMStructureEnum.kPhantomBOMStructure Then
+                        Return
+                    End If
+
+                Catch
+                End Try
+
+
+                '=================================================
+                ' LẤY TÊN FILE
+                '=================================================
+                Dim fileName As String = ""
+
+
+                Try
+                    fileName = partDoc.FullFileName
+                Catch
+                End Try
+
+
+                If String.IsNullOrEmpty(fileName) Then
+
                     Try
-                        For Each a As Inventor.Asset In partDoc.MaterialAssets
-                            If String.Compare(a.DisplayName, materialName, True) = 0 Then
-                                matAsset = TryCast(a, Inventor.MaterialAsset)
-                                If matAsset IsNot Nothing Then Exit For
-                            End If
-                        Next
+                        fileName = partDoc.DisplayName
                     Catch
+                        Return
                     End Try
 
-                    ' Tìm trong Libraries
-                    If matAsset Is Nothing Then
-                        Try
-                            Dim libs As Inventor.AssetLibraries = invApp.AssetLibraries
-                            For j As Integer = 1 To libs.Count
-                                Dim assetLib As Inventor.AssetLibrary = libs.Item(j)
-                                Try
-                                    For Each a As Inventor.Asset In assetLib.MaterialAssets
-                                        If String.Compare(a.DisplayName, materialName, True) = 0 Then
-                                            Dim copied As Inventor.Asset = a.CopyTo(partDoc)
-                                            matAsset = TryCast(copied, Inventor.MaterialAsset)
-                                            Exit For
-                                        End If
-                                    Next
-                                Catch
-                                End Try
-                                If matAsset IsNot Nothing Then Exit For
-                            Next
-                        Catch
-                        End Try
-                    End If
-
-                    ' ⚠️ KHÔNG tìm thấy vật liệu → bỏ qua
-                    If matAsset Is Nothing Then
-                        Return 0
-                    End If
-
-                    partDoc.ActiveMaterial = matAsset
-                    changed = True
                 End If
 
-                ' ---------- 2. ĐỔI APPEARANCE (MÀU) ----------
-                If CHANGE_APPEARANCE AndAlso Not String.IsNullOrEmpty(appearanceName) Then
-                    Dim needAppearance As Boolean = True
-                    Try
-                        If partDoc.ActiveAppearance IsNot Nothing Then
-                            If String.Compare(partDoc.ActiveAppearance.DisplayName, appearanceName, True) = 0 Then
-                                needAppearance = False
-                            End If
+
+                '=================================================
+                ' PART ĐÃ XỬ LÝ
+                '=================================================
+                If processedParts.Contains(fileName) Then
+                    Return
+                End If
+
+
+                processedParts.Add(fileName)
+
+
+                '=================================================
+                ' RANDOM 1 TRONG 24 MATERIAL
+                '=================================================
+                Dim index As Integer =
+                    rand.Next(
+                        0,
+                        MaterialNames.Length)
+
+
+                Dim materialName As String =
+                    MaterialNames(index)
+
+
+                '=================================================
+                ' TÌM MATERIAL
+                '=================================================
+                Dim materialAsset As MaterialAsset =
+                    GetMaterialAsset(
+                        oApp,
+                        partDoc,
+                        materialName)
+
+
+                If materialAsset Is Nothing Then
+                    Return
+                End If
+
+
+                '=================================================
+                ' GÁN MATERIAL
+                '=================================================
+                Try
+
+                    partDoc.ActiveMaterial =
+                        materialAsset
+
+                Catch
+
+                    Return
+
+                End Try
+
+
+                '=================================================
+                ' LẤY APPEARANCE ĐI KÈM MATERIAL
+                '=================================================
+                Try
+
+                    Dim matAppearance As Asset =
+                        materialAsset.AppearanceAsset
+
+
+                    If matAppearance IsNot Nothing Then
+
+                        Dim localAppearance As Asset =
+                            FindAppearance(
+                                partDoc,
+                                matAppearance.DisplayName)
+
+
+                        If localAppearance Is Nothing Then
+
+                            localAppearance =
+                                CopyAppearanceToDocument(
+                                    oApp,
+                                    partDoc,
+                                    matAppearance.DisplayName)
+
                         End If
-                    Catch
-                    End Try
 
-                    If needAppearance Then
-                        Dim appAsset As Inventor.Asset = Nothing
 
-                        ' Tìm trong document
-                        Try
-                            For Each a As Inventor.Asset In partDoc.AppearanceAssets
-                                If String.Compare(a.DisplayName, appearanceName, True) = 0 Then
-                                    appAsset = a
-                                    Exit For
-                                End If
-                            Next
-                        Catch
-                        End Try
+                        If localAppearance IsNot Nothing Then
 
-                        ' Tìm trong Libraries
-                        If appAsset Is Nothing Then
                             Try
-                                Dim libs As Inventor.AssetLibraries = invApp.AssetLibraries
-                                For j As Integer = 1 To libs.Count
-                                    Dim assetLib As Inventor.AssetLibrary = libs.Item(j)
-                                    Try
-                                        For Each a As Inventor.Asset In assetLib.AppearanceAssets
-                                            If String.Compare(a.DisplayName, appearanceName, True) = 0 Then
-                                                appAsset = a.CopyTo(partDoc)
-                                                Exit For
-                                            End If
-                                        Next
-                                    Catch
-                                    End Try
-                                    If appAsset IsNot Nothing Then Exit For
-                                Next
+
+                                partDoc.ActiveAppearance =
+                                    localAppearance
+
                             Catch
                             End Try
+
                         End If
 
-                        ' Không tìm thấy appearance → bỏ qua im lặng (vẫn coi như OK nếu material đổi được)
-                        If appAsset IsNot Nothing Then
-                            partDoc.ActiveAppearance = appAsset
-                            changed = True
-                        End If
                     End If
-                End If
 
-                ' ---------- 3. UPDATE ----------
-                If changed Then
-                    partDoc.Update2(True)
-                    ' partDoc.Save2(True)
-                End If
+                Catch
 
-                Return 1
+                    ' Appearance lỗi -> bỏ qua
+
+                End Try
+
+
+                '=================================================
+                ' DÙNG APPEARANCE CỦA MATERIAL
+                '=================================================
+                Try
+
+                    partDoc.AppearanceSourceType =
+                        AppearanceSourceTypeEnum.kMaterialAppearance
+
+                Catch
+                End Try
+
+
+                '=================================================
+                ' UPDATE
+                '=================================================
+                Try
+                    partDoc.Update()
+                Catch
+                End Try
+
 
             Catch
-                Return -1
+
+                ' Part lỗi -> bỏ qua
+                Return
+
             End Try
+
+        End Sub
+
+
+        '=========================================================
+        ' TÌM MATERIAL
+        '=========================================================
+        Private Function GetMaterialAsset(
+            ByVal oApp As Inventor.Application,
+            ByVal oPartDoc As PartDocument,
+            ByVal materialName As String) As MaterialAsset
+
+
+            '=====================================================
+            ' 1. DOCUMENT MATERIALS
+            '=====================================================
+            Try
+
+                For Each mat As MaterialAsset In
+                    oPartDoc.MaterialAssets
+
+                    Try
+
+                        If mat Is Nothing Then
+                            Continue For
+                        End If
+
+
+                        If String.Equals(
+                            mat.DisplayName,
+                            materialName,
+                            StringComparison.OrdinalIgnoreCase) Then
+
+                            Return mat
+
+                        End If
+
+                    Catch
+                    End Try
+
+                Next
+
+            Catch
+            End Try
+
+
+            '=====================================================
+            ' 2. MATERIAL LIBRARIES
+            '=====================================================
+            Try
+
+                For Each libqq As AssetLibrary In
+                    oApp.AssetLibraries
+
+                    Try
+
+                        Dim libraryMaterial As MaterialAsset =
+                            Nothing
+
+
+                        '-----------------------------------------
+                        ' TÌM MATERIAL
+                        '-----------------------------------------
+                        For Each mat As MaterialAsset In
+                            libqq.MaterialAssets
+
+                            Try
+
+                                If mat Is Nothing Then
+                                    Continue For
+                                End If
+
+
+                                If String.Equals(
+                                    mat.DisplayName,
+                                    materialName,
+                                    StringComparison.OrdinalIgnoreCase) Then
+
+                                    libraryMaterial = mat
+                                    Exit For
+
+                                End If
+
+                            Catch
+                            End Try
+
+                        Next
+
+
+                        If libraryMaterial Is Nothing Then
+                            Continue For
+                        End If
+
+
+                        '-----------------------------------------
+                        ' COPY VÀO DOCUMENT
+                        '-----------------------------------------
+                        Try
+
+                            Dim copied As Asset =
+                                libraryMaterial.CopyTo(
+                                    oPartDoc)
+
+
+                            If copied IsNot Nothing Then
+
+                                Dim copiedMaterial As MaterialAsset =
+                                    TryCast(
+                                        copied,
+                                        MaterialAsset)
+
+
+                                If copiedMaterial IsNot Nothing Then
+                                    Return copiedMaterial
+                                End If
+
+                            End If
+
+                        Catch
+                        End Try
+
+
+                        '-----------------------------------------
+                        ' TÌM LẠI TRONG DOCUMENT
+                        '-----------------------------------------
+                        Try
+
+                            For Each mat As MaterialAsset In
+                                oPartDoc.MaterialAssets
+
+                                If String.Equals(
+                                    mat.DisplayName,
+                                    materialName,
+                                    StringComparison.OrdinalIgnoreCase) Then
+
+                                    Return mat
+
+                                End If
+
+                            Next
+
+                        Catch
+                        End Try
+
+
+                    Catch
+
+                        ' Library lỗi -> bỏ qua
+
+                    End Try
+
+                Next
+
+            Catch
+            End Try
+
+
+            Return Nothing
+
         End Function
 
-    End Class
+
+        '=========================================================
+        ' TÌM APPEARANCE TRONG DOCUMENT
+        '=========================================================
+        Private Function FindAppearance(
+            ByVal oPartDoc As PartDocument,
+            ByVal appearanceName As String) As Asset
+
+
+            Try
+
+                For Each appAsset As Asset In
+                    oPartDoc.AppearanceAssets
+
+                    Try
+
+                        If appAsset Is Nothing Then
+                            Continue For
+                        End If
+
+
+                        If String.Equals(
+                            appAsset.DisplayName,
+                            appearanceName,
+                            StringComparison.OrdinalIgnoreCase) Then
+
+                            Return appAsset
+
+                        End If
+
+                    Catch
+                    End Try
+
+                Next
+
+            Catch
+            End Try
+
+
+            Return Nothing
+
+        End Function
+
+
+        '=========================================================
+        ' COPY APPEARANCE VÀO DOCUMENT
+        '=========================================================
+        Private Function CopyAppearanceToDocument(
+            ByVal oApp As Inventor.Application,
+            ByVal oPartDoc As PartDocument,
+            ByVal appearanceName As String) As Asset
+
+
+            Try
+
+                For Each libqq As AssetLibrary In
+                    oApp.AssetLibraries
+
+                    Try
+
+                        For Each appAsset As Asset In
+                            libqq.AppearanceAssets
+
+                            Try
+
+                                If appAsset Is Nothing Then
+                                    Continue For
+                                End If
+
+
+                                If String.Equals(
+                                    appAsset.DisplayName,
+                                    appearanceName,
+                                    StringComparison.OrdinalIgnoreCase) Then
+
+
+                                    Try
+
+                                        Dim copied As Asset =
+                                            appAsset.CopyTo(
+                                                oPartDoc)
+
+
+                                        If copied IsNot Nothing Then
+                                            Return copied
+                                        End If
+
+                                    Catch
+                                    End Try
+
+
+                                    '---------------------------------
+                                    ' Tìm lại trong Document
+                                    '---------------------------------
+                                    Dim localAsset As Asset =
+                                        FindAppearance(
+                                            oPartDoc,
+                                            appearanceName)
+
+
+                                    If localAsset IsNot Nothing Then
+                                        Return localAsset
+                                    End If
+
+
+                                End If
+
+                            Catch
+                            End Try
+
+                        Next
+
+                    Catch
+                    End Try
+
+                Next
+
+            Catch
+            End Try
+
+
+            Return Nothing
+
+        End Function
+
+
+        '=========================================================
+        ' STATUS BAR
+        '=========================================================
+        Private Sub PostStatus(ByVal msg As String)
+
+            Try
+
+                g_inventorApplication.
+                    UserInterfaceManager.
+                    UserInteractionManager.
+                    PostStatus(msg)
+
+            Catch
+            End Try
+
+        End Sub
+
+    End Module
 
 End Namespace
