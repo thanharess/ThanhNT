@@ -228,7 +228,7 @@ Namespace ToolInventor2020
             buttonsList.Add(assemblyBtn21)
 
             Dim assemblyBtn18 As ButtonDefinition = controlDefs.AddButtonDefinition("Ản file", "ToolInventor2020_Assembly_Btn18", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                    Nothing, "Tạo, ghép shetmetal to assembly all lever lấy tất cả các tấm kể cả trung tên partnumber", ass1SmallIcon18, ass1LargeIcon18)
+                                                                                    Nothing, "Tạo, ghép shetmetal to assembly all lever lấy tất cả các tấm kể cả trung tên partnumber. mục 5,6 chưa ok", ass1SmallIcon18, ass1LargeIcon18)
             AddHandler assemblyBtn18.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_LG_3.OnExecute
             buttonsList.Add(assemblyBtn18)
 
