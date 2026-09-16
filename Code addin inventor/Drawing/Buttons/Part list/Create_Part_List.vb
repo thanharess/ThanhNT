@@ -1,6 +1,5 @@
 Option Explicit On
 Option Strict Off
-
 Imports System.Windows.Forms
 Imports Inventor
 Imports System.Collections.Generic
@@ -25,7 +24,6 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
                         "Lỗi",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error)
-
                     Exit Sub
                 End If
 
@@ -56,14 +54,12 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
                 If pickedObj Is Nothing Then Exit Sub
 
                 Dim oView As DrawingView = TryCast(pickedObj, DrawingView)
-
                 If oView Is Nothing Then
                     MessageBox.Show(
                         "Không phải DrawingView.",
                         "Lỗi",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning)
-
                     Exit Sub
                 End If
 
@@ -71,7 +67,6 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
                 ' 3. KIỂM TRA VIEW CÓ PHẢI ASSEMBLY
                 '=====================================================
                 Dim refDoc As Document = Nothing
-
                 Try
                     refDoc = oView.ReferencedDocumentDescriptor.ReferencedDocument
                 Catch
@@ -83,7 +78,6 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
                         "Lỗi",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning)
-
                     Exit Sub
                 End If
 
@@ -97,7 +91,6 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
                         "Lỗi",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning)
-
                     Exit Sub
                 End If
 
@@ -106,71 +99,22 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
                 '=====================================================
                 Dim styleName As String = PickPartsListStyle(oDrawDoc)
 
-                ' Hủy chọn Style = dừng toàn bộ
                 If styleName = "" Then Exit Sub
 
                 '=====================================================
-                ' 5. NHẬP OFFSET
+                ' 5. CHỌN VỊ TRÍ THEO KHUNG BẢN VẼ (KHÔNG NHẬP OFFSET)
                 '=====================================================
-                Dim sOffset As String = InputBox(
-                    "Khoảng cách từ view (mm) — đặt Parts List ở góc trên phải view:" &
-                    vbCrLf & vbCrLf &
-                    "Ví dụ: 20",
-                    "Tạo Parts List",
-                    "20")
+                Dim chosenPos As Point2d = PickPartsListPosition(oSheet, tg)
 
-                If String.IsNullOrWhiteSpace(sOffset) Then Exit Sub
-
-                Dim offsetMM As Double = 20.0
-
-                If Not Double.TryParse(
-                    sOffset.Replace(",", ".").Trim(),
-                    Globalization.NumberStyles.Any,
-                    Globalization.CultureInfo.InvariantCulture,
-                    offsetMM) Then
-
-                    MessageBox.Show(
-                        "Khoảng cách không hợp lệ.",
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning)
-
-                    Exit Sub
-                End If
-
-                If offsetMM < 0 Then
-                    MessageBox.Show(
-                        "Khoảng cách phải lớn hơn hoặc bằng 0.",
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning)
-
-                    Exit Sub
-                End If
-
-                ' Inventor dùng cm
-                Dim offsetCM As Double = offsetMM / 10.0
+                If chosenPos Is Nothing Then Exit Sub
 
                 '=====================================================
-                ' 6. TÍNH VỊ TRÍ MONG MUỐN
-                '=====================================================
-
-                Dim posX As Double =
-                    oView.Position.X +
-                    oView.Width / 2.0 +
-                    offsetCM
-
-                Dim posY As Double =
-                    oView.Position.Y +
-                    oView.Height / 2.0
-
-                '=====================================================
-                ' 7. KIỂM TRA SHEET ĐANG ACTIVE
+                ' 6. KIỂM TRA SHEET ĐANG ACTIVE
                 '=====================================================
                 Try
                     oSheet.Activate()
-                    If oSheet.PartsLists.Count > 0 Then
 
+                    If oSheet.PartsLists.Count > 0 Then
                         MessageBox.Show(
                             "Sheet này đã có Parts List." &
                             vbCrLf & vbCrLf &
@@ -178,36 +122,23 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
                             "Tạo Parts List",
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Warning)
-
                         Exit Sub
-
                     End If
                 Catch
                 End Try
 
                 '=====================================================
-                ' 8. TẠO PARTS LIST TẠI VỊ TRÍ AN TOÀN
-                '
-                ' Không tạo trực tiếp tại mép view vì có thể
-                ' gây E_INVALIDARG nếu điểm nằm ngoài Sheet.
+                ' 7. TẠO PARTS LIST TẠI VỊ TRÍ AN TOÀN TRƯỚC
                 '=====================================================
-
                 Dim safeX As Double = oSheet.Width / 2.0
                 Dim safeY As Double = oSheet.Height / 2.0
-
-                Dim safePos As Point2d =
-                    tg.CreatePoint2d(safeX, safeY)
+                Dim safePos As Point2d = tg.CreatePoint2d(safeX, safeY)
 
                 Dim oPL As PartsList = Nothing
 
                 Try
-
-                    oPL = oSheet.PartsLists.Add(
-                        oView,
-                        safePos)
-
+                    oPL = oSheet.PartsLists.Add(oView, safePos)
                 Catch ex As Exception
-
                     MessageBox.Show(
                         "Không tạo được Parts List:" &
                         vbCrLf & vbCrLf &
@@ -219,33 +150,25 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
                         "Lỗi",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error)
-
                     Exit Sub
-
                 End Try
 
                 If oPL Is Nothing Then
-
                     MessageBox.Show(
                         "Parts List trả về Nothing.",
                         "Lỗi",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error)
-
                     Exit Sub
-
                 End If
 
                 '=====================================================
-                ' 9. GÁN STYLE
+                ' 8. GÁN STYLE
                 '=====================================================
                 Try
-
                     oPL.Style =
                         oDrawDoc.StylesManager.PartsListStyles.Item(styleName)
-
                 Catch ex As Exception
-
                     MessageBox.Show(
                         "Không thể áp dụng Style:" &
                         vbCrLf & vbCrLf &
@@ -255,11 +178,10 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
                         "Cảnh báo",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning)
-
                 End Try
 
                 '=====================================================
-                ' 10. SORT
+                ' 9. SORT
                 '=====================================================
                 Try
                     oPL.Sort("ITEM")
@@ -271,7 +193,7 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
                 End Try
 
                 '=====================================================
-                ' 11. UPDATE
+                ' 10. UPDATE
                 '=====================================================
                 Try
                     oPL.Update()
@@ -284,29 +206,131 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
                 End Try
 
                 '=====================================================
-                ' 12. SAU KHI TẠO XONG MỚI DI CHUYỂN
+                ' 11. DI CHUYỂN ĐẾN VỊ TRÍ ĐÃ CHỌN
                 '=====================================================
-
-
-                Dim finalPos As Point2d =
-                        tg.CreatePoint2d(posX, posY)
-
-                    oPL.Position = finalPos
-
+                Try
+                    oPL.Position = chosenPos
                 Catch
-                    ' Nếu vị trí mong muốn không hợp lệ
-                    ' thì giữ Parts List tại vị trí an toàn.
+                    ' Nếu vị trí không hợp lệ → giữ nguyên vị trí an toàn
                 End Try
+
+            Catch ex As Exception
+                MessageBox.Show(
+                    "Lỗi tổng:" & vbCrLf & vbCrLf & ex.Message,
+                    "Tạo Parts List",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error)
+            End Try
 
         End Sub
 
+        '=============================================================
+        ' CHỌN VỊ TRÍ PARTS LIST THEO KHUNG BẢN VẼ
+        ' Trả về Point2d hoặc Nothing nếu hủy
+        '=============================================================
+        Private Function PickPartsListPosition(
+            ByVal oSheet As Sheet,
+            ByVal tg As TransientGeometry) As Point2d
+
+            Try
+                ' Danh sách vị trí cứng theo khung bản vẽ
+                ' Tọa độ tính theo cm (Inventor internal)
+                Dim positions As New Dictionary(Of String, Point2d)
+
+                ' ---- A4 ngang (297 x 210 mm ≈ 29.7 x 21.0 cm) ----
+                positions.Add("A4 - Góc trên phải", tg.CreatePoint2d(26.0, 18.5))
+                positions.Add("A4 - Góc trên trái", tg.CreatePoint2d(3.5, 18.5))
+                positions.Add("A4 - Góc dưới phải", tg.CreatePoint2d(26.0, 3.5))
+
+                ' ---- A3 ngang (420 x 297 mm ≈ 42.0 x 29.7 cm) ----
+                positions.Add("A3 - Góc trên phải", tg.CreatePoint2d(38.0, 26.5))
+                positions.Add("A3 - Góc trên trái", tg.CreatePoint2d(4.0, 26.5))
+                positions.Add("A3 - Góc dưới phải", tg.CreatePoint2d(38.0, 4.0))
+
+                ' ---- A2 ngang (594 x 420 mm ≈ 59.4 x 42.0 cm) ----
+                positions.Add("A2 - Góc trên phải", tg.CreatePoint2d(54.0, 38.0))
+                positions.Add("A2 - Góc trên trái", tg.CreatePoint2d(5.0, 38.0))
+                positions.Add("A2 - Góc dưới phải", tg.CreatePoint2d(54.0, 5.0))
+
+                ' ---- A1 ngang (841 x 594 mm ≈ 84.1 x 59.4 cm) ----
+                positions.Add("A1 - Góc trên phải", tg.CreatePoint2d(78.0, 54.0))
+                positions.Add("A1 - Góc trên trái", tg.CreatePoint2d(6.0, 54.0))
+                positions.Add("A1 - Góc dưới phải", tg.CreatePoint2d(78.0, 6.0))
+
+                ' ---- A0 ngang (1189 x 841 mm ≈ 118.9 x 84.1 cm) ----
+                positions.Add("A0 - Góc trên phải", tg.CreatePoint2d(110.0, 78.0))
+                positions.Add("A0 - Góc trên trái", tg.CreatePoint2d(8.0, 78.0))
+                positions.Add("A0 - Góc dưới phải", tg.CreatePoint2d(110.0, 8.0))
+
+                ' Form chọn
+                Dim frm As New Form
+                frm.Text = "Chọn vị trí Parts List theo khung bản vẽ"
+                frm.ClientSize = New System.Drawing.Size(420, 360)
+                frm.StartPosition = FormStartPosition.CenterScreen
+                frm.FormBorderStyle = FormBorderStyle.FixedDialog
+                frm.MaximizeBox = False
+                frm.MinimizeBox = False
+                frm.ShowInTaskbar = False
+
+                Dim lst As New ListBox
+                lst.Bounds = New System.Drawing.Rectangle(12, 12, 396, 290)
+                lst.Font = New System.Drawing.Font("Segoe UI", 9.0F)
+
+                For Each key As String In positions.Keys
+                    lst.Items.Add(key)
+                Next
+
+                If lst.Items.Count > 0 Then
+                    lst.SelectedIndex = 0
+                End If
+
+                Dim btnOK As New Button
+                btnOK.Text = "OK"
+                btnOK.Bounds = New System.Drawing.Rectangle(230, 315, 85, 28)
+                btnOK.DialogResult = DialogResult.OK
+
+                Dim btnCancel As New Button
+                btnCancel.Text = "Hủy"
+                btnCancel.Bounds = New System.Drawing.Rectangle(323, 315, 85, 28)
+                btnCancel.DialogResult = DialogResult.Cancel
+
+                frm.AcceptButton = btnOK
+                frm.CancelButton = btnCancel
+
+                AddHandler lst.DoubleClick,
+                    Sub(sender As Object, e As EventArgs)
+                        If lst.SelectedItem IsNot Nothing Then
+                            frm.DialogResult = DialogResult.OK
+                            frm.Close()
+                        End If
+                    End Sub
+
+                frm.Controls.Add(lst)
+                frm.Controls.Add(btnOK)
+                frm.Controls.Add(btnCancel)
+
+                Dim result As DialogResult = frm.ShowDialog()
+
+                If result <> DialogResult.OK OrElse lst.SelectedItem Is Nothing Then
+                    Return Nothing
+                End If
+
+                Dim selectedKey As String = lst.SelectedItem.ToString()
+                Return positions(selectedKey)
+
+            Catch ex As Exception
+                MessageBox.Show(
+                    "Lỗi khi chọn vị trí:" & vbCrLf & vbCrLf & ex.Message,
+                    "Tạo Parts List",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning)
+                Return Nothing
+            End Try
+
+        End Function
 
         '=============================================================
         ' CHỌN STYLE PARTS LIST
-        '
-        ' Trả về:
-        '   Tên Style = OK
-        '   ""        = Hủy
         '=============================================================
         Private Function PickPartsListStyle(
             ByVal oDrawDoc As DrawingDocument) As String
@@ -319,68 +343,33 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
                     Return ""
                 End If
 
-                '=====================================================
-                ' LẤY DANH SÁCH STYLE
-                '=====================================================
                 Dim names As New List(Of String)
 
                 For i As Integer = 1 To styles.Count
-
                     Try
-                        Dim style As Inventor.PartsListStyle =
-                            styles.Item(i)
-
+                        Dim style As Inventor.PartsListStyle = styles.Item(i)
                         If style IsNot Nothing Then
                             names.Add(style.Name)
                         End If
-
                     Catch
                     End Try
-
                 Next
 
                 If names.Count = 0 Then Return ""
+                If names.Count = 1 Then Return names(0)
 
-                ' Chỉ có 1 Style → dùng luôn
-                If names.Count = 1 Then
-                    Return names(0)
-                End If
-
-                '=====================================================
-                ' TẠO FORM
-                '=====================================================
                 Dim frm As New Form
-
                 frm.Text = "Chọn Style Parts List"
-                frm.ClientSize =
-                    New System.Drawing.Size(420, 320)
-
-                frm.StartPosition =
-                    FormStartPosition.CenterScreen
-
-                frm.FormBorderStyle =
-                    FormBorderStyle.FixedDialog
-
+                frm.ClientSize = New System.Drawing.Size(420, 320)
+                frm.StartPosition = FormStartPosition.CenterScreen
+                frm.FormBorderStyle = FormBorderStyle.FixedDialog
                 frm.MaximizeBox = False
                 frm.MinimizeBox = False
                 frm.ShowInTaskbar = False
 
-                '=====================================================
-                ' LIST
-                '=====================================================
                 Dim lst As New ListBox
-
-                lst.Bounds =
-                    New System.Drawing.Rectangle(
-                        12,
-                        12,
-                        396,
-                        250)
-
-                lst.Font =
-                    New System.Drawing.Font(
-                        "Segoe UI",
-                        9.0F)
+                lst.Bounds = New System.Drawing.Rectangle(12, 12, 396, 250)
+                lst.Font = New System.Drawing.Font("Segoe UI", 9.0F)
 
                 For Each n As String In names
                     lst.Items.Add(n)
@@ -390,97 +379,46 @@ Namespace ToolInventor2020.Drawing.Buttons.DrawPartList
                     lst.SelectedIndex = 0
                 End If
 
-                '=====================================================
-                ' BUTTON OK
-                '=====================================================
                 Dim btnOK As New Button
-
                 btnOK.Text = "OK"
+                btnOK.Bounds = New System.Drawing.Rectangle(230, 275, 85, 28)
+                btnOK.DialogResult = DialogResult.OK
 
-                btnOK.Bounds =
-                    New System.Drawing.Rectangle(
-                        230,
-                        275,
-                        85,
-                        28)
-
-                btnOK.DialogResult =
-                    DialogResult.OK
-
-                '=====================================================
-                ' BUTTON HỦY
-                '=====================================================
                 Dim btnCancel As New Button
-
                 btnCancel.Text = "Hủy"
+                btnCancel.Bounds = New System.Drawing.Rectangle(323, 275, 85, 28)
+                btnCancel.DialogResult = DialogResult.Cancel
 
-                btnCancel.Bounds =
-                    New System.Drawing.Rectangle(
-                        323,
-                        275,
-                        85,
-                        28)
-
-                btnCancel.DialogResult =
-                    DialogResult.Cancel
-
-                '=====================================================
-                ' ENTER / ESC
-                '=====================================================
                 frm.AcceptButton = btnOK
                 frm.CancelButton = btnCancel
 
-                '=====================================================
-                ' DOUBLE CLICK = OK
-                '=====================================================
                 AddHandler lst.DoubleClick,
                     Sub(sender As Object, e As EventArgs)
-
                         If lst.SelectedItem IsNot Nothing Then
                             frm.DialogResult = DialogResult.OK
                             frm.Close()
                         End If
-
                     End Sub
 
-                '=====================================================
-                ' ADD CONTROL
-                '=====================================================
                 frm.Controls.Add(lst)
                 frm.Controls.Add(btnOK)
                 frm.Controls.Add(btnCancel)
 
-                '=====================================================
-                ' HIỂN THỊ MODAL
-                '=====================================================
-                Dim result As DialogResult =
-                    frm.ShowDialog()
+                Dim result As DialogResult = frm.ShowDialog()
 
-                '=====================================================
-                ' KIỂM TRA KẾT QUẢ
-                '=====================================================
-                If result <> DialogResult.OK Then
-                    Return ""
-                End If
-
-                If lst.SelectedItem Is Nothing Then
+                If result <> DialogResult.OK OrElse lst.SelectedItem Is Nothing Then
                     Return ""
                 End If
 
                 Return lst.SelectedItem.ToString()
 
             Catch ex As Exception
-
                 MessageBox.Show(
-                    "Lỗi khi chọn Style:" &
-                    vbCrLf & vbCrLf &
-                    ex.Message,
+                    "Lỗi khi chọn Style:" & vbCrLf & vbCrLf & ex.Message,
                     "Tạo Parts List",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning)
-
                 Return ""
-
             End Try
 
         End Function

@@ -318,21 +318,21 @@ Namespace ToolInventor2020
 #Region "Auto Drawing"
             ''====================================== Drawing Auto ======================================
 
-            Dim assemblyBtn23 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto Drawing v9", "ToolInventor2020_Assembly_Btn23", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                 Nothing, "Auto drawing cho ALL lever.", ass1SmallIcon23, ass1LargeIcon23)
-            AddHandler assemblyBtn23.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.AutoDrawingV8.OnExecute
+            Dim assemblyBtn23 As ButtonDefinition = controlDefs.AddButtonDefinition("Auto Drawing", "ToolInventor2020_Assembly_Btn23", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                 Nothing, "Auto tạo bản vẽ.", ass1SmallIcon23, ass1LargeIcon23)
+            AddHandler assemblyBtn23.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.ASS_Auto_Drawing.OnExecute
             buttonsList.Add(assemblyBtn23)
 
             Dim assemblyBtn24 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing top ASS", "ToolInventor2020_Assembly_Btn24", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                             Nothing, "Auto drawing cho các Assembly chỉ áp dụng cho top lever", ass1SmallIcon24, ass1LargeIcon24)
-            AddHandler assemblyBtn24.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.AutoDrawingASSTopLV.OnExecute
-            buttonsList.Add(assemblyBtn24)
+            ' AddHandler assemblyBtn24.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.AutoDrawingASSTopLV.OnExecute
+            '  buttonsList.Add(assemblyBtn24)
 
 
             Dim assemblyBtn25 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing top Ass, Part", "ToolInventor2020_Assembly_Btn25", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                             Nothing, "Auto drawing cho Assembly & Part Top lever.", ass1SmallIcon25, ass1LargeIcon25)
-            AddHandler assemblyBtn25.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.AutoDrawingASSpartTopLV.OnExecute
-            buttonsList.Add(assemblyBtn25)
+            '  AddHandler assemblyBtn25.OnExecute, AddressOf Assembly.Buttons.AutoCreateDrawing.AutoDrawingASSpartTopLV.OnExecute
+            '  buttonsList.Add(assemblyBtn25)
 
             ''''''''''''''======================================
 
