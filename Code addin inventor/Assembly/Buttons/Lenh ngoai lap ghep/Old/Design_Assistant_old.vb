@@ -1,9 +1,10 @@
-Imports System.Collections.Generic
+﻿Imports System.Collections.Generic
 Imports System.Windows.Forms
 Imports Inventor
 
 Namespace ToolInventor2020.Assembly.Buttons.Lenhngoaicumlap
-    Public Module Design_Assistant
+    Public Module Design_Assistant_old
+
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
@@ -60,49 +61,43 @@ Namespace ToolInventor2020.Assembly.Buttons.Lenhngoaicumlap
                 '=====================================================
 
                 Dim newMainName As String =
-    InputBoxEx(
-        "TÊN GỐC: " & oldMainName & vbCrLf & vbCrLf &
-        "Nhập tên MỚI cho file lắp chính:",
-        "ĐỔI TÊN FILE LẮP CHÍNH",
-        oldMainName & "-2")
+                    Microsoft.VisualBasic.Interaction.InputBox(
+                        "TÊN GỐC: " &
+                        oldMainName &
+                        vbCrLf & vbCrLf &
+                        "Nhập tên MỚI cho file lắp chính:",
+                        "ĐỔI TÊN FILE LẮP CHÍNH",
+                        oldMainName & "-2")
 
-                If newMainName Is Nothing Then Exit Sub           ' ← Cancel
 
                 If String.IsNullOrWhiteSpace(newMainName) Then
-                    MessageBox.Show("Tên Main Assembly không được để trống.",
-                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                    Exit Sub
+
+                    newMainName =
+                        oldMainName & "_NEW"
+
                 End If
 
-                '=====================================================
-                ' PREFIX
-                '=====================================================
 
                 '=====================================================
                 ' PREFIX
                 '=====================================================
 
                 Dim subPrefix As String =
-    InputBoxEx(
-        "Thêm phần tên đầu cho Cụm phụ & Part (có thể để trống):",
-        "PREFIX",
-        "")
+                    Microsoft.VisualBasic.Interaction.InputBox(
+                        "Thêm phần tên đầu cho Cụm phụ & Part",
+                        "PREFIX",
+                        "")
 
-                If subPrefix Is Nothing Then Exit Sub             ' ← Cancel
 
                 '=====================================================
                 ' SUFFIX
                 '=====================================================
 
-
-
                 Dim subSuffix As String =
-    InputBoxEx(
-        "Thêm phần tên cuối cho Cụm phụ & Part (có thể để trống):",
-        "SUFFIX",
-        "-")
-
-                If subSuffix Is Nothing Then Exit Sub             ' ← Cancel
+                    Microsoft.VisualBasic.Interaction.InputBox(
+                        "Thêm phần tên cuối cho Cụm phụ & Part",
+                        "SUFFIX",
+                        "-")
 
 
                 '=====================================================
@@ -612,68 +607,6 @@ Namespace ToolInventor2020.Assembly.Buttons.Lenhngoaicumlap
 
         End Sub
 
-        '=============================================================
-        ' INPUTBOX CÓ PHÂN BIỆT CANCEL vs OK-EMPTY
-        '   - Bấm OK     → trả về chuỗi (có thể rỗng)
-        '   - Bấm Cancel → trả về Nothing
-        '   - Bấm X      → trả về Nothing
-        '=============================================================
-        Private Function InputBoxEx(
-    ByVal prompt As String,
-    ByVal title As String,
-    ByVal defaultValue As String) As String
-
-            Dim frm As New Form With {
-        .Text = title,
-        .ClientSize = New System.Drawing.Size(460, 200),
-        .StartPosition = FormStartPosition.CenterScreen,
-        .FormBorderStyle = FormBorderStyle.FixedDialog,
-        .MaximizeBox = False,
-        .MinimizeBox = False,
-        .ShowInTaskbar = False
-    }
-
-            Dim lbl As New Label With {
-        .Text = prompt,
-        .Bounds = New System.Drawing.Rectangle(12, 12, 436, 90),
-        .Font = New System.Drawing.Font("Segoe UI", 9)
-    }
-
-            Dim txt As New System.Windows.Forms.TextBox With {
-        .Text = If(defaultValue, ""),
-        .Bounds = New System.Drawing.Rectangle(12, 105, 436, 24),
-        .Font = New System.Drawing.Font("Segoe UI", 9)
-    }
-            txt.SelectAll()
-
-            Dim btnOK As New Button With {
-        .Text = "OK",
-        .Bounds = New System.Drawing.Rectangle(270, 150, 85, 30),
-        .DialogResult = DialogResult.OK
-    }
-            Dim btnCancel As New Button With {
-        .Text = "Hủy",
-        .Bounds = New System.Drawing.Rectangle(363, 150, 85, 30),
-        .DialogResult = DialogResult.Cancel
-    }
-
-            frm.Controls.AddRange({lbl, txt, btnOK, btnCancel})
-            frm.AcceptButton = btnOK
-            frm.CancelButton = btnCancel
-
-            ' Đóng bằng nút X → Cancel
-            Dim okClicked As Boolean = False
-            AddHandler btnOK.Click, Sub() okClicked = True
-
-            Dim result As DialogResult = frm.ShowDialog()
-
-            If result <> DialogResult.OK OrElse Not okClicked Then
-                Return Nothing           ' ← Cancel / X
-            End If
-
-            Return txt.Text
-
-        End Function
 
         '=============================================================
         ' KIỂM TRA PURCHASED

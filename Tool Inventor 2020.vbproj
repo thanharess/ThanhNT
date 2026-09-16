@@ -116,6 +116,7 @@
     <Compile Include="Code addin inventor\Assembly\Buttons\Auto Creating Drawing\Auto drawing ASS,Part top LV.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_LG_3.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Lenh_Constrain\Ass_LG_C_1e.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Lenh ngoai lap ghep\Old\Design_Assistant_old.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Part\Ass_Part_9.vb" />
     <Compile Include="Code addin inventor\Assembly\Cac lenh Boc tach\Part\Ass_boctach_part_1.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Lenh_Constrain\Ass_LG_C_1a.vb" />
