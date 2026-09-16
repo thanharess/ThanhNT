@@ -252,6 +252,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="Autodesk.ThanhN.Inventor.addin" />
+    <Content Include="Code addin inventor\Item addin\Màu sắc 1.adsklib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="ThanhN.X.manifest" />
   </ItemGroup>
   <ItemGroup>

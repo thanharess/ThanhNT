@@ -71,7 +71,7 @@ Namespace ToolInventor2020.Part.Buttons
                 ' DOCUMENT HIỆN TẠI
                 '-------------------------------------------------
                 Dim oDoc As Document =
-                    oApp.ActiveDocument
+                    oApp.ActiveEditDocument
 
                 If oDoc Is Nothing Then
 

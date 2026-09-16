@@ -26,7 +26,7 @@ Namespace ToolInventor2020.Assembly.Buttons.caclenhlapghep
             '=====================================================
             Dim frm As New Form()
             frm.Text = "Ẩn Component - Inventor 2020"
-            frm.Size = New Size(380, 420)
+            frm.Size = New Size(380, 440)
             frm.StartPosition = FormStartPosition.CenterScreen
             frm.FormBorderStyle = FormBorderStyle.FixedDialog
             frm.MaximizeBox = False
