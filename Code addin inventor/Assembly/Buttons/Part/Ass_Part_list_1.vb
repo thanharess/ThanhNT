@@ -52,8 +52,8 @@ Namespace ToolInventor2020.Assembly.Buttons.Part
 
                 form.Tag = 0
                 AddMenuButton(form, "Đổi đơn vị Part", 45, 1) 'ok
-                AddMenuButton(form, "Generic to steel Part", 95, 2) 'ok
-                AddMenuButton(form, "Xoa mau ghi de len part", 145, 3) 'ok
+                AddMenuButton(form, "Đổi vật liệu từ generic thành steel Part", 95, 2) 'ok
+                AddMenuButton(form, "Xoá màu ghi đè lên part", 145, 3) 'ok
                 AddMenuButton(form, "Thay màu part", 195, 4) 'ok
                 AddMenuButton(form, "Thông số part", 245, 5) 'ok
                 'AddMenuButton(form, "All lever Bóc tách số lượng tổng tấm lọc part", 295, 6) ' ok
@@ -62,7 +62,7 @@ Namespace ToolInventor2020.Assembly.Buttons.Part
 
 
                 Dim cancelButton As New Button() With {
-                    .Text = "HỦY", .Left = 20, .Top = 445, .Width = 490, .Height = 32
+                    .Text = "Hủy", .Left = 20, .Top = 445, .Width = 490, .Height = 32
                 }
                 AddHandler cancelButton.Click, Sub() form.Close()
                 form.Controls.Add(cancelButton)
