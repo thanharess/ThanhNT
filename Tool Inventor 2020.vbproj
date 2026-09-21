@@ -172,6 +172,7 @@
     <Compile Include="Code addin inventor\Drawing\Buttons\Dim\Liner\old\Draw_dim_chain_line_c_old.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Draw_Rename_Sheet.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Part list\Create_Part_List.vb" />
+    <Compile Include="Code addin inventor\Drawing\Buttons\Text\Draw_text_list_1.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Text\TextReplace.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Text\ThayChuTrongText.vb" />
     <Compile Include="Code addin inventor\Drawing\Buttons\Text\Thay_chu_in_hoa.vb">
