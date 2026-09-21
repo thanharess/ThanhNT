@@ -183,7 +183,7 @@ Namespace ToolInventor2020.Drawing.Buttons
 
             Dim frm As New Form()
             frm.Text = "Đổi Scale + Hatch Mặt cắt"
-            frm.Size = New Size(360, 210)
+            frm.Size = New Size(360, 250)
             frm.StartPosition = FormStartPosition.CenterScreen
             frm.FormBorderStyle = FormBorderStyle.FixedDialog
             frm.MaximizeBox = False
@@ -198,8 +198,8 @@ Namespace ToolInventor2020.Drawing.Buttons
             cboScope.Items.AddRange({"Active Sheet", "All Sheets"})
             cboScope.SelectedIndex = 0
 
-            Dim btnOK As New Button() With {.Text = "OK", .Location = New System.Drawing.Point(160, 150), .Width = 70, .DialogResult = DialogResult.OK}
-            Dim btnCancel As New Button() With {.Text = "Cancel", .Location = New System.Drawing.Point(240, 150), .Width = 70, .DialogResult = DialogResult.Cancel}
+            Dim btnOK As New Button() With {.Text = "OK", .Location = New System.Drawing.Point(160, 165), .Width = 70, .DialogResult = DialogResult.OK}
+            Dim btnCancel As New Button() With {.Text = "Cancel", .Location = New System.Drawing.Point(240, 165), .Width = 70, .DialogResult = DialogResult.Cancel}
 
             frm.Controls.AddRange({lbl1, txtScale, lbl2, cboScope, btnOK, btnCancel})
             frm.AcceptButton = btnOK
