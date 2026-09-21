@@ -1,16 +1,37 @@
 ﻿Imports System
 Imports System.Collections.Generic
 Imports System.Drawing
+Imports System.IO
 Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Windows.Forms
 Imports Inventor
 
 Namespace ToolInventor2020.Drawing.Buttons.Drawtext
+
+    '═══════════════════════════════════════════════════════════
+    ' Enum phạm vi áp dụng
+    '═══════════════════════════════════════════════════════════
+    Public Enum ApplyScope
+        SelectedObjects = 0
+        CurrentSheet = 1
+        AllSheets = 2
+    End Enum
+
+
     Public Module ThayChuTrongTextModule
 
         '═══════════════════════════════════════════════════════════
-        ' STATE cho InteractionEvents (giữ giữa các callback)
+        ' Đường dẫn file lịch sử
+        '═══════════════════════════════════════════════════════════
+        ' MỚI — thêm System. / System.IO.
+        Friend ReadOnly HistoryFile As String =
+    System.IO.Path.Combine(
+        System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
+        "ToolInventor2020", "replace_history.txt")
+
+        '═══════════════════════════════════════════════════════════
+        ' STATE cho InteractionEvents
         '═══════════════════════════════════════════════════════════
         Private _inventorApp As Inventor.Application
         Private _oDrawDoc As DrawingDocument
@@ -41,16 +62,26 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
 
             _oDrawDoc = CType(_inventorApp.ActiveDocument, DrawingDocument)
 
-            ' ── 2. Form nhập cặp TÌM / THAY ──
+            ' ── 2. Đọc lịch sử + Đếm selection có sẵn ──
+            Dim history = LoadHistory()
             Dim preSelectionCount As Integer = 0
             Try : preSelectionCount = _oDrawDoc.SelectSet.Count : Catch : End Try
 
-            Using form As New ReplaceForm(preSelectionCount)
+            Console.WriteLine($"→ Có {preSelectionCount} đối tượng được chọn sẵn.")
+            Console.WriteLine($"→ Lịch sử: {history.Count} cặp đã lưu.")
+
+            ' ── 3. Mở form ──
+            Dim scope As ApplyScope
+            Dim doSaveHistory As Boolean
+
+            Using form As New ReplaceForm(preSelectionCount, history)
                 If form.ShowDialog() <> DialogResult.OK Then
                     Console.WriteLine("✖ Đã hủy lệnh.")
                     Return
                 End If
                 _pendingPairs = form.Pairs
+                scope = form.Scope
+                doSaveHistory = form.SaveHistory
             End Using
 
             If _pendingPairs Is Nothing OrElse _pendingPairs.Count = 0 Then
@@ -58,34 +89,211 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
                 Return
             End If
 
+            ' ── 4. Lưu history nếu được tick ──
+            If doSaveHistory Then
+                SaveHistory(_pendingPairs)
+            End If
+
             Console.WriteLine("=== THAYCHUTRONGTEXT ===")
             For Each p In _pendingPairs
                 Console.WriteLine($"  • ""{p.Find}""  →  ""{p.Replace}""")
             Next
+            Console.WriteLine($"  Phạm vi: {scope}")
 
-            ' ── 3. Xác định danh sách đối tượng ──
-            If preSelectionCount > 0 Then
-                ' ▶ Dùng các đối tượng đã chọn trước
-                Dim targets As New List(Of Object)()
-                For i As Integer = 1 To preSelectionCount
-                    targets.Add(_oDrawDoc.SelectSet.Item(i))
+            ' ── 5. Xử lý theo phạm vi ──
+            Select Case scope
+
+                Case ApplyScope.SelectedObjects
+                    If preSelectionCount > 0 Then
+                        Dim targets As New List(Of Object)()
+                        For i As Integer = 1 To preSelectionCount
+                            Try : targets.Add(_oDrawDoc.SelectSet.Item(i)) : Catch : End Try
+                        Next
+                        ApplyAll(targets, _pendingPairs)
+                        ClearSelectionAndUpdate()
+                        _pendingPairs = Nothing
+                    Else
+                        StartInteractiveSelect()
+                        ' ⚠️ OnExecute sẽ chờ trong DoEvents loop cho đến khi user ESC
+                    End If
+
+                Case ApplyScope.CurrentSheet
+                    Dim sheet As Sheet = _oDrawDoc.ActiveSheet
+                    Console.WriteLine($"▶ Áp dụng cho sheet: {sheet.Name}")
+                    Dim targets = CollectAllText(sheet)
+                    Console.WriteLine($"  Tìm thấy {targets.Count} đối tượng có text.")
+                    ApplyAll(targets, _pendingPairs)
+                    ClearSelectionAndUpdate()
+                    _pendingPairs = Nothing
+
+                Case ApplyScope.AllSheets
+                    Console.WriteLine("▶ Áp dụng cho TẤT CẢ sheet...")
+                    Dim allTargets As New List(Of Object)()
+                    For Each sheet As Sheet In _oDrawDoc.Sheets
+                        Console.WriteLine($"  ─ Sheet: {sheet.Name}")
+                        Dim t = CollectAllText(sheet)
+                        Console.WriteLine($"    {t.Count} đối tượng.")
+                        allTargets.AddRange(t)
+                    Next
+                    Console.WriteLine($"  Tổng: {allTargets.Count} đối tượng.")
+                    ApplyAll(allTargets, _pendingPairs)
+                    ClearSelectionAndUpdate()
+                    _pendingPairs = Nothing
+
+            End Select
+        End Sub
+
+
+        Private Sub ClearSelectionAndUpdate()
+            Try
+                _oDrawDoc.SelectSet.Clear()
+                _inventorApp.ActiveView.Update()
+            Catch
+            End Try
+        End Sub
+
+
+        '═══════════════════════════════════════════════════════════
+        ' Thu thập tất cả đối tượng có text trong 1 sheet
+        '═══════════════════════════════════════════════════════════
+        Private Function CollectAllText(ByVal sheet As Sheet) As List(Of Object)
+            Dim result As New List(Of Object)()
+
+            ' Notes trực tiếp trên sheet
+            Try
+                For Each obj As Object In sheet.DrawingNotes
+                    result.Add(obj)
+                Next
+            Catch
+            End Try
+
+            ' Dimensions trực tiếp trên sheet
+            Try
+                For Each obj As Object In sheet.DrawingDimensions
+                    result.Add(obj)
+                Next
+            Catch
+            End Try
+
+            ' Sketched Symbols
+            Try
+                For Each obj As Object In sheet.SketchedSymbols
+                    result.Add(obj)
+                Next
+            Catch
+            End Try
+
+            ' Sketches của sheet
+            Try
+                For Each sk As DrawingSketch In sheet.Sketches
+                    Try
+                        For Each tb As Inventor.TextBox In sk.TextBoxes
+                            result.Add(tb)
+                        Next
+                    Catch
+                    End Try
+                Next
+            Catch
+            End Try
+
+            ' Views và nội dung bên trong
+            Try
+                For Each view As DrawingView In sheet.DrawingViews
+
+                    ' Label của view
+                    Try
+                        If view.Label IsNot Nothing Then result.Add(view.Label)
+                    Catch
+                    End Try
+
+                    ' Notes trong view
+                    Try
+                        For Each obj As Object In view.DrawingNotes
+                            result.Add(obj)
+                        Next
+                    Catch
+                    End Try
+
+                    ' Dimensions trong view
+                    Try
+                        For Each obj As Object In view.DrawingDimensions
+                            result.Add(obj)
+                        Next
+                    Catch
+                    End Try
+
+                    ' Sketches trong view
+                    Try
+                        For Each sk As DrawingSketch In view.Sketches
+                            Try
+                                For Each tb As Inventor.TextBox In sk.TextBoxes
+                                    result.Add(tb)
+                                Next
+                            Catch
+                            End Try
+                        Next
+                    Catch
+                    End Try
+                Next
+            Catch
+            End Try
+
+            Return result
+        End Function
+
+
+        '═══════════════════════════════════════════════════════════
+        ' LỊCH SỬ - LƯU / ĐỌC / XÓA
+        '═══════════════════════════════════════════════════════════
+        Friend Function LoadHistory() As List(Of ReplacePair)
+            Dim list As New List(Of ReplacePair)()
+            Try
+                If System.IO.File.Exists(HistoryFile) Then
+                    For Each line In System.IO.File.ReadAllLines(HistoryFile, Encoding.UTF8)
+                        If String.IsNullOrWhiteSpace(line) Then Continue For
+                        Dim parts = line.Split(ControlChars.Tab)
+                        If parts.Length >= 2 Then
+                            list.Add(New ReplacePair(parts(0), parts(1)))
+                        ElseIf parts.Length = 1 Then
+                            list.Add(New ReplacePair(parts(0), ""))
+                        End If
+                    Next
+                End If
+            Catch ex As Exception
+                Console.WriteLine("  ⚠️ Load history: " & ex.Message)
+            End Try
+            Return list
+        End Function
+
+
+        Friend Sub SaveHistory(ByVal pairs As List(Of ReplacePair))
+            Try
+                Dim dir As String = System.IO.Path.GetDirectoryName(HistoryFile)
+                If Not System.IO.Directory.Exists(dir) Then System.IO.Directory.CreateDirectory(dir)
+
+                Dim sb As New StringBuilder()
+                For Each p In pairs
+                    If String.IsNullOrEmpty(p.Find) Then Continue For
+                    Dim f = If(p.Find, "").Replace(ControlChars.Tab, " "c)
+                    Dim r = If(p.Replace, "").Replace(ControlChars.Tab, " "c)
+                    sb.AppendLine(f & ControlChars.Tab & r)
                 Next
 
-                Console.WriteLine($"Sử dụng {targets.Count} đối tượng đã chọn.")
-                ApplyAll(targets, _pendingPairs)
+                System.IO.File.WriteAllText(HistoryFile, sb.ToString(), Encoding.UTF8)
+                Console.WriteLine($"  ✔ Đã lưu {pairs.Count} cặp vào: {HistoryFile}")
+            Catch ex As Exception
+                Console.WriteLine("  ⚠️ Save history: " & ex.Message)
+            End Try
+        End Sub
 
-                Try
-                    _oDrawDoc.SelectSet.Clear()
-                    _inventorApp.ActiveView.Update()
-                Catch
-                End Try
 
-                _pendingPairs = Nothing
-            Else
-                ' ▶ Bật chế độ chọn tương tác (quét chuột)
-                StartInteractiveSelect()
-                ' ⚠️ Không làm gì thêm — sự kiện OnTerminate sẽ tiếp tục xử lý
-            End If
+        Friend Sub ClearHistoryFile()
+            Try
+                If System.IO.File.Exists(HistoryFile) Then System.IO.File.Delete(HistoryFile)
+                Console.WriteLine("  ✔ Đã xóa file lịch sử.")
+            Catch ex As Exception
+                Console.WriteLine("  ⚠️ Clear history: " & ex.Message)
+            End Try
         End Sub
 
 
@@ -94,13 +302,11 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
         '═══════════════════════════════════════════════════════════
         Private Sub StartInteractiveSelect()
             _collectedObjects.Clear()
-
             Try : _oDrawDoc.SelectSet.Clear() : Catch : End Try
 
             Try
                 _interactEvents = _inventorApp.CommandManager.CreateInteractionEvents()
                 _interactEvents.InteractionDisabled = False
-                ' ── ĐÃ BỎ dòng StopOnCommand ──
 
                 _selectEvents = _interactEvents.SelectEvents
                 _selectEvents.AddSelectionFilter(SelectionFilterEnum.kAllEntitiesFilter)
@@ -123,7 +329,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
             Console.WriteLine("▶ Nhấn ESC (hoặc chuột phải → Done) khi chọn xong.")
             Console.WriteLine("─────────────────────────────────────────────────")
 
-            ' Giữ OnExecute không return để InteractionEvents không bị kill
+            ' Giữ OnExecute không return → Inventor không kill InteractionEvents
             Do While _interactEvents IsNot Nothing
                 System.Windows.Forms.Application.DoEvents()
                 System.Threading.Thread.Sleep(20)
@@ -133,15 +339,11 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
         End Sub
 
 
-
-        '═══════════════════════════════════════════════════════════
-        ' CALLBACK: Mỗi khi user chọn 1 đối tượng (hoặc quét chuột)
-        '═══════════════════════════════════════════════════════════
         Private Sub HandleOnSelect(ByVal JustSelectedEntities As ObjectsEnumerator,
-                            ByVal SelectionDevice As SelectionDeviceEnum,
-                            ByVal ModelPosition As Inventor.Point,
-                            ByVal ViewPosition As Point2d,
-                            ByVal View As Inventor.View)
+                                   ByVal SelectionDevice As SelectionDeviceEnum,
+                                   ByVal ModelPosition As Inventor.Point,
+                                   ByVal ViewPosition As Point2d,
+                                   ByVal View As Inventor.View)
             Try
                 For Each obj As Object In JustSelectedEntities
                     If obj Is Nothing Then Continue For
@@ -156,11 +358,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
         End Sub
 
 
-        '═══════════════════════════════════════════════════════════
-        ' CALLBACK: User kết thúc chọn (ESC / Done)
-        '═══════════════════════════════════════════════════════════
         Private Sub HandleOnTerminate()
-            ' Gỡ event handlers
             Try
                 If _selectEvents IsNot Nothing Then
                     RemoveHandler _selectEvents.OnSelect, AddressOf HandleOnSelect
@@ -171,7 +369,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
             Catch
             End Try
 
-            ' Áp dụng
             Try
                 If _collectedObjects.Count > 0 Then
                     Console.WriteLine($"Đã chọn {_collectedObjects.Count} đối tượng. Đang áp dụng...")
@@ -183,7 +380,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
                 Console.WriteLine("  ⚠️ Apply: " & ex.Message)
             End Try
 
-            ' Reset
             Try
                 If _oDrawDoc IsNot Nothing Then
                     _oDrawDoc.SelectSet.Clear()
@@ -200,15 +396,24 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
 
 
         '═══════════════════════════════════════════════════════════
-        ' ÁP DỤNG CẶP TÌM/THAY CHO DANH SÁCH ĐỐI TƯỢNG
+        ' ÁP DỤNG
         '═══════════════════════════════════════════════════════════
         Private Sub ApplyAll(ByVal targets As List(Of Object), ByVal pairs As List(Of ReplacePair))
             If targets Is Nothing OrElse pairs Is Nothing Then Return
 
+            Dim applied As New HashSet(Of Object)()
             Dim count As Integer = 0
+            Dim skipped As Integer = 0
+
             For Each tObj In targets
+                If applied.Contains(tObj) Then Continue For
+                applied.Add(tObj)
+
                 Dim oldTxt As String = GetTextFromEntity(tObj)
-                If String.IsNullOrEmpty(oldTxt) Then Continue For
+                If String.IsNullOrEmpty(oldTxt) Then
+                    skipped += 1
+                    Continue For
+                End If
 
                 Dim newTxt As String = oldTxt
                 For Each p In pairs
@@ -221,7 +426,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
                 End If
             Next
 
-            Console.WriteLine($"✅ Hoàn tất – đã xử lý {count}/{targets.Count} đối tượng.")
+            Console.WriteLine($"✅ Hoàn tất – đã xử lý {count} đối tượng (bỏ qua {skipped} đối tượng không có text).")
 
             Try
                 _inventorApp.ActiveView.Update()
@@ -231,7 +436,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
 
 
         '═══════════════════════════════════════════════════════════
-        ' ĐỌC TEXT
+        ' ĐỌC / GHI TEXT
         '═══════════════════════════════════════════════════════════
         Private Function GetTextFromEntity(ByVal obj As Object) As String
             Try
@@ -259,9 +464,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
         End Function
 
 
-        '═══════════════════════════════════════════════════════════
-        ' GHI TEXT
-        '═══════════════════════════════════════════════════════════
         Private Function SetTextToEntity(ByVal obj As Object, ByVal newText As String) As Boolean
             Try
                 If TypeOf obj Is GeneralNote Then
@@ -373,49 +575,73 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
         Private dgv As DataGridView
         Private btnAdd As Button
         Private btnRemove As Button
+        Private btnClearHistory As Button
         Private btnOK As Button
         Private btnCancel As Button
 
-        Public Property Pairs As List(Of ReplacePair)
+        Private rbSelected As RadioButton
+        Private rbCurrentSheet As RadioButton
+        Private rbAllSheets As RadioButton
+        Private chkSaveHistory As CheckBox
 
-        Public Sub New(ByVal preSelectionCount As Integer)
+        Public Property Pairs As List(Of ReplacePair)
+        Public Property Scope As ApplyScope
+        Public Property SaveHistory As Boolean
+
+        Public Sub New(ByVal preSelectionCount As Integer, ByVal history As List(Of ReplacePair))
             Me.Text = "Thay chữ trong Text (Inventor)"
-            Me.Width = 620
-            Me.Height = 500
+            Me.ClientSize = New Size(650, 570)
             Me.FormBorderStyle = FormBorderStyle.FixedDialog
             Me.StartPosition = FormStartPosition.CenterScreen
             Me.MaximizeBox = False
             Me.MinimizeBox = False
             Me.Font = New Font("Segoe UI", 9.0F)
 
-            Dim lblTitle As New Label With {
-                .Text = "Nhập các cặp TÌM / THAY THẾ (không phân biệt hoa thường):",
-                .Left = 12, .Top = 10, .Width = 590,
-                .Font = New Font(Me.Font, FontStyle.Bold)
-            }
-
+            ' ── Hint ──
             Dim lblHint As New Label With {
                 .Text = "• Cột 'Thay bằng' để trống = XÓA cụm từ đó" & vbCrLf &
-                        "• Áp dụng an toàn với tag XML (<SCALE>, <VIEW>, <StyleOverride>...)",
-                .Left = 12, .Top = 32, .Width = 590, .Height = 32,
+                        "• Không phân biệt hoa thường, an toàn với tag XML",
+                .Left = 12, .Top = 10, .Width = 626, .Height = 34,
                 .ForeColor = System.Drawing.Color.DimGray
             }
 
-            ' ── Thông báo trạng thái selection ──
-            Dim lblSelection As New Label With {
-                .Left = 12, .Top = 68, .Width = 590, .Height = 20
+            ' ── Scope ──
+            Dim grpScope As New GroupBox With {
+                .Text = "Phạm vi áp dụng",
+                .Left = 12, .Top = 52, .Width = 626, .Height = 104
             }
+            rbSelected = New RadioButton With {
+                .Text = "Đối tượng chọn trên bản vẽ",
+                .Left = 14, .Top = 22, .Width = 600
+            }
+            rbCurrentSheet = New RadioButton With {
+                .Text = "Toàn bộ sheet hiện tại",
+                .Left = 14, .Top = 46, .Width = 600
+            }
+            rbAllSheets = New RadioButton With {
+                .Text = "Toàn bộ tất cả sheet trong bản vẽ",
+                .Left = 14, .Top = 70, .Width = 600
+            }
+            grpScope.Controls.AddRange(New Control() {rbSelected, rbCurrentSheet, rbAllSheets})
+
             If preSelectionCount > 0 Then
-                lblSelection.Text = $"✓ Đã có {preSelectionCount} đối tượng được chọn trên bản vẽ — sẽ áp dụng cho các đối tượng này."
-                lblSelection.ForeColor = System.Drawing.Color.FromArgb(0, 120, 0)
+                rbSelected.Checked = True
+                rbSelected.Text = $"Đối tượng chọn trên bản vẽ (đang có {preSelectionCount} đối tượng)"
             Else
-                lblSelection.Text = "ℹ Chưa có đối tượng nào được chọn — sau khi OK, bạn sẽ chọn trên bản vẽ (quét chuột được)."
-                lblSelection.ForeColor = System.Drawing.Color.FromArgb(0, 80, 160)
+                rbCurrentSheet.Checked = True
+                rbSelected.Text = "Đối tượng chọn trên bản vẽ (chưa có — sẽ chọn sau khi OK)"
             End If
+
+            ' ── Grid label ──
+            Dim lblGrid As New Label With {
+                .Text = "Các cặp TÌM / THAY THẾ:",
+                .Left = 12, .Top = 164, .Width = 626, .Height = 18,
+                .Font = New Font(Me.Font, FontStyle.Bold)
+            }
 
             ' ── Grid ──
             dgv = New DataGridView With {
-                .Left = 12, .Top = 96, .Width = 590, .Height = 320,
+                .Left = 12, .Top = 186, .Width = 626, .Height = 270,
                 .AllowUserToAddRows = False,
                 .AllowUserToDeleteRows = False,
                 .AllowUserToResizeRows = False,
@@ -425,7 +651,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
                 .SelectionMode = DataGridViewSelectionMode.CellSelect,
                 .MultiSelect = False
             }
-
             dgv.Columns.Add(New DataGridViewTextBoxColumn With {
                 .Name = "colFind", .HeaderText = "Tìm", .FillWeight = 50
             })
@@ -433,20 +658,39 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
                 .Name = "colReplace", .HeaderText = "Thay bằng  (để trống = xóa)", .FillWeight = 50
             })
 
-            dgv.Rows.Add("", "")
+            ' Nạp history hoặc 1 dòng trống
+            If history IsNot Nothing AndAlso history.Count > 0 Then
+                For Each p In history
+                    dgv.Rows.Add(p.Find, p.Replace)
+                Next
+            Else
+                dgv.Rows.Add("", "")
+            End If
 
-            ' ── Buttons ──
-            btnAdd = New Button With {.Text = "Thêm dòng", .Left = 12, .Top = 426, .Width = 110, .Height = 28}
-            btnRemove = New Button With {.Text = "Xóa dòng", .Left = 130, .Top = 426, .Width = 110, .Height = 28}
+            ' ── Buttons row 1 ──
+            btnAdd = New Button With {.Text = "Thêm dòng", .Left = 12, .Top = 462, .Width = 110, .Height = 28}
+            btnRemove = New Button With {.Text = "Xóa dòng", .Left = 130, .Top = 462, .Width = 110, .Height = 28}
+            chkSaveHistory = New CheckBox With {
+                .Text = "Lưu các cặp này cho lần sau",
+                .Left = 260, .Top = 466, .Width = 380, .Height = 22,
+                .Checked = True
+            }
+
+            ' ── Buttons row 2 ──
+            btnClearHistory = New Button With {
+                .Text = "Xóa lịch sử đã lưu",
+                .Left = 12, .Top = 502, .Width = 180, .Height = 28
+            }
             btnOK = New Button With {
-                .Text = "OK", .Left = 406, .Top = 426, .Width = 90, .Height = 28,
+                .Text = "OK", .Left = 446, .Top = 502, .Width = 90, .Height = 28,
                 .DialogResult = DialogResult.OK
             }
             btnCancel = New Button With {
-                .Text = "Cancel", .Left = 502, .Top = 426, .Width = 90, .Height = 28,
+                .Text = "Cancel", .Left = 546, .Top = 502, .Width = 90, .Height = 28,
                 .DialogResult = DialogResult.Cancel
             }
 
+            ' ── Sự kiện ──
             AddHandler btnAdd.Click, Sub(s, e)
                                          Dim idx As Integer = dgv.Rows.Add("", "")
                                          dgv.CurrentCell = dgv.Rows(idx).Cells(0)
@@ -457,6 +701,23 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
                                             If dgv.CurrentRow IsNot Nothing Then dgv.Rows.Remove(dgv.CurrentRow)
                                             If dgv.Rows.Count = 0 Then dgv.Rows.Add("", "")
                                         End Sub
+
+            AddHandler btnClearHistory.Click, Sub(s, e)
+                                                  If MessageBox.Show(
+                                                      "Xóa toàn bộ lịch sử đã lưu?" & vbCrLf &
+                                                      "(Các cặp trong bảng hiện tại cũng sẽ bị xóa khỏi file)",
+                                                      "Xác nhận",
+                                                      MessageBoxButtons.YesNo,
+                                                      MessageBoxIcon.Question) = DialogResult.Yes Then
+                                                      ThayChuTrongTextModule.ClearHistoryFile()
+                                                      dgv.Rows.Clear()
+                                                      dgv.Rows.Add("", "")
+                                                      MessageBox.Show("Đã xóa lịch sử.",
+                                                                      "OK",
+                                                                      MessageBoxButtons.OK,
+                                                                      MessageBoxIcon.Information)
+                                                  End If
+                                              End Sub
 
             AddHandler btnOK.Click, Sub(s, e)
                                         dgv.EndEdit()
@@ -474,15 +735,30 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
                                                 "Chưa có dữ liệu",
                                                 MessageBoxButtons.OK, MessageBoxIcon.Warning)
                                             Me.DialogResult = DialogResult.None
+                                            Return
                                         End If
+
+                                        ' Scope
+                                        If rbSelected.Checked Then
+                                            Scope = ApplyScope.SelectedObjects
+                                        ElseIf rbCurrentSheet.Checked Then
+                                            Scope = ApplyScope.CurrentSheet
+                                        Else
+                                            Scope = ApplyScope.AllSheets
+                                        End If
+
+                                        SaveHistory = chkSaveHistory.Checked
                                     End Sub
 
-            Me.Controls.Add(lblTitle)
+            ' ── Add controls ──
             Me.Controls.Add(lblHint)
-            Me.Controls.Add(lblSelection)
+            Me.Controls.Add(grpScope)
+            Me.Controls.Add(lblGrid)
             Me.Controls.Add(dgv)
             Me.Controls.Add(btnAdd)
             Me.Controls.Add(btnRemove)
+            Me.Controls.Add(chkSaveHistory)
+            Me.Controls.Add(btnClearHistory)
             Me.Controls.Add(btnOK)
             Me.Controls.Add(btnCancel)
 
