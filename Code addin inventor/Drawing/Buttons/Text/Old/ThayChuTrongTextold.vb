@@ -1,5 +1,4 @@
 ﻿Imports System
-Imports System.Collections
 Imports System.Collections.Generic
 Imports System.Drawing
 Imports System.IO
@@ -13,14 +12,14 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
     '═══════════════════════════════════════════════════════════
     ' Enum phạm vi áp dụng
     '═══════════════════════════════════════════════════════════
-    Public Enum ApplyScope
+    Public Enum ApplyScopeold
         SelectedObjects = 0
         CurrentSheet = 1
         AllSheets = 2
     End Enum
 
 
-    Public Module ThayChuTrongTextModule
+    Public Module ThayChuTrongTextModuleold
 
         '═══════════════════════════════════════════════════════════
         ' Đường dẫn file lịch sử
@@ -164,9 +163,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
             Try
                 For Each obj As Object In sheet.DrawingNotes
                     result.Add(obj)
-                    If IsDrawingWeldingSymbol(obj) Then
-                        Console.WriteLine("    + WeldSymbol (trong DrawingNotes)")
-                    End If
                 Next
             Catch
             End Try
@@ -184,24 +180,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
                 For Each obj As Object In sheet.SketchedSymbols
                     result.Add(obj)
                 Next
-            Catch
-            End Try
-
-            ' ─── Welding symbols (chỉ có từ Inventor 2024+) ───
-            ' Dùng reflection để tránh lỗi build trên Inventor 2020
-            Try
-                Dim pi = sheet.GetType().GetProperty("WeldingSymbols")
-                If pi IsNot Nothing Then
-                    Dim col As Object = pi.GetValue(sheet, Nothing)
-                    If col IsNot Nothing Then
-                        For Each obj As Object In CType(col, IEnumerable)
-                            If obj IsNot Nothing Then
-                                result.Add(obj)
-                                Console.WriteLine("    + DrawingWeldingSymbol")
-                            End If
-                        Next
-                    End If
-                End If
             Catch
             End Try
 
@@ -232,9 +210,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
                     Try
                         For Each obj As Object In view.DrawingNotes
                             result.Add(obj)
-                            If IsDrawingWeldingSymbol(obj) Then              ' ← ĐÚNG
-                                Console.WriteLine("      + WeldSymbol (view)")
-                            End If
                         Next
                     Catch
                     End Try
@@ -434,13 +409,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
                 If applied.Contains(tObj) Then Continue For
                 applied.Add(tObj)
 
-                ' ─── Nhánh Weld Symbol (Reflection — an toàn cho mọi phiên bản) ───
-                If IsDrawingWeldingSymbol(tObj) Then
-                    If ApplyReplaceToWeldSymbolReflect(tObj, pairs) Then count += 1
-                    Continue For
-                End If
-
-                ' ─── Các đối tượng thường ───
                 Dim oldTxt As String = GetTextFromEntity(tObj)
                 If String.IsNullOrEmpty(oldTxt) Then
                     skipped += 1
@@ -465,73 +433,6 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
             Catch
             End Try
         End Sub
-
-        '═══════════════════════════════════════════════════════════
-        ' XỬ LÝ WELD SYMBOL — bằng Reflection, tương thích cả 2020 & 2024+
-        '
-        ' Type drawing welding symbol là "Inventor.DrawingWeldingSymbol" (2024+).
-        ' Trên Inventor 2020, type này không tồn tại → hàm này không bao giờ được gọi.
-        '═══════════════════════════════════════════════════════════
-        Private Function IsDrawingWeldingSymbol(ByVal obj As Object) As Boolean
-            If obj Is Nothing Then Return False
-            Try
-                Dim tn As String = obj.GetType().Name
-                Return tn = "DrawingWeldingSymbol" OrElse tn = "WeldSymbol"
-            Catch
-            End Try
-            Return False
-        End Function
-
-
-        Private Function ApplyReplaceToWeldSymbolReflect(ByVal ws As Object,
-                                                  ByVal pairs As List(Of ReplacePair)) As Boolean
-            Dim anyChanged As Boolean = False
-
-            Dim props As String() = {
-        "LeftText", "RightText", "TopText", "BottomText",
-        "ContourText", "TailText", "FieldWeldText", "AllAroundText"
-    }
-
-            For Each propName As String In props
-                Try
-                    Dim pi = ws.GetType().GetProperty(propName)
-                    If pi Is Nothing Then Continue For
-
-                    Dim wst As Object = pi.GetValue(ws, Nothing)
-                    If wst Is Nothing Then Continue For
-
-                    ' Thử FormattedText, fallback Text
-                    Dim ftPi = wst.GetType().GetProperty("FormattedText")
-                    If ftPi Is Nothing Then ftPi = wst.GetType().GetProperty("Text")
-                    If ftPi Is Nothing Then Continue For
-                    If Not ftPi.CanWrite Then Continue For
-
-                    Dim cur As String = TryCast(ftPi.GetValue(wst, Nothing), String)
-                    If String.IsNullOrEmpty(cur) Then Continue For
-
-                    Dim updated As String = cur
-                    For Each p In pairs
-                        If String.IsNullOrEmpty(p.Find) Then Continue For
-                        updated = ReplaceIgnoreCaseSkipTags(updated, p.Find, If(p.Replace, ""))
-                    Next
-
-                    If updated <> cur Then
-                        ftPi.SetValue(wst, updated, Nothing)
-                        Console.WriteLine($"    • WeldSymbol.{propName}: ""{cur}"" → ""{updated}""")
-                        anyChanged = True
-                    End If
-                Catch ex As Exception
-                    Console.WriteLine($"    ⚠️ WeldSymbol.{propName}: {ex.Message}")
-                End Try
-            Next
-
-            Return anyChanged
-        End Function
-
-
-
-
-
 
 
         '═══════════════════════════════════════════════════════════
@@ -655,7 +556,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
     '═══════════════════════════════════════════════════════════
     ' Model
     '═══════════════════════════════════════════════════════════
-    Public Class ReplacePair
+    Public Class ReplacePairold
         Public Property Find As String
         Public Property Replace As String
         Public Sub New(ByVal f As String, ByVal r As String)
@@ -668,7 +569,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
     '═══════════════════════════════════════════════════════════
     ' FORM
     '═══════════════════════════════════════════════════════════
-    Public Class ReplaceForm
+    Public Class ReplaceFormold
         Inherits Form
 
         Private dgv As DataGridView

@@ -232,17 +232,17 @@ Namespace ToolInventor2020
 
             buttonsList.Add(DrawingBtn19)
 
-            Dim DrawingBtn20 As ButtonDefinition = controlDefs.AddButtonDefinition("Đổi chữ hoa", "ToolInventor2020_Drawing_Btn20", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
+            Dim DrawingBtn20 As ButtonDefinition = controlDefs.AddButtonDefinition("Drawing_TitleBlock_Border", "ToolInventor2020_Drawing_Btn20", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
                                                                                    "Thay thế văn bản", Dra1SmallIcon20, Dra1LargeIcon20)
-            '  AddHandler DrawingBtn20.OnExecute, AddressOf Drawing.Buttons.Drawtext.Doichuhoa.OnExecute
+            AddHandler DrawingBtn20.OnExecute, AddressOf Drawing.Buttons.DrawSheet.Drawing_TitleBlock_Border.OnExecute
 
-            '   buttonsList.Add(DrawingBtn20)
+            buttonsList.Add(DrawingBtn20)
 
-            Dim DrawingBtn21 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa hoặc đổi chữ", "ToolInventor2020_Drawing_Btn21", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
+            Dim DrawingBtn21 As ButtonDefinition = controlDefs.AddButtonDefinition("Đông bọ partlist", "ToolInventor2020_Drawing_Btn21", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
                                                                                    "Thay thế văn bản", Dra1SmallIcon21, Dra1LargeIcon21)
-            '    AddHandler DrawingBtn21.OnExecute, AddressOf Drawing.Buttons.Drawtext.ThayChuTrongTextModule.OnExecute
+            'AddHandler DrawingBtn21.OnExecute, AddressOf Drawing.Buttons.DrawSheet.Drawing_PartsList_Sync2020.OnExecute
 
-            '    buttonsList.Add(DrawingBtn21)
+            '  buttonsList.Add(DrawingBtn21)
 
             ''''''''' tool ngoài
 

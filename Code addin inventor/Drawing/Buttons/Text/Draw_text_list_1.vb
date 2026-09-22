@@ -13,12 +13,12 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
                 Case 1
                     TextReplaceModule.OnExecute(Context)
                 Case 2
-                    ThayChuTrongTextModule.OnExecute(Context)
-                Case 3
                     Doichuhoa.OnExecute(Context)
-                    '  Ca'se 4
-                    '   Draw_dim_chain_line_b.OnExecute(Context)
-                    '   Case 5
+                Case 3
+                    ThayChuTrongTextModule.OnExecute(Context)
+                Case 4
+                    ThayChuTrongTextModuleold.OnExecute(Context)
+                    ' Case 5
                     ' Draw_dim_hole_a.OnExecute(Context)
                     '   Case 6
                     ' Draw_dim_hole_b.OnExecute(Context)
@@ -63,7 +63,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
                 AddMenuButton(form, "Text Replace", 50, 1)
                 AddMenuButton(form, "Thay chữ in hoa hoặc chữ thường", 85, 2)
                 AddMenuButton(form, "Thay thế chữ trong text", 120, 3)
-                '   AddMenuButton(form, "Chain Dim view Auto + Hole", 155, 4)
+                AddMenuButton(form, "Thay thế chữ trong text old", 155, 4)
                 '  AddMenuButton(form, "Dim kích thước lỗ", 190, 5)
                 '   AddMenuButton(form, "Dim lỗ Dim về cạnh (Dim ít có bỏ qua lỗ nếu trùng, bỏ qua lỗ array)", 225, 6)
                 '    AddMenuButton(form, "Dim lỗ Dim về cạnh (Dim tương đối có bỏ qua lỗ nếu trùng, bỏ qua lỗ array)", 260, 7)
@@ -76,7 +76,7 @@ Namespace ToolInventor2020.Drawing.Buttons.Drawtext
                 '    AddMenuButton(form, "Dim lỗ Base Dimline về cạnh", 505, 14)
 
                 Dim cancelButton As New Button() With {
-                    .Text = "HỦY", .Left = 20, .Top = 510, .Width = 470, .Height = 30
+                    .Text = "Hủy", .Left = 20, .Top = 510, .Width = 470, .Height = 30
                 }
                 AddHandler cancelButton.Click, Sub() form.Close()
                 form.Controls.Add(cancelButton)
