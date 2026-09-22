@@ -3,82 +3,62 @@ Option Strict Off
 
 Imports Inventor
 Imports System
-Imports System.Drawing
+Imports Drw = System.Drawing
 Imports System.Windows.Forms
+Imports System.Runtime.InteropServices
 
 Namespace ToolInventor2020.Drawing.Buttons
+
     '=============================================================
-    ' SHEET NAVIGATOR BUTTON
-    ' INVENTOR 2020 - VB.NET VISUAL STUDIO
-    ' MODELLESS TOOLBAR
+    ' SHEET NAVIGATOR BUTTON — Inventor 2020
+    ' Toolbar 1 hàng 230×40, tự ẩn/hiện theo foreground
     '=============================================================
     Public Module Draw_7
-        '=========================================================
-        ' FORM DUY NHẤT
-        '=========================================================
+
         Private m_Form As ThanhNSheetNavigatorForm = Nothing
-        '=========================================================
-        ' MAIN BUTTON
-        '========================================================
+
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Try
-                '=================================================
-                ' NẾU FORM ĐÃ TỒN TẠI
-                ' KHÔNG TẠO FORM MỚI
-                '=================================================
-                If m_Form IsNot Nothing Then
-                    If Not m_Form.IsDisposed Then
-                        If Not m_Form.Visible Then
-                            m_Form.Show()
-                        End If
-                        m_Form.BringToFront()
-                        Exit Sub
-                    Else
-                        m_Form = Nothing
-                    End If
+                If m_Form IsNot Nothing AndAlso Not m_Form.IsDisposed Then
+                    If Not m_Form.Visible Then m_Form.Show()
+                    m_Form.BringToFront()
+                    Exit Sub
                 End If
-                '=================================================
-                ' INVENTOR APPLICATION
-                '=================================================
+
+                m_Form = Nothing
+
                 Dim invApp As Inventor.Application = g_inventorApplication
                 If invApp Is Nothing Then
-                    MessageBox.Show("Không tìm thấy Inventor Application.", "Sheet Navigator", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    MessageBox.Show("Không tìm thấy Inventor Application.",
+                                    "Sheet Navigator",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Exit Sub
                 End If
-                '=================================================
-                ' KIỂM TRA DOCUMENT
-                '=================================================
+
                 If invApp.ActiveDocument Is Nothing Then
-                    MessageBox.Show("Không có tài liệu đang mở.", "Sheet Navigator", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    MessageBox.Show("Không có tài liệu đang mở.",
+                                    "Sheet Navigator",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     Exit Sub
                 End If
-                '=================================================
-                ' CHỈ DRAWING
-                '=================================================
+
                 If invApp.ActiveDocument.DocumentType <> Inventor.DocumentTypeEnum.kDrawingDocumentObject Then
-                    MessageBox.Show("Chỉ sử dụng chức năng này trong Drawing.", "Sheet Navigator", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    MessageBox.Show("Chỉ sử dụng chức năng này trong Drawing.",
+                                    "Sheet Navigator",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     Exit Sub
                 End If
-                '=================================================
-                ' TẠO FORM DUY NHẤT
-                '=================================================
+
                 m_Form = New ThanhNSheetNavigatorForm(invApp)
-                '=================================================
-                ' KHI FORM ĐÓNG
-                '=================================================
                 AddHandler m_Form.FormClosed, AddressOf NavigatorFormClosed
-                '=================================================
-                ' MODELLESS
-                ' KHÔNG KHÓA INVENTOR
-                '=================================================
                 m_Form.Show()
             Catch ex As Exception
-                MessageBox.Show("Lỗi Sheet Navigator:" & vbCrLf & ex.Message, "Sheet Navigator", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                MessageBox.Show("Lỗi Sheet Navigator:" & vbCrLf & ex.Message,
+                                "Sheet Navigator",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
         End Sub
-        '=========================================================
-        ' FORM CLOSED
-        '=========================================================
+
         Private Sub NavigatorFormClosed(ByVal sender As Object, ByVal e As FormClosedEventArgs)
             Try
                 If m_Form IsNot Nothing Then
@@ -86,272 +66,329 @@ Namespace ToolInventor2020.Drawing.Buttons
                 End If
             Catch
             End Try
-            '=====================================================
-            ' RESET FORM
-            '====================================================
             m_Form = Nothing
         End Sub
+
     End Module
+
+
     '=============================================================
-    '    ' SHEET NAVIGATOR FORM
-    '    ' INVENTOR 2020
-    ' VB.NET VISUAL STUDIO
-    ' MODELLESS TOOLBAR    '
+    ' SHEET NAVIGATOR FORM — 230×40, 1 hàng
     '=============================================================
     Public Class ThanhNSheetNavigatorForm
         Inherits System.Windows.Forms.Form
-        '=========================================================
-        ' INVENTOR
-        '=========================================================
+
+        '--- Win32 ---
+        <DllImport("user32.dll")>
+        Private Shared Function GetForegroundWindow() As IntPtr
+        End Function
+
+        <DllImport("user32.dll")>
+        Private Shared Function GetParent(ByVal hWnd As IntPtr) As IntPtr
+        End Function
+
+        <DllImport("user32.dll")>
+        Private Shared Function SetForegroundWindow(ByVal hWnd As IntPtr) As Boolean
+        End Function
+
+        '--- Inventor ---
         Private ReadOnly invApp As Inventor.Application
-        '=========================================================
-        ' CONTROLS
-        '=========================================================
-        Private lblInfo As System.Windows.Forms.Label
+
+        '--- Controls ---
         Private txtPage As System.Windows.Forms.TextBox
-        Private btnFirst As System.Windows.Forms.Button
-        Private btnPrev As System.Windows.Forms.Button
-        Private btnNext As System.Windows.Forms.Button
-        Private btnLast As System.Windows.Forms.Button
-        Private btnGo As System.Windows.Forms.Button
-        Private btnClose As System.Windows.Forms.Button
-        Private chkLeft As System.Windows.Forms.CheckBox
-        Private chkRight As System.Windows.Forms.CheckBox
+        Private btnFirst As Button
+        Private btnPrev As Button
+        Private btnNext As Button
+        Private btnLast As Button
+        Private btnClose As Button
+
+        '--- Timer ---
+        Private refreshTimer As Timer
+        Private foregroundTimer As Timer
+
+        '--- Cache ---
+        Private lastSheetIndex As Integer = -1
+        Private lastSheetCount As Integer = -1
+        Private lastDocPath As String = ""
+        Private lastScreenDeviceName As String = ""
+
+        '--- Cờ ---
+        Private transitioning As Boolean = False
+
+        '--- Kích thước ---
+        Private Const PAD As Integer = 5
+        Private Const BTN_H As Integer = 30
+
         '=========================================================
-        ' DRAG FORM
+        ' SHOW WITHOUT ACTIVATION
         '=========================================================
-        Private isDragging As Boolean = False
-        Private dragCursorPoint As System.Drawing.Point
-        Private dragFormPoint As System.Drawing.Point
+        Protected Overrides ReadOnly Property ShowWithoutActivation As Boolean
+            Get
+                Return False
+            End Get
+        End Property
 
         '=========================================================
         ' CONSTRUCTOR
         '=========================================================
         Public Sub New(ByVal app As Inventor.Application)
             MyBase.New()
-            '=====================================================
-            ' INVENTOR
-            '=====================================================
-            invApp = app
-            If invApp Is Nothing Then
-                Throw New Exception("Inventor Application không hợp lệ.")
-            End If
-            If invApp.ActiveDocument Is Nothing Then
-                Throw New Exception("Không có document đang mở.")
-            End If
-            If invApp.ActiveDocument.DocumentType <> Inventor.DocumentTypeEnum.kDrawingDocumentObject Then
+
+            If app Is Nothing Then Throw New Exception("Inventor Application không hợp lệ.")
+            If app.ActiveDocument Is Nothing Then Throw New Exception("Không có document đang mở.")
+            If app.ActiveDocument.DocumentType <> Inventor.DocumentTypeEnum.kDrawingDocumentObject Then
                 Throw New Exception("Document hiện tại không phải Drawing.")
             End If
-            '=====================================================
-            ' FORM SETUP
-            '=====================================================
+
+            invApp = app
+
+            '--- Form setup — 230×40 ---
             Me.Text = ""
-            Me.Width = 220
-            Me.Height = 85
-            Me.StartPosition = FormStartPosition.CenterScreen
-            '=====================================================
-            ' KHÔNG VIỀN
-            '=====================================================
+            Me.AutoScaleMode = AutoScaleMode.None
+            Me.AutoScaleDimensions = New Drw.SizeF(96.0F, 96.0F)
+            Me.ClientSize = New Drw.Size(230, 40)
             Me.FormBorderStyle = FormBorderStyle.None
-            '=====================================================
-            ' KHÔNG HIỆN TASKBAR
-            '=====================================================
+            Me.StartPosition = FormStartPosition.Manual
             Me.ShowInTaskbar = False
-            '=====================================================
-            ' MODELLESS TOOLBAR            '
-            ' FALSE:
-            ' KHÔNG LUÔN CHIẾM TRÊN INVENTOR
-            '=====================================================
             Me.TopMost = True
-            '=====================================================
-            ' ĐỘ TRONG SUỐT
-            '=====================================================
-            Me.Opacity = 0.55
-            '=====================================================
-            ' BACKGROUND
-            '=====================================================
-            Me.BackColor = System.Drawing.Color.FromArgb(45, 45, 48)
-            '=====================================================
-            ' KHÔNG CHO FORM NHẬN FOCUS KHÔNG CẦN THIẾT
-            '=====================================================
             Me.KeyPreview = True
-            '=====================================================
-            '            ' INFO            '
-            '=====================================================
-            lblInfo = New System.Windows.Forms.Label()
-            lblInfo.Left = 10
-            lblInfo.Top = 8
-            lblInfo.Width = 160
-            lblInfo.Height = 18
-            lblInfo.ForeColor = System.Drawing.Color.White
-            lblInfo.Font = New System.Drawing.Font("Arial", 8)
-            Me.Controls.Add(lblInfo)
-            '=====================================================
-            '            ' CLOSE            '
-            '=====================================================
-            btnClose = New System.Windows.Forms.Button()
-            btnClose.Text = "X"
-            btnClose.Left = 185
-            btnClose.Top = 5
-            btnClose.Width = 25
-            btnClose.Height = 20
-            ApplyButtonStyle(btnClose)
-            Me.Controls.Add(btnClose)
-            '=====================================================
-            '            ' FIRST
-            '            '====================================================
-            btnFirst = New System.Windows.Forms.Button()
-            btnFirst.Text = "|<"
-            btnFirst.Left = 10
-            btnFirst.Top = 30
-            btnFirst.Width = 40
-            btnFirst.Height = 25
-            ApplyButtonStyle(btnFirst)
-            Me.Controls.Add(btnFirst)
-            '====================================================
-            '            ' PREVIOUS            '
-            '=====================================================
-            btnPrev = New System.Windows.Forms.Button()
-            btnPrev.Text = "<"
-            btnPrev.Left = 55
-            btnPrev.Top = 30
-            btnPrev.Width = 35
-            btnPrev.Height = 25
-            ApplyButtonStyle(btnPrev)
-            Me.Controls.Add(btnPrev)
-            '=====================================================
-            '            ' NEXT            '
-            '=====================================================
-            btnNext = New System.Windows.Forms.Button()
-            btnNext.Text = ">"
-            btnNext.Left = 95
-            btnNext.Top = 30
-            btnNext.Width = 35
-            btnNext.Height = 25
-            ApplyButtonStyle(btnNext)
-            Me.Controls.Add(btnNext)
-            '=====================================================
-            '            ' LAST            '
-            '====================================================
-            btnLast = New System.Windows.Forms.Button()
-            btnLast.Text = ">|"
-            btnLast.Left = 135
-            btnLast.Top = 30
-            btnLast.Width = 40
-            btnLast.Height = 25
-            ApplyButtonStyle(btnLast)
-            Me.Controls.Add(btnLast)
-            '====================================================
-            '            ' PAGE INPUT
-            '            '=====================================================
-            txtPage = New System.Windows.Forms.TextBox()
-            txtPage.Left = 10
-            txtPage.Top = 60
-            txtPage.Width = 45
-            txtPage.Height = 20
-            txtPage.TextAlign = HorizontalAlignment.Center
-            Me.Controls.Add(txtPage)
-            '=====================================================
-            '            ' GO            '
-            '=====================================================
-            btnGo = New System.Windows.Forms.Button()
-            btnGo.Text = "Chuyển Sheet"
-            btnGo.Left = 60
-            btnGo.Top = 58
-            btnGo.Width = 100
-            btnGo.Height = 22
-            ApplyButtonStyle(btnGo)
-            Me.Controls.Add(btnGo)
-            '====================================================
-            '            ' DOCK LEFT            '
-            '=====================================================
-            chkLeft = New System.Windows.Forms.CheckBox()
-            chkLeft.Text = "L"
-            chkLeft.Left = 163
-            chkLeft.Top = 60
-            chkLeft.Width = 28
-            chkLeft.ForeColor = System.Drawing.Color.White
-            chkLeft.BackColor = System.Drawing.Color.Transparent
-            Me.Controls.Add(chkLeft)
-            '=====================================================
-            '            ' DOCK RIGHT            '
-            '=====================================================
-            chkRight = New System.Windows.Forms.CheckBox()
-            chkRight.Text = "R"
-            chkRight.Left = 192
-            chkRight.Top = 60
-            chkRight.Width = 28
-            chkRight.ForeColor = System.Drawing.Color.White
-            chkRight.BackColor = System.Drawing.Color.Transparent
-            Me.Controls.Add(chkRight)
-            '=====================================================
-            '            ' EVENTS            '
-            '=====================================================
-            AddHandler btnFirst.Click, AddressOf btnFirst_Click
-            AddHandler btnPrev.Click, AddressOf btnPrev_Click
-            AddHandler btnNext.Click, AddressOf btnNext_Click
-            AddHandler btnLast.Click, AddressOf btnLast_Click
-            AddHandler btnGo.Click, AddressOf btnGo_Click
-            AddHandler btnClose.Click, AddressOf btnClose_Click
-            AddHandler chkLeft.CheckedChanged, AddressOf chkLeft_CheckedChanged
-            AddHandler chkRight.CheckedChanged, AddressOf chkRight_CheckedChanged
-            '=====================================================
-            ' TEXTBOX
-            '=====================================================
-            AddHandler txtPage.KeyDown, AddressOf txtPage_KeyDown
-            '=====================================================
-            ' DRAG FORM
-            '=====================================================
-            AddHandler Me.MouseDown, AddressOf Form_MouseDown
-            AddHandler Me.MouseMove, AddressOf Form_MouseMove
-            AddHandler Me.MouseUp, AddressOf Form_MouseUp
-            AddHandler lblInfo.MouseDown, AddressOf Form_MouseDown
-            AddHandler lblInfo.MouseMove, AddressOf Form_MouseMove
-            AddHandler lblInfo.MouseUp, AddressOf Form_MouseUp
-            '=====================================================
-            ' UPDATE
-            '=====================================================
-            UpdateInfo()
+            Me.BackColor = Drw.Color.FromArgb(45, 45, 48)
+            Me.ForeColor = Drw.Color.White
+            Me.Font = New Drw.Font("Segoe UI", 6.5F, Drw.FontStyle.Regular, Drw.GraphicsUnit.Point)
+            Me.Opacity = 0.75
+
+            BuildUI()
+            UpdateInfo(True)
+
+            '--- Timer cập nhật thông tin sheet ---
+            refreshTimer = New Timer()
+            refreshTimer.Interval = 400
+            AddHandler refreshTimer.Tick, AddressOf RefreshTimer_Tick
+            refreshTimer.Start()
+
+            '--- Timer kiểm tra foreground ---
+            foregroundTimer = New Timer()
+            foregroundTimer.Interval = 300
+            AddHandler foregroundTimer.Tick, AddressOf ForegroundTimer_Tick
+            foregroundTimer.Start()
         End Sub
+
         '=========================================================
-        '        ' BUTTON STYLE
-        '        '=========================================================
-        Private Sub ApplyButtonStyle(ByVal btn As System.Windows.Forms.Button)
-            btn.BackColor = System.Drawing.Color.FromArgb(63, 63, 70)
-            btn.ForeColor = System.Drawing.Color.White
+        ' ĐẶT VỊ TRÍ SAU KHI FORM HIỆN
+        '=========================================================
+        Protected Overrides Sub OnShown(ByVal e As EventArgs)
+            MyBase.OnShown(e)
+            PositionOnInventorScreen()
+        End Sub
+
+        '=========================================================
+        ' BUILD UI — 1 HÀNG
+        '=========================================================
+        Private Sub BuildUI()
+
+            Dim yBtn As Integer = PAD
+            Dim x As Integer = PAD
+
+            '═════════════════════════════════════════════════════
+            ' NÚT |<
+            '═════════════════════════════════════════════════════
+            btnFirst = New Button()
+            btnFirst.Text = "|<"
+            btnFirst.Location = New Drw.Point(x, yBtn)
+            btnFirst.Size = New Drw.Size(24, BTN_H)
+            ApplyToolbarButtonStyle(btnFirst)
+            Me.Controls.Add(btnFirst)
+            x += 24 + 3
+
+            '═════════════════════════════════════════════════════
+            ' NÚT <
+            '═════════════════════════════════════════════════════
+            btnPrev = New Button()
+            btnPrev.Text = "<"
+            btnPrev.Location = New Drw.Point(x, yBtn)
+            btnPrev.Size = New Drw.Size(24, BTN_H)
+            ApplyToolbarButtonStyle(btnPrev)
+            Me.Controls.Add(btnPrev)
+            x += 24 + 3
+
+            '═════════════════════════════════════════════════════
+            ' TEXTBOX
+            '═════════════════════════════════════════════════════
+            txtPage = New System.Windows.Forms.TextBox()
+            txtPage.Location = New Drw.Point(x, yBtn + 7)
+            txtPage.Size = New Drw.Size(56, 16)
+            txtPage.TextAlign = HorizontalAlignment.Center
+            txtPage.Font = New Drw.Font("Segoe UI", 8.0F, Drw.FontStyle.Bold, Drw.GraphicsUnit.Point)
+            txtPage.BackColor = Drw.Color.FromArgb(30, 30, 34)
+            txtPage.ForeColor = Drw.Color.White
+            txtPage.BorderStyle = BorderStyle.FixedSingle
+            Me.Controls.Add(txtPage)
+            x += 56 + 3
+
+            '═════════════════════════════════════════════════════
+            ' NÚT OK
+            '═════════════════════════════════════════════════════
+            Dim btnGo As New Button()
+            btnGo.Text = "OK"
+            btnGo.Location = New Drw.Point(x, yBtn)
+            btnGo.Size = New Drw.Size(30, BTN_H)
+            ApplyToolbarButtonStyle(btnGo)
+            btnGo.BackColor = Drw.Color.FromArgb(45, 100, 180)
+            btnGo.ForeColor = Drw.Color.White
+            btnGo.Font = New Drw.Font("Segoe UI", 7.0F, Drw.FontStyle.Bold, Drw.GraphicsUnit.Point)
+            Me.Controls.Add(btnGo)
+            x += 30 + 3
+
+            '═════════════════════════════════════════════════════
+            ' NÚT >
+            '═════════════════════════════════════════════════════
+            btnNext = New Button()
+            btnNext.Text = ">"
+            btnNext.Location = New Drw.Point(x, yBtn)
+            btnNext.Size = New Drw.Size(24, BTN_H)
+            ApplyToolbarButtonStyle(btnNext)
+            Me.Controls.Add(btnNext)
+            x += 24 + 3
+
+            '═════════════════════════════════════════════════════
+            ' NÚT >|
+            '═════════════════════════════════════════════════════
+            btnLast = New Button()
+            btnLast.Text = ">|"
+            btnLast.Location = New Drw.Point(x, yBtn)
+            btnLast.Size = New Drw.Size(24, BTN_H)
+            ApplyToolbarButtonStyle(btnLast)
+            Me.Controls.Add(btnLast)
+            x += 24 + 5
+
+            '═════════════════════════════════════════════════════
+            ' NÚT ✕
+            '═════════════════════════════════════════════════════
+            btnClose = New Button()
+            btnClose.Text = "✕"
+            btnClose.Location = New Drw.Point(x, yBtn + 8)
+            btnClose.Size = New Drw.Size(18, 14)
+            ApplyToolbarButtonStyle(btnClose)
+            btnClose.ForeColor = Drw.Color.FromArgb(255, 180, 180)
+            btnClose.Font = New Drw.Font("Segoe UI", 6.0F, Drw.FontStyle.Bold, Drw.GraphicsUnit.Point)
+            Me.Controls.Add(btnClose)
+
+            '═════════════════════════════════════════════════════
+            ' EVENTS
+            '═════════════════════════════════════════════════════
+            AddHandler btnFirst.Click, Sub() GoToSheet(1)
+            AddHandler btnPrev.Click, Sub() GoToSheet(GetCurrentSheetIndex() - 1)
+            AddHandler btnNext.Click, Sub() GoToSheet(GetCurrentSheetIndex() + 1)
+            AddHandler btnLast.Click, Sub() GoToLastSheet()
+            AddHandler btnClose.Click, Sub() Me.Close()
+
+            AddHandler btnGo.Click, AddressOf BtnGo_Click
+
+            AddHandler txtPage.KeyDown, AddressOf TxtPage_KeyDown
+            AddHandler txtPage.Enter, AddressOf TxtPage_Enter
+
+            AddHandler Me.MouseWheel, AddressOf Form_MouseWheel
+        End Sub
+
+        '=========================================================
+        ' TEXTBOX ENTER — chọn sẵn nội dung
+        '=========================================================
+        Private Sub TxtPage_Enter(ByVal sender As Object, ByVal e As EventArgs)
+            Try
+                txtPage.SelectAll()
+            Catch
+            End Try
+        End Sub
+
+        '=========================================================
+        ' NÚT OK
+        '=========================================================
+        Private Sub BtnGo_Click(ByVal sender As Object, ByVal e As EventArgs)
+            GoToSheetFromText()
+        End Sub
+
+        '=========================================================
+        ' ĐẶT VỊ TRÍ FORM — DƯỚI MÀN HÌNH INVENTOR
+        '=========================================================
+        Private Sub PositionOnInventorScreen()
+            Try
+                Dim targetScreen As Screen = Nothing
+
+                Try
+                    Dim invHwnd As IntPtr = New IntPtr(invApp.MainFrameHWND)
+                    If invHwnd <> IntPtr.Zero Then
+                        targetScreen = Screen.FromHandle(invHwnd)
+                    End If
+                Catch
+                End Try
+
+                If targetScreen Is Nothing Then
+                    Try : targetScreen = Screen.FromPoint(Cursor.Position) : Catch : End Try
+                End If
+
+                If targetScreen Is Nothing Then
+                    targetScreen = Screen.PrimaryScreen
+                End If
+
+                Dim wa As Drw.Rectangle = targetScreen.WorkingArea
+
+                Dim newX As Integer = wa.Left + (wa.Width - Me.Width) \ 2
+                Dim newY As Integer = wa.Bottom - Me.Height - 50
+
+                Me.Location = New Drw.Point(newX, newY)
+                lastScreenDeviceName = targetScreen.DeviceName
+            Catch
+            End Try
+        End Sub
+
+        '=========================================================
+        ' KIỂM TRA WINDOW CÓ PHẢI FORM KHÔNG
+        '=========================================================
+        Private Function IsWindowPartOfForm(ByVal hWnd As IntPtr) As Boolean
+            If hWnd = IntPtr.Zero Then Return False
+
+            Try
+                If hWnd = Me.Handle Then Return True
+
+                Dim h As IntPtr = hWnd
+                Dim loopCount As Integer = 0
+
+                While h <> IntPtr.Zero AndAlso loopCount < 10
+                    h = GetParent(h)
+                    If h = Me.Handle Then Return True
+                    loopCount += 1
+                End While
+            Catch
+            End Try
+
+            Return False
+        End Function
+
+        '=========================================================
+        ' BUTTON STYLE
+        '=========================================================
+        Private Sub ApplyToolbarButtonStyle(ByVal btn As Button)
+            btn.BackColor = Drw.Color.FromArgb(63, 63, 70)
+            btn.ForeColor = Drw.Color.White
             btn.FlatStyle = FlatStyle.Flat
             btn.FlatAppearance.BorderSize = 1
+            btn.FlatAppearance.BorderColor = Drw.Color.FromArgb(90, 90, 100)
+            btn.FlatAppearance.MouseOverBackColor = Drw.Color.FromArgb(80, 80, 95)
+            btn.FlatAppearance.MouseDownBackColor = Drw.Color.FromArgb(45, 100, 180)
+            btn.Font = New Drw.Font("Segoe UI", 7.5F, Drw.FontStyle.Bold, Drw.GraphicsUnit.Point)
             btn.TabStop = False
+            btn.Cursor = Cursors.Hand
+            btn.UseVisualStyleBackColor = False
         End Sub
+
         '=========================================================
-        '        ' LẤY DRAWING HIỆN TẠI
-        '        '=========================================================
-        Private Function GetDrawingDocument() As Inventor.DrawingDocument
-            Try
-                If invApp Is Nothing Then
-                    Return Nothing
-                End If
-                If invApp.ActiveDocument Is Nothing Then
-                    Return Nothing
-                End If
-                If invApp.ActiveDocument.DocumentType <> Inventor.DocumentTypeEnum.kDrawingDocumentObject Then
-                    Return Nothing
-                End If
-                Return DirectCast(invApp.ActiveDocument, Inventor.DrawingDocument)
-            Catch
-                Return Nothing
-            End Try
-        End Function
+        ' LẤY DRAWING / SHEET INDEX
+        '=========================================================
         Private Function GetCurrentDrawing() As Inventor.DrawingDocument
             Try
-                If invApp Is Nothing Then
-                    Return Nothing
-                End If
-                If invApp.ActiveDocument Is Nothing Then
-                    Return Nothing
-                End If
+                If invApp Is Nothing Then Return Nothing
+                If invApp.ActiveDocument Is Nothing Then Return Nothing
                 If invApp.ActiveDocument.DocumentType <> Inventor.DocumentTypeEnum.kDrawingDocumentObject Then
-
                     Return Nothing
                 End If
                 Return DirectCast(invApp.ActiveDocument, Inventor.DrawingDocument)
@@ -359,325 +396,249 @@ Namespace ToolInventor2020.Drawing.Buttons
                 Return Nothing
             End Try
         End Function
-        '=========================================================
-        '        ' CURRENT SHEET INDEX
-        '        '=========================================================
+
         Private Function GetCurrentSheetIndex() As Integer
             Try
-                Dim oDoc As Inventor.DrawingDocument = GetDrawingDocument()
-                If oDoc Is Nothing Then
-                    Return 1
-                End If
-                Dim i As Integer
-                For i = 1 To oDoc.Sheets.Count
-                    If oDoc.Sheets.Item(i) Is oDoc.ActiveSheet Then
-
-                        Return i
-                    End If
+                Dim oDoc As Inventor.DrawingDocument = GetCurrentDrawing()
+                If oDoc Is Nothing Then Return 1
+                For i As Integer = 1 To oDoc.Sheets.Count
+                    If oDoc.Sheets.Item(i) Is oDoc.ActiveSheet Then Return i
                 Next
             Catch
             End Try
             Return 1
         End Function
+
         '=========================================================
-        '        ' UPDATE INFO        '
+        ' UPDATE INFO
         '=========================================================
-        Private Sub UpdateInfo()
+        Private Sub UpdateInfo(Optional ByVal force As Boolean = False)
             Try
                 Dim oDoc As Inventor.DrawingDocument = GetCurrentDrawing()
+
                 If oDoc Is Nothing Then
-                    lblInfo.Text = "Không phải Drawing"
-                    txtPage.Text = ""
-                    Exit Sub
+                    If force Then
+                        txtPage.Text = ""
+                        SetButtonsEnabled(False)
+                    End If
+                    Return
                 End If
-                Dim currentIndex As Integer = GetCurrentSheetIndex()
+
+                SetButtonsEnabled(True)
+
+                Dim currentIdx As Integer = GetCurrentSheetIndex()
                 Dim total As Integer = oDoc.Sheets.Count
-                lblInfo.Text = "Sheet " & currentIndex.ToString() & "/" & total.ToString()
-                txtPage.Text = currentIndex.ToString()
+                Dim docPath As String = ""
+                Try : docPath = oDoc.FullFileName : Catch : End Try
+
+                If Not force AndAlso
+                   currentIdx = lastSheetIndex AndAlso
+                   total = lastSheetCount AndAlso
+                   docPath = lastDocPath Then
+                    Return
+                End If
+
+                lastSheetIndex = currentIdx
+                lastSheetCount = total
+                lastDocPath = docPath
+
+                If Not txtPage.Focused Then
+                    txtPage.Text = currentIdx.ToString()
+                End If
+
+                Try
+                    Me.Text = "Sheet " & currentIdx.ToString() & " / " & total.ToString()
+                Catch
+                End Try
             Catch
-                lblInfo.Text = "Sheet"
             End Try
         End Sub
+
+        Private Sub SetButtonsEnabled(ByVal en As Boolean)
+            Try
+                btnFirst.Enabled = en
+                btnPrev.Enabled = en
+                btnNext.Enabled = en
+                btnLast.Enabled = en
+                txtPage.Enabled = en
+            Catch
+            End Try
+        End Sub
+
         '=========================================================
-        '        ' GO TO SHEET        '
+        ' TIMER CẬP NHẬT INFO
+        '=========================================================
+        Private Sub RefreshTimer_Tick(ByVal sender As Object, ByVal e As EventArgs)
+            UpdateInfo(False)
+        End Sub
+
+        '=========================================================
+        ' TIMER FOREGROUND — ẩn/hiện + đổi màn hình
+        '=========================================================
+        Private Sub ForegroundTimer_Tick(ByVal sender As Object, ByVal e As EventArgs)
+            Try
+                If transitioning Then Return
+
+                Dim fg As IntPtr = GetForegroundWindow()
+                If fg = IntPtr.Zero Then Return
+
+                Dim invHwnd As IntPtr = IntPtr.Zero
+                Try : invHwnd = New IntPtr(invApp.MainFrameHWND) : Catch : End Try
+
+                Dim isInv As Boolean = (invHwnd <> IntPtr.Zero AndAlso fg = invHwnd)
+                Dim isMine As Boolean = IsWindowPartOfForm(fg)
+
+                If isInv OrElse isMine Then
+                    If Not Me.Visible Then
+                        Me.Show()
+                        PositionOnInventorScreen()
+                        UpdateInfo(True)
+                    End If
+                Else
+                    If Me.Visible Then
+                        Me.Hide()
+                    End If
+                    Return
+                End If
+
+                If invHwnd <> IntPtr.Zero Then
+                    Dim invScreen As Screen = Nothing
+                    Try : invScreen = Screen.FromHandle(invHwnd) : Catch : End Try
+
+                    If invScreen IsNot Nothing AndAlso invScreen.DeviceName <> lastScreenDeviceName Then
+                        PositionOnInventorScreen()
+                    End If
+                End If
+            Catch
+            End Try
+        End Sub
+
+        '=========================================================
+        ' GO TO SHEET
         '=========================================================
         Private Sub GoToSheet(ByVal index As Integer)
             Try
-                '=====================================================
-                ' LUÔN LẤY DRAWING ĐANG ACTIVE
-                '=====================================================
                 Dim oDoc As Inventor.DrawingDocument = GetCurrentDrawing()
-                If oDoc Is Nothing Then
-                    MessageBox.Show("Document hiện tại không phải Drawing.", "Sheet Navigator", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                    Exit Sub
-                End If
+                If oDoc Is Nothing Then Return
+
                 Dim total As Integer = oDoc.Sheets.Count
-                If total <= 0 Then
-                    Exit Sub
-                End If
-                If index < 1 Then
-                    index = 1
-                ElseIf index > total Then
-                    index = total
-                End If
-                '=====================================================
-                ' CHUYỂN SHEET CỦA DRAWING HIỆN TẠI
-                '=====================================================
+                If total <= 0 Then Return
+
+                If index < 1 Then index = 1
+                If index > total Then index = total
+
+                transitioning = True
+
                 oDoc.Sheets.Item(index).Activate()
-                UpdateInfo()
+                UpdateInfo(True)
+
+                Try
+                    Dim invHwnd As IntPtr = New IntPtr(invApp.MainFrameHWND)
+                    If invHwnd <> IntPtr.Zero Then
+                        SetForegroundWindow(invHwnd)
+                    End If
+                Catch
+                End Try
+
+                transitioning = False
             Catch ex As Exception
-                MessageBox.Show(ex.Message, "Sheet Navigator", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                transitioning = False
+                MessageBox.Show(ex.Message, "Sheet Navigator",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning)
             End Try
-        End Sub
-        '=========================================================        '
-        ' DOCK LEFT - GIỮA MÀN HÌNH TRÁI        
-        '        '=========================================================
-        Private Sub chkLeft_CheckedChanged(ByVal sender As Object, ByVal e As EventArgs)
-            Try
-                If Not chkLeft.Checked Then Exit Sub
-
-                If chkRight.Checked Then
-                    chkRight.Checked = False
-                End If
-                Dim screens() As Screen = Screen.AllScreens
-                ' TÌM MÀN HÌNH TRÁI
-                Dim leftScreen As Screen = screens(0)
-                For Each s As Screen In screens
-                    If s.Bounds.Left < leftScreen.Bounds.Left Then
-                        leftScreen = s
-                    End If
-                Next
-                Dim wa As System.Drawing.Rectangle = leftScreen.WorkingArea
-                ' GIỮA THEO CHIỀU NGANG
-                Me.Left = wa.Left + ((wa.Width - Me.Width) \ 2)
-                ' CÁCH ĐÁY 100 PX
-                Me.Top = wa.Bottom - Me.Height - 50
-            Catch
-            End Try
-        End Sub
-        '=========================================================
-        '        ' DOCK RIGHT - GIỮA MÀN HÌNH PHẢI
-        '        '=========================================================
-        Private Sub chkRight_CheckedChanged(ByVal sender As Object, ByVal e As EventArgs)
-            Try
-                If Not chkRight.Checked Then Exit Sub
-                If chkLeft.Checked Then
-                    chkLeft.Checked = False
-                End If
-                Dim screens() As Screen = Screen.AllScreens
-                ' TÌM MÀN HÌNH PHẢI
-                Dim rightScreen As Screen = screens(0)
-                For Each s As Screen In screens
-                    If s.Bounds.Right > rightScreen.Bounds.Right Then
-                        rightScreen = s
-                    End If
-                Next
-                Dim wa As System.Drawing.Rectangle = rightScreen.WorkingArea
-
-                ' GIỮA THEO CHIỀU NGANG
-                Me.Left = wa.Left + ((wa.Width - Me.Width) \ 2)
-                ' CÁCH ĐÁY 100 PX
-                Me.Top = wa.Bottom - Me.Height - 50
-            Catch
-            End Try
-        End Sub
-        '=========================================================
-        '        ' DRAG FORM
-        '        '=========================================================
-        Private Sub Form_MouseDown(ByVal sender As Object, ByVal e As MouseEventArgs)
-            Try
-                '=================================================
-                ' ĐANG DOCK KHÔNG KÉO
-                '=================================================
-                If chkLeft.Checked OrElse
-                    chkRight.Checked Then
-                    Exit Sub
-                End If
-                If e.Button <> MouseButtons.Left Then
-                    Exit Sub
-                End If
-                isDragging = True
-                dragCursorPoint = Cursor.Position
-                dragFormPoint = Me.Location
-            Catch
-            End Try
-        End Sub
-        '=========================================================
-        '        ' DRAG MOVE
-        '        '=========================================================
-        Private Sub Form_MouseMove(ByVal sender As Object, ByVal e As MouseEventArgs)
-            Try
-                If Not isDragging Then
-                    Exit Sub
-                End If
-                Dim currentCursor As System.Drawing.Point = Cursor.Position
-                Dim diffX As Integer = currentCursor.X - dragCursorPoint.X
-                Dim diffY As Integer = currentCursor.Y - dragCursorPoint.Y
-                Me.Location = New System.Drawing.Point(dragFormPoint.X + diffX, dragFormPoint.Y + diffY)
-            Catch
-            End Try
-        End Sub
-        '=========================================================
-        '        ' DRAG UP
-        '        '=========================================================
-        Private Sub Form_MouseUp(ByVal sender As Object, ByVal e As MouseEventArgs)
-            isDragging = False
-        End Sub
-        '=========================================================
-        '        ' CLOSE
-        '        '=========================================================
-        Private Sub btnClose_Click(ByVal sender As Object, ByVal e As EventArgs)
-            Try
-                Me.Close()
-            Catch
-            End Try
-        End Sub
-        '=========================================================
-        '
-        ' FIRST
-        '
-        '=========================================================
-        Private Sub btnFirst_Click(ByVal sender As Object, ByVal e As EventArgs)
-            GoToSheet(1)
-        End Sub
-        '=========================================================
-        '        ' PREVIOUS        '
-        '=========================================================
-        Private Sub btnPrev_Click(ByVal sender As Object, ByVal e As EventArgs)
-            GoToSheet(GetCurrentSheetIndex() - 1)
         End Sub
 
-        '=========================================================
-        '        ' NEXT        '
-        '=========================================================
-        Private Sub btnNext_Click(ByVal sender As Object, ByVal e As EventArgs)
-            GoToSheet(GetCurrentSheetIndex() + 1)
-        End Sub
-        '=========================================================
-        '        ' LAST
-        '        '=========================================================
-        Private Sub btnLast_Click(ByVal sender As Object, ByVal e As EventArgs)
+        Private Sub GoToLastSheet()
             Try
-                Dim oDoc As Inventor.DrawingDocument = GetDrawingDocument()
-                If oDoc Is Nothing Then
-                    Exit Sub
-                End If
+                Dim oDoc As Inventor.DrawingDocument = GetCurrentDrawing()
+                If oDoc Is Nothing Then Return
                 GoToSheet(oDoc.Sheets.Count)
             Catch
             End Try
         End Sub
 
         '=========================================================
-        '        ' GO BUTTON
-        '        '=========================================================
-        Private Sub btnGo_Click(ByVal sender As Object, ByVal e As EventArgs)
-            GoToSheetFromText()
-        End Sub
+        ' TEXTBOX KEYDOWN
         '=========================================================
-        '        ' TEXTBOX KEYDOWN        '
-        '=========================================================
-        Private Sub txtPage_KeyDown(ByVal sender As Object, ByVal e As KeyEventArgs)
+        Private Sub TxtPage_KeyDown(ByVal sender As Object, ByVal e As KeyEventArgs)
             Try
-                '=================================================
-                ' ENTER
-                '=================================================
                 If e.KeyCode = Keys.Enter Then
                     e.SuppressKeyPress = True
                     e.Handled = True
                     GoToSheetFromText()
                     Exit Sub
                 End If
-                '=================================================
-                ' ESC
-                '=================================================
+
                 If e.KeyCode = Keys.Escape Then
                     e.SuppressKeyPress = True
                     e.Handled = True
-                    Me.Close()
+                    UpdateInfo(True)
                     Exit Sub
                 End If
-                '=================================================
-                ' SPACE
-                '=================================================
-                If e.KeyCode = Keys.Space Then
+
+                If e.KeyCode = Keys.Up Then
                     e.SuppressKeyPress = True
                     e.Handled = True
+                    GoToSheet(GetCurrentSheetIndex() - 1)
+                    Exit Sub
+                End If
+
+                If e.KeyCode = Keys.Down Then
+                    e.SuppressKeyPress = True
+                    e.Handled = True
+                    GoToSheet(GetCurrentSheetIndex() + 1)
                     Exit Sub
                 End If
             Catch
             End Try
         End Sub
-        '=========================================================
-        '        ' PROCESS CMD KEY
-        '        '=========================================================
-        Protected Overrides Function ProcessCmdKey(ByRef msg As Message, ByVal keyData As Keys) As Boolean
-            Try
-                '=================================================
-                ' ESC = CLOSE
-                '=================================================
-                If keyData = Keys.Escape Then
-                    Me.Close()
-                    Return True
-                End If
-                '=================================================
-                ' SPACE
-                ' CHẶN INVENTOR COMMAND
-                '=================================================
-                If keyData = Keys.Space Then
-                    Return True
-                End If
-                '=================================================
-                ' ENTER
-                '=================================================
-                If keyData = Keys.Enter Then
-                    '---------------------------------------------
-                    ' CHỈ GO KHI ĐANG NHẬP TEXTBOX
-                    '---------------------------------------------
-                    If Me.ActiveControl Is txtPage Then
-                        GoToSheetFromText()
-                    End If
-                    '---------------------------------------------
-                    ' KHÔNG CHO ENTER GỌI LẠI COMMAND
-                    '---------------------------------------------
-                    Return True
-                End If
-            Catch
-            End Try
-            Return MyBase.ProcessCmdKey(msg, keyData)
-        End Function
-        '=========================================================
-        '         GO TO SHEET FROM TEXT
-        '       =========================================================
+
         Private Sub GoToSheetFromText()
             Try
                 Dim pageNumber As Integer
                 If Not Integer.TryParse(txtPage.Text.Trim(), pageNumber) Then
-                    MessageBox.Show("Nhập số Sheet hợp lệ.", "Sheet Navigator", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    MessageBox.Show("Nhập số Sheet hợp lệ.", "Sheet Navigator",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     txtPage.SelectAll()
                     txtPage.Focus()
-                    Exit Sub
+                    Return
                 End If
                 GoToSheet(pageNumber)
             Catch ex As Exception
-                MessageBox.Show(ex.Message, "Sheet Navigator", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                MessageBox.Show(ex.Message, "Sheet Navigator",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning)
             End Try
         End Sub
+
         '=========================================================
-        ' FORM ACTIVATED
+        ' SCROLL WHEEL
         '=========================================================
-        Protected Overrides Sub OnActivated(ByVal e As EventArgs)
-            MyBase.OnActivated(e)
+        Private Sub Form_MouseWheel(ByVal sender As Object, ByVal e As MouseEventArgs)
             Try
-                UpdateInfo()
+                If e.Delta > 0 Then
+                    GoToSheet(GetCurrentSheetIndex() - 1)
+                ElseIf e.Delta < 0 Then
+                    GoToSheet(GetCurrentSheetIndex() + 1)
+                End If
             Catch
             End Try
         End Sub
+
         '=========================================================
-        '        ' FORM CLOSED
-        '        '=========================================================
+        ' FORM EVENTS
+        '=========================================================
         Protected Overrides Sub OnFormClosed(ByVal e As FormClosedEventArgs)
             Try
-                isDragging = False
+                If refreshTimer IsNot Nothing Then
+                    refreshTimer.Stop()
+                    refreshTimer.Dispose()
+                    refreshTimer = Nothing
+                End If
+                If foregroundTimer IsNot Nothing Then
+                    foregroundTimer.Stop()
+                    foregroundTimer.Dispose()
+                    foregroundTimer = Nothing
+                End If
             Catch
             End Try
             MyBase.OnFormClosed(e)
@@ -698,4 +659,5 @@ Namespace ToolInventor2020.Drawing.Buttons
 
         End Sub
     End Class
+
 End Namespace
