@@ -118,6 +118,7 @@
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_LG_3.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_LG_4.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Lenh_Constrain\Ass_LG_C_1e.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Frame\old\Ass_Frame_1.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Lenh ngoai lap ghep\Old\Design_Assistant_old.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Part\Ass_Part_9.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Part\Ass_Part_list_1.vb" />
