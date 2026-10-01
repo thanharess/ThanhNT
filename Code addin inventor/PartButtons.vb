@@ -98,7 +98,22 @@ Namespace ToolInventor2020
             Dim Part14SmallPath As String = System.IO.Path.Combine(iconsFolder, "i3 1.bmp")
             Dim Part15LargePath As String = System.IO.Path.Combine(iconsFolder, "i3.bmp")
             Dim Part15SmallPath As String = System.IO.Path.Combine(iconsFolder, "i3 1.bmp")
-
+            Dim Part16LargePath As String = System.IO.Path.Combine(iconsFolder, "i3.bmp")
+            Dim Part16SmallPath As String = System.IO.Path.Combine(iconsFolder, "i3 1.bmp")
+            Dim Part17LargePath As String = System.IO.Path.Combine(iconsFolder, "i3.bmp")
+            Dim Part17SmallPath As String = System.IO.Path.Combine(iconsFolder, "i3 1.bmp")
+            Dim Part18LargePath As String = System.IO.Path.Combine(iconsFolder, "i3.bmp")
+            Dim Part18SmallPath As String = System.IO.Path.Combine(iconsFolder, "i3 1.bmp")
+            Dim Part19LargePath As String = System.IO.Path.Combine(iconsFolder, "i3.bmp")
+            Dim Part19SmallPath As String = System.IO.Path.Combine(iconsFolder, "i3 1.bmp")
+            Dim Part20LargePath As String = System.IO.Path.Combine(iconsFolder, "i3.bmp")
+            Dim Part20SmallPath As String = System.IO.Path.Combine(iconsFolder, "i3 1.bmp")
+            Dim Part21LargePath As String = System.IO.Path.Combine(iconsFolder, "i3.bmp")
+            Dim Part21SmallPath As String = System.IO.Path.Combine(iconsFolder, "i3 1.bmp")
+            Dim Part22LargePath As String = System.IO.Path.Combine(iconsFolder, "i3.bmp")
+            Dim Part22SmallPath As String = System.IO.Path.Combine(iconsFolder, "i3 1.bmp")
+            Dim Part23LargePath As String = System.IO.Path.Combine(iconsFolder, "i3.bmp")
+            Dim Part23SmallPath As String = System.IO.Path.Combine(iconsFolder, "i3 1.bmp")
 
             ' Load per-button icons (fallback to provided largeIcon/smallIcon when file missing)
             Dim part1LargeIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part1LargePath), LoadIconFromPath(Part1LargePath), largeIcon)
@@ -131,7 +146,22 @@ Namespace ToolInventor2020
             Dim part14SmallIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part14SmallPath), LoadIconFromPath(Part14SmallPath), smallIcon)
             Dim part15LargeIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part15LargePath), LoadIconFromPath(Part15LargePath), largeIcon)
             Dim part15SmallIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part15SmallPath), LoadIconFromPath(Part15SmallPath), smallIcon)
-
+            Dim part16LargeIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part16LargePath), LoadIconFromPath(Part16LargePath), largeIcon)
+            Dim part16SmallIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part16SmallPath), LoadIconFromPath(Part16SmallPath), smallIcon)
+            Dim part17LargeIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part17LargePath), LoadIconFromPath(Part17LargePath), largeIcon)
+            Dim part17SmallIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part17SmallPath), LoadIconFromPath(Part17SmallPath), smallIcon)
+            Dim part18LargeIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part18LargePath), LoadIconFromPath(Part18LargePath), largeIcon)
+            Dim part18SmallIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part18SmallPath), LoadIconFromPath(Part18SmallPath), smallIcon)
+            Dim part19LargeIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part19LargePath), LoadIconFromPath(Part19LargePath), largeIcon)
+            Dim part19SmallIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part19SmallPath), LoadIconFromPath(Part19SmallPath), smallIcon)
+            Dim part20LargeIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part20LargePath), LoadIconFromPath(Part20LargePath), largeIcon)
+            Dim part20SmallIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part20SmallPath), LoadIconFromPath(Part20SmallPath), smallIcon)
+            Dim part21LargeIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part21LargePath), LoadIconFromPath(Part21LargePath), largeIcon)
+            Dim part21SmallIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part21SmallPath), LoadIconFromPath(Part21SmallPath), smallIcon)
+            Dim part22LargeIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part22LargePath), LoadIconFromPath(Part22LargePath), largeIcon)
+            Dim part22SmallIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part22SmallPath), LoadIconFromPath(Part22SmallPath), smallIcon)
+            Dim part23LargeIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part23LargePath), LoadIconFromPath(Part23LargePath), largeIcon)
+            Dim part23SmallIcon As stdole.IPictureDisp = If(System.IO.File.Exists(Part23SmallPath), LoadIconFromPath(Part23SmallPath), smallIcon)
 #End Region
 
             Dim partBtn1 As ButtonDefinition = controlDefs.AddButtonDefinition("Thêm dung sai vào dim sketch", "ToolInventor2020_Part_Btn1", CommandTypesEnum.kShapeEditCmdType, addInClientID,
@@ -229,6 +259,12 @@ Namespace ToolInventor2020
                                                                                "Mở vị trí lưu file", part15SmallIcon, part15LargeIcon)
             AddHandler partBtn15.OnExecute, AddressOf Toolngoai.Vitrifile.Vitrifile
             buttonsList.Add(partBtn15)
+
+            Dim partBtn16 As ButtonDefinition = controlDefs.AddButtonDefinition("Mở nơi lưu File", "ToolInventor2020_Part_Btn16", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                               Nothing,
+                                                                              "Mở vị trí lưu file", part16SmallIcon, part16LargeIcon)
+            AddHandler partBtn16.OnExecute, AddressOf Toolngoai.delete_link_OLE.OnExecute
+            buttonsList.Add(partBtn16)
         End Sub
     End Class
 End Namespace

@@ -1,5 +1,6 @@
 Imports System.Diagnostics.Contracts
 Imports Inventor
+Imports ToolInventor2020.ToolInventor2020.Assembly.Buttons.Lenhngoaicumlap
 
 
 Namespace ToolInventor2020
@@ -249,7 +250,7 @@ Namespace ToolInventor2020
             Dim assemblyBtn6 As ButtonDefinition = controlDefs.AddButtonDefinition("Covert to sheetmetal", "ToolInventor2020_Assembly_Btn6", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                    Nothing,
                                                                                    "Chuyển part thành sheet metal", ass1SmallIcon6, ass1LargeIcon6)
-            AddHandler assemblyBtn6.OnExecute, AddressOf Assembly.Buttons.part.Ass_Part_1.OnExecute
+            AddHandler assemblyBtn6.OnExecute, AddressOf Assembly.Buttons.Part.Ass_Part_1.OnExecute
             buttonsList.Add(assemblyBtn6)
 
             Dim assemblyBtn7 As ButtonDefinition = controlDefs.AddButtonDefinition("Combo part 1", "ToolInventor2020_Assembly_Btn7", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing,
@@ -263,11 +264,11 @@ Namespace ToolInventor2020
             '     buttonsList.Add(assemblyBtn8)
 
             Dim assemblyBtn9 As ButtonDefinition = controlDefs.AddButtonDefinition("Trải ALL Sheetmetal", "ToolInventor2020_Assembly_Btn9", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon9, ass1LargeIcon9)
-            AddHandler assemblyBtn9.OnExecute, AddressOf Assembly.Buttons.part.Ass_Part_4.OnExecute
+            AddHandler assemblyBtn9.OnExecute, AddressOf Assembly.Buttons.Part.Ass_Part_4.OnExecute
             buttonsList.Add(assemblyBtn9)
 
             Dim assemblyBtn14 As ButtonDefinition = controlDefs.AddButtonDefinition("Save copy to replace part", "ToolInventor2020_Assembly_Btn14", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon14, ass1LargeIcon14)
-            AddHandler assemblyBtn14.OnExecute, AddressOf Assembly.Buttons.part.Ass_Part_5.OnExecute
+            AddHandler assemblyBtn14.OnExecute, AddressOf Assembly.Buttons.Part.Ass_part_5.OnExecute
             buttonsList.Add(assemblyBtn14)
 
             Dim assemblyBtn12 As ButtonDefinition = controlDefs.AddButtonDefinition("Xoa mau ghi de len part", "ToolInventor2020_Assembly_Btn12", CommandTypesEnum.kShapeEditCmdType, addInClientID, Nothing, Nothing, ass1SmallIcon12, ass1LargeIcon12)
@@ -294,10 +295,6 @@ Namespace ToolInventor2020
 
 
 
-            Dim assemblyBtn20 As ButtonDefinition = controlDefs.AddButtonDefinition("5", "ToolInventor2020_Assembly_Btn20", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                   Nothing, "", ass1SmallIcon20, ass1LargeIcon20)
-            'AddHandler assemblyBtn20.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.ass_15.OnExecute
-            ' buttonsList.Add(assemblyBtn20)
 
 
 
@@ -368,6 +365,12 @@ Namespace ToolInventor2020
                                                                                    Nothing, "Mở vị trí lưu file", ass1SmallIcon19, ass1LargeIcon19)
             AddHandler assemblyBtn19.OnExecute, AddressOf Toolngoai.Vitrifile.Vitrifile
             buttonsList.Add(assemblyBtn19)
+
+
+            Dim assemblyBtn20 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa link OLE", "ToolInventor2020_Assembly_Btn20", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                   Nothing, "Xóa tất cả các liên kết OLE trong Part & Assembly", ass1SmallIcon20, ass1LargeIcon20)
+            AddHandler assemblyBtn20.OnExecute, AddressOf Toolngoai.delete_link_OLE.OnExecute
+            buttonsList.Add(assemblyBtn20)
 #End Region
 
 
