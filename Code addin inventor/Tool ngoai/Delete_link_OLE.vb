@@ -2,16 +2,14 @@
 Imports Inventor
 
 Namespace ToolInventor2020.Toolngoai
+
     Public Module delete_link_OLE
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
 
-            ' Lấy ứng dụng Inventor đang chạy
             Dim invApp As Inventor.Application = System.Runtime.InteropServices.Marshal.GetActiveObject("Inventor.Application")
-
             Dim oDoc As Document = invApp.ActiveDocument
 
-            ' Kiểm tra tài liệu hiện tại
             If oDoc Is Nothing Then
                 MessageBox.Show("Không có tài liệu đang mở!", "Visual Studio")
                 Return
@@ -23,9 +21,6 @@ Namespace ToolInventor2020.Toolngoai
                 Return
             End If
 
-            '=================================================
-            ' KHAI BÁO BIẾN ĐẾM (đưa lên đầu để tránh lỗi ẩn biến)
-            '=================================================
             Dim countExcel As Integer = 0
             Dim countDerived As Integer = 0
             Dim countOLE As Integer = 0
@@ -38,16 +33,15 @@ Namespace ToolInventor2020.Toolngoai
             Dim processAll As Boolean = False
 
             '=================================================
-            ' NẾU LÀ PART → XỬ LÝ NGAY, KHÔNG HỎI
+            ' NẾU LÀ PART → XỬ LÝ NGAY
             '=================================================
             If oDoc.DocumentType = DocumentTypeEnum.kPartDocumentObject Then
                 invApp.SilentOperation = True
-
                 Try
                     Call RemoveAllParameterLinks(oDoc, countExcel, countDerived, countOLE)
                     countDocs = 1
                     oDoc.Update2(True)
-                    ' oDoc.Save2(True)
+                    'oDoc.Save2(True)
 
                     MessageBox.Show("Đã xử lý xong Part!" & vbCrLf & vbCrLf &
                                     "Excel Tables đã xóa: " & countExcel & vbCrLf &
@@ -62,61 +56,35 @@ Namespace ToolInventor2020.Toolngoai
             End If
 
             '=================================================
-            ' NẾU LÀ ASSEMBLY → HỎI CHỌN CHẾ ĐỘ
+            ' NẾU LÀ ASSEMBLY → HIỆN FORM CHỌN
             '=================================================
-            Dim result As DialogResult
-            result = MessageBox.Show(
-                "Chọn chế độ xử lý cho Assembly:" & vbCrLf & vbCrLf &
-                "YES      = Chỉ Top Level (Assembly tổng)" & vbCrLf &
-                "NO       = Xử lý đệ quy (Part + Assembly)" & vbCrLf &
-                "CANCEL   = Chọn chế độ nâng cao...",
-                "Chọn chế độ xóa liên kết Parameters",
-                MessageBoxButtons.YesNoCancel,
-                MessageBoxIcon.Question)
+            Dim selectedMode As Integer = ShowModeSelectionForm()
 
-            If result = DialogResult.Yes Then
-                processTopOnly = True
-            ElseIf result = DialogResult.No Then
-                processAll = True
-            Else
-                '----- Chế độ nâng cao -----
-                Dim result2 As DialogResult
-                result2 = MessageBox.Show(
-                    "Chọn chế độ nâng cao:" & vbCrLf & vbCrLf &
-                    "YES  = Chỉ áp dụng cho các Assembly (all level)" & vbCrLf &
-                    "NO   = Chỉ áp dụng cho các Part (all level)" & vbCrLf &
-                    "CANCEL = Hủy",
-                    "Chế độ nâng cao",
-                    MessageBoxButtons.YesNoCancel,
-                    MessageBoxIcon.Question)
+            If selectedMode = 0 Then Return   ' Người dùng đóng form / Cancel
 
-                If result2 = DialogResult.Yes Then
+            Select Case selectedMode
+                Case 1
+                    processTopOnly = True
+                Case 2
+                    processAll = True
+                Case 3
                     processOnlyAssemblies = True
-                ElseIf result2 = DialogResult.No Then
+                Case 4
                     processOnlyParts = True
-                Else
-                    Return
-                End If
-            End If
+            End Select
 
             invApp.SilentOperation = True
 
             Try
                 Dim oAsmDoc As AssemblyDocument = CType(oDoc, AssemblyDocument)
 
-                '=================================================
-                ' 1. CHỈ TOP LEVEL
-                '=================================================
                 If processTopOnly Then
                     modeText = "Chỉ Top Level (Assembly tổng)"
                     Call RemoveAllParameterLinks(oAsmDoc, countExcel, countDerived, countOLE)
                     countDocs += 1
                     oAsmDoc.Update2(True)
-                    ' oAsmDoc.Save2(True)
+                    'oAsmDoc.Save2(True)
 
-                    '=================================================
-                    ' 2. ĐỆ QUY TẤT CẢ (Part + Assembly)
-                    '=================================================
                 ElseIf processAll Then
                     modeText = "Đệ quy toàn bộ (Part + Assembly)"
 
@@ -127,10 +95,9 @@ Namespace ToolInventor2020.Toolngoai
 
                                 Call RemoveAllParameterLinks(oRefDoc, countExcel, countDerived, countOLE)
                                 countDocs += 1
-
                                 Try
                                     oRefDoc.Update2(True)
-                                    ' oRefDoc.Save2(True)
+                                    'oRefDoc.Save2(True)
                                 Catch
                                 End Try
                             End If
@@ -138,15 +105,11 @@ Namespace ToolInventor2020.Toolngoai
                         End Try
                     Next
 
-                    ' Xử lý lại Assembly tổng
                     Call RemoveAllParameterLinks(oAsmDoc, countExcel, countDerived, countOLE)
                     countDocs += 1
                     oAsmDoc.Update2(True)
-                    ' oAsmDoc.Save2(True)
+                    'oAsmDoc.Save2(True)
 
-                    '=================================================
-                    ' 3. CHỈ CÁC ASSEMBLY (ALL LEVEL)
-                    '=================================================
                 ElseIf processOnlyAssemblies Then
                     modeText = "Chỉ các Assembly (all level)"
 
@@ -155,10 +118,9 @@ Namespace ToolInventor2020.Toolngoai
                             If oRefDoc.DocumentType = DocumentTypeEnum.kAssemblyDocumentObject Then
                                 Call RemoveAllParameterLinks(oRefDoc, countExcel, countDerived, countOLE)
                                 countDocs += 1
-
                                 Try
                                     oRefDoc.Update2(True)
-                                    ' oRefDoc.Save2(True)
+                                    'oRefDoc.Save2(True)
                                 Catch
                                 End Try
                             End If
@@ -166,15 +128,11 @@ Namespace ToolInventor2020.Toolngoai
                         End Try
                     Next
 
-                    ' Xử lý Assembly tổng
                     Call RemoveAllParameterLinks(oAsmDoc, countExcel, countDerived, countOLE)
                     countDocs += 1
                     oAsmDoc.Update2(True)
-                    '  oAsmDoc.Save2(True)
+                    'oAsmDoc.Save2(True)
 
-                    '=================================================
-                    ' 4. CHỈ CÁC PART (ALL LEVEL)
-                    '=================================================
                 ElseIf processOnlyParts Then
                     modeText = "Chỉ các Part (all level)"
 
@@ -183,10 +141,9 @@ Namespace ToolInventor2020.Toolngoai
                             If oRefDoc.DocumentType = DocumentTypeEnum.kPartDocumentObject Then
                                 Call RemoveAllParameterLinks(oRefDoc, countExcel, countDerived, countOLE)
                                 countDocs += 1
-
                                 Try
                                     oRefDoc.Update2(True)
-                                    ' oRefDoc.Save2(True)
+                                    'oRefDoc.Save2(True)
                                 Catch
                                 End Try
                             End If
@@ -211,8 +168,78 @@ Namespace ToolInventor2020.Toolngoai
         End Sub
 
         ''' <summary>
-        ''' Xóa liên kết Excel + liên kết Parameters giữa các file
+        ''' Form chọn chế độ bằng nút bấm
         ''' </summary>
+        Private Function ShowModeSelectionForm() As Integer
+
+            Dim selected As Integer = 0
+
+            Dim frm As New Form()
+            frm.Text = "Xóa liên kết Parameters / OLE"
+            frm.Size = New System.Drawing.Size(380, 280)
+            frm.StartPosition = FormStartPosition.CenterScreen
+            frm.FormBorderStyle = FormBorderStyle.FixedDialog
+            frm.MaximizeBox = False
+            frm.MinimizeBox = False
+            frm.TopMost = True
+
+            Dim lbl As New Label()
+            lbl.Text = "Chọn chế độ xử lý:"
+            lbl.Location = New System.Drawing.Point(20, 15)
+            lbl.Size = New System.Drawing.Size(320, 25)
+            lbl.Font = New System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold)
+            frm.Controls.Add(lbl)
+
+            Dim btn1 As New Button()
+            btn1.Text = "1. Chỉ Top Level (Assembly tổng)"
+            btn1.Location = New System.Drawing.Point(30, 50)
+            btn1.Size = New System.Drawing.Size(300, 35)
+            btn1.Font = New System.Drawing.Font("Segoe UI", 9)
+            AddHandler btn1.Click, Sub()
+                                       selected = 1
+                                       frm.Close()
+                                   End Sub
+            frm.Controls.Add(btn1)
+
+            Dim btn2 As New Button()
+            btn2.Text = "2. Đệ quy toàn bộ (Part + Assembly)"
+            btn2.Location = New System.Drawing.Point(30, 95)
+            btn2.Size = New System.Drawing.Size(300, 35)
+            btn2.Font = New System.Drawing.Font("Segoe UI", 9)
+            AddHandler btn2.Click, Sub()
+                                       selected = 2
+                                       frm.Close()
+                                   End Sub
+            frm.Controls.Add(btn2)
+
+            Dim btn3 As New Button()
+            btn3.Text = "3. Chỉ các Assembly (all level)"
+            btn3.Location = New System.Drawing.Point(30, 140)
+            btn3.Size = New System.Drawing.Size(300, 35)
+            btn3.Font = New System.Drawing.Font("Segoe UI", 9)
+            AddHandler btn3.Click, Sub()
+                                       selected = 3
+                                       frm.Close()
+                                   End Sub
+            frm.Controls.Add(btn3)
+
+            Dim btn4 As New Button()
+            btn4.Text = "4. Chỉ các Part (all level)"
+            btn4.Location = New System.Drawing.Point(30, 185)
+            btn4.Size = New System.Drawing.Size(300, 35)
+            btn4.Font = New System.Drawing.Font("Segoe UI", 9)
+            AddHandler btn4.Click, Sub()
+                                       selected = 4
+                                       frm.Close()
+                                   End Sub
+            frm.Controls.Add(btn4)
+
+            frm.ShowDialog()
+
+            Return selected
+
+        End Function
+
         Private Sub RemoveAllParameterLinks(ByVal oDoc As Document,
                                             ByRef countExcel As Integer,
                                             ByRef countDerived As Integer,
@@ -228,12 +255,9 @@ Namespace ToolInventor2020.Toolngoai
 
             If oParams Is Nothing Then Return
 
-            '=================================================
-            ' 1. XÓA LIÊN KẾT EXCEL (ParameterTables)
-            '=================================================
+            ' 1. Xóa Excel Tables
             Try
                 Dim oTables As ParameterTables = oParams.ParameterTables
-
                 For i As Integer = oTables.Count To 1 Step -1
                     Try
                         oTables.Item(i).Delete()
@@ -244,16 +268,12 @@ Namespace ToolInventor2020.Toolngoai
             Catch
             End Try
 
-            '=================================================
-            ' 2. XÓA LIÊN KẾT PARAMETERS GIỮA CÁC FILE
-            '=================================================
+            ' 2. Xóa Derived Parameters
             Try
                 Dim oDerivedTables As DerivedParameterTables = oParams.DerivedParameterTables
-
                 For i As Integer = oDerivedTables.Count To 1 Step -1
                     Try
                         Dim oTable As DerivedParameterTable = oDerivedTables.Item(i)
-
                         If oTable.HasReferenceComponent = False Then
                             oTable.Delete()
                             countDerived += 1
@@ -264,18 +284,14 @@ Namespace ToolInventor2020.Toolngoai
             Catch
             End Try
 
-            '=================================================
-            ' 3. XÓA OLE LINKS EXCEL
-            '=================================================
+            ' 3. Xóa OLE Links Excel
             Try
                 For Each oOLE As ReferencedOLEFileDescriptor In oDoc.ReferencedOLEFileDescriptors
                     Try
                         Dim sName As String = LCase(oOLE.DisplayName)
-
                         If InStr(sName, ".xls") > 0 OrElse
                            InStr(sName, "excel") > 0 OrElse
                            InStr(sName, "embedding") > 0 Then
-
                             oOLE.Delete()
                             countOLE += 1
                         End If
