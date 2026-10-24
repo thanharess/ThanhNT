@@ -260,9 +260,9 @@ Namespace ToolInventor2020
             AddHandler partBtn15.OnExecute, AddressOf Toolngoai.Vitrifile.Vitrifile
             buttonsList.Add(partBtn15)
 
-            Dim partBtn16 As ButtonDefinition = controlDefs.AddButtonDefinition("Mở nơi lưu File", "ToolInventor2020_Part_Btn16", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+            Dim partBtn16 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa link OLE", "ToolInventor2020_Part_Btn16", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                Nothing,
-                                                                              "Mở vị trí lưu file", part16SmallIcon, part16LargeIcon)
+                                                                              "Xóa liên kết File", part16SmallIcon, part16LargeIcon)
             AddHandler partBtn16.OnExecute, AddressOf Toolngoai.delete_link_OLE.OnExecute
             buttonsList.Add(partBtn16)
         End Sub
