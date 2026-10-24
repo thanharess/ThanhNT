@@ -1,5 +1,6 @@
 Imports System.Diagnostics.Contracts
 Imports Inventor
+Imports ToolInventor2020.ToolInventor2020.Assembly.Buttons
 Imports ToolInventor2020.ToolInventor2020.Assembly.Buttons.Lenhngoaicumlap
 
 
@@ -101,7 +102,32 @@ Namespace ToolInventor2020
             Dim Ass1SmallPath27 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
             Dim Ass1LargePath28 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
             Dim Ass1SmallPath28 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
-
+            Dim Ass1LargePath29 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath29 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath30 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath30 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath31 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath31 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath32 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath32 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath33 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath33 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath34 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath34 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath35 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath35 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath36 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath36 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath37 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath37 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath38 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath38 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath39 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath39 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath40 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath40 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
+            Dim Ass1LargePath41 As String = System.IO.Path.Combine(iconsFolder, "i39.bmp")
+            Dim Ass1SmallPath41 As String = System.IO.Path.Combine(iconsFolder, "i39 1.bmp")
 
             ' Load per-button icons (fallback to provided largeIcon/smallIcon when file missing)
             Dim ass1LargeIcon1 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath1), LoadIconFromPath(Ass1LargePath1), largeIcon)
@@ -160,6 +186,33 @@ Namespace ToolInventor2020
             Dim ass1SmallIcon27 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath27), LoadIconFromPath(Ass1SmallPath27), smallIcon)
             Dim ass1LargeIcon28 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath28), LoadIconFromPath(Ass1LargePath28), largeIcon)
             Dim ass1SmallIcon28 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath28), LoadIconFromPath(Ass1SmallPath28), smallIcon)
+            Dim ass1LargeIcon29 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath29), LoadIconFromPath(Ass1LargePath29), largeIcon)
+            Dim ass1SmallIcon29 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath29), LoadIconFromPath(Ass1SmallPath29), smallIcon)
+            Dim ass1LargeIcon30 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath30), LoadIconFromPath(Ass1LargePath30), largeIcon)
+            Dim ass1SmallIcon30 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath30), LoadIconFromPath(Ass1SmallPath30), smallIcon)
+            Dim ass1LargeIcon31 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath31), LoadIconFromPath(Ass1LargePath31), largeIcon)
+            Dim ass1SmallIcon31 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath31), LoadIconFromPath(Ass1SmallPath31), smallIcon)
+            Dim ass1LargeIcon32 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath32), LoadIconFromPath(Ass1LargePath32), largeIcon)
+            Dim ass1SmallIcon32 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath32), LoadIconFromPath(Ass1SmallPath32), smallIcon)
+            Dim ass1LargeIcon33 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath33), LoadIconFromPath(Ass1LargePath33), largeIcon)
+            Dim ass1SmallIcon33 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath33), LoadIconFromPath(Ass1SmallPath33), smallIcon)
+            Dim ass1LargeIcon34 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath34), LoadIconFromPath(Ass1LargePath34), largeIcon)
+            Dim ass1SmallIcon34 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath34), LoadIconFromPath(Ass1SmallPath34), smallIcon)
+            Dim ass1LargeIcon35 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath35), LoadIconFromPath(Ass1LargePath35), largeIcon)
+            Dim ass1SmallIcon35 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath35), LoadIconFromPath(Ass1SmallPath35), smallIcon)
+            Dim ass1LargeIcon36 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath36), LoadIconFromPath(Ass1LargePath36), largeIcon)
+            Dim ass1SmallIcon36 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath36), LoadIconFromPath(Ass1SmallPath36), smallIcon)
+            Dim ass1LargeIcon37 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath37), LoadIconFromPath(Ass1LargePath37), largeIcon)
+            Dim ass1SmallIcon37 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath37), LoadIconFromPath(Ass1SmallPath37), smallIcon)
+            Dim ass1LargeIcon38 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath38), LoadIconFromPath(Ass1LargePath38), largeIcon)
+            Dim ass1SmallIcon38 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath38), LoadIconFromPath(Ass1SmallPath38), smallIcon)
+            Dim ass1LargeIcon39 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath39), LoadIconFromPath(Ass1LargePath39), largeIcon)
+            Dim ass1SmallIcon39 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath39), LoadIconFromPath(Ass1SmallPath39), smallIcon)
+            Dim ass1LargeIcon40 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath40), LoadIconFromPath(Ass1LargePath40), largeIcon)
+            Dim ass1SmallIcon40 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath40), LoadIconFromPath(Ass1SmallPath40), smallIcon)
+            Dim ass1LargeIcon41 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1LargePath41), LoadIconFromPath(Ass1LargePath41), largeIcon)
+            Dim ass1SmallIcon41 As stdole.IPictureDisp = If(System.IO.File.Exists(Ass1SmallPath41), LoadIconFromPath(Ass1SmallPath41), smallIcon)
+
 #End Region
 
 #Region "Nut cho các assembly"
@@ -373,6 +426,11 @@ Namespace ToolInventor2020
             buttonsList.Add(assemblyBtn20)
 #End Region
 
+
+            Dim assemblyBtn29 As ButtonDefinition = controlDefs.AddButtonDefinition("Change View Representation", "ToolInventor2020_Assembly_Btn29", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                Nothing, "Change the view representation of the assembly", ass1SmallIcon29, ass1LargeIcon29)
+            AddHandler assemblyBtn29.OnExecute, AddressOf ASS_View.View_Representation.OnExecute
+            buttonsList.Add(assemblyBtn29)
 
 
         End Sub
