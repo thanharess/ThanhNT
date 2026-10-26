@@ -1,17 +1,13 @@
-﻿
-Imports System.Windows.Forms
-    Imports Inventor
+﻿Imports System.Windows.Forms
+Imports Inventor
 
 Namespace ToolInventor2020.Assembly.Buttons.ASS_View
-
     Public Module View_Representation
 
         Public Sub OnExecute(ByVal Context As NameValueMap)
-
             Dim invApp As Inventor.Application = System.Runtime.InteropServices.Marshal.GetActiveObject("Inventor.Application")
             Dim oDoc As Document = invApp.ActiveDocument
 
-            ' Chỉ chạy trên Assembly
             If oDoc Is Nothing OrElse oDoc.DocumentType <> DocumentTypeEnum.kAssemblyDocumentObject Then
                 MessageBox.Show("Chỉ hỗ trợ file Assembly (.iam)!", "Visual Studio")
                 Return
@@ -19,27 +15,18 @@ Namespace ToolInventor2020.Assembly.Buttons.ASS_View
 
             Dim oAsmDoc As AssemblyDocument = CType(oDoc, AssemblyDocument)
 
-            '=================================================
-            ' BƯỚC 1: CHỌN CHỨC NĂNG
-            '=================================================
             Dim selectedFunc As Integer = ShowFunctionForm()
             If selectedFunc = 0 Then Return
 
-            '=================================================
-            ' BƯỚC 2: CHỌN PHẠM VI (Top Level / All Level)
-            '=================================================
             Dim selectedScope As Integer = ShowScopeForm()
             If selectedScope = 0 Then Return
 
             Dim isAllLevel As Boolean = (selectedScope = 2)
 
             invApp.SilentOperation = True
-
             Try
                 Select Case selectedFunc
-
                     Case 1
-                        '----- Kích hoạt View theo tên -----
                         Dim viewName As String = InputBox("Nhập tên View Representation cần kích hoạt:", "Kích hoạt View", "Master")
                         If String.IsNullOrEmpty(viewName) Then Return
 
@@ -50,7 +37,6 @@ Namespace ToolInventor2020.Assembly.Buttons.ASS_View
                         End If
 
                     Case 2
-                        '----- Chuyển về View Master -----
                         If isAllLevel Then
                             Call ActivateView_AllLevel(oAsmDoc, "Master")
                         Else
@@ -58,102 +44,113 @@ Namespace ToolInventor2020.Assembly.Buttons.ASS_View
                         End If
 
                     Case 3
-                        '----- Chuyển về View Default -----
                         If isAllLevel Then
                             Call ActivateView_AllLevel(oAsmDoc, "Default")
                         Else
                             Call ActivateView_TopLevel(oAsmDoc, "Default")
                         End If
-
                 End Select
-
             Catch ex As Exception
                 MessageBox.Show("Lỗi: " & ex.Message, "Visual Studio")
             Finally
                 invApp.SilentOperation = False
             End Try
-
         End Sub
 
         '=================================================
         ' KÍCH HOẠT VIEW - TOP LEVEL
         '=================================================
         Private Sub ActivateView_TopLevel(ByVal oAsmDoc As AssemblyDocument, ByVal viewName As String)
+            Dim success As Boolean = ActivateViewInDoc(oAsmDoc, viewName)
 
-            Dim oRepMgr As RepresentationsManager = oAsmDoc.ComponentDefinition.RepresentationsManager
-            Dim found As Boolean = False
-
-            For Each oView As DesignViewRepresentation In oRepMgr.DesignViewRepresentations
-                If String.Compare(oView.Name, viewName, True) = 0 Then
-                    oView.Activate()
-                    found = True
-                    MessageBox.Show("Đã kích hoạt View """ & oView.Name & """ (Top Level)", "Visual Studio")
-                    Exit For
-                End If
-            Next
-
-            ' Nếu tìm Default không có thì thử Master
-            If Not found AndAlso String.Compare(viewName, "Default", True) = 0 Then
-                For Each oView As DesignViewRepresentation In oRepMgr.DesignViewRepresentations
-                    If oView.Name = "Master" Then
-                        oView.Activate()
-                        found = True
-                        MessageBox.Show("Không có View Default → đã chuyển về Master (Top Level)", "Visual Studio")
-                        Exit For
-                    End If
-                Next
+            If success Then
+                MessageBox.Show("Đã kích hoạt View """ & viewName & """ (Top Level)", "Visual Studio")
+            Else
+                MessageBox.Show("Không tìm thấy View: " & viewName & vbCrLf & "Đã thử fallback Master nếu là Default.", "Visual Studio")
             End If
-
-            If Not found Then
-                MessageBox.Show("Không tìm thấy View: " & viewName, "Visual Studio")
-            End If
-
         End Sub
 
         '=================================================
-        ' KÍCH HOẠT VIEW - ALL LEVEL (đệ quy)
+        ' KÍCH HOẠT VIEW - ALL LEVEL (đệ quy + SetDesignViewRepresentation)
         '=================================================
         Private Sub ActivateView_AllLevel(ByVal oAsmDoc As AssemblyDocument, ByVal viewName As String)
-
             Dim countSuccess As Integer = 0
             Dim countFail As Integer = 0
 
-            ' Xử lý Assembly tổng trước
+            ' Xử lý recursive theo occurrence (quan trọng nhất)
+            ProcessAssemblyRecursive(oAsmDoc, viewName, countSuccess, countFail)
+
+            MessageBox.Show("Đã xử lý xong (All Level)!" & vbCrLf & vbCrLf &
+                            "Thành công: " & countSuccess & vbCrLf &
+                            "Không tìm thấy / Lỗi: " & countFail & vbCrLf & vbCrLf &
+                            "Đã SetDesignViewRepresentation (Associative) trên tất cả occurrence.", "Visual Studio")
+        End Sub
+
+        '=================================================
+        ' ĐỆ QUY THEO CÂY OCCURRENCE + SET VIEW TRÊN OCCURRENCE
+        '=================================================
+        Private Sub ProcessAssemblyRecursive(ByVal oAsmDoc As AssemblyDocument,
+                                             ByVal viewName As String,
+                                             ByRef countSuccess As Integer,
+                                             ByRef countFail As Integer)
+
+            ' 1. Activate trong document hiện tại
             If ActivateViewInDoc(oAsmDoc, viewName) Then
                 countSuccess += 1
             Else
                 countFail += 1
             End If
 
-            ' Xử lý tất cả Sub-Assembly
-            For Each oRefDoc As Document In oAsmDoc.AllReferencedDocuments
+            ' 2. Duyệt tất cả occurrence
+            For Each oOcc As ComponentOccurrence In oAsmDoc.ComponentDefinition.Occurrences
                 Try
-                    If oRefDoc.DocumentType = DocumentTypeEnum.kAssemblyDocumentObject Then
-                        If ActivateViewInDoc(CType(oRefDoc, AssemblyDocument), viewName) Then
-                            countSuccess += 1
-                        Else
-                            countFail += 1
-                        End If
+                    If oOcc.Suppressed Then Continue For
+                    If TypeOf oOcc.Definition Is VirtualComponentDefinition Then Continue For
+                    If TypeOf oOcc.Definition Is WeldsComponentDefinition Then Continue For
+
+                    ' Chỉ xử lý Sub-Assembly
+                    If oOcc.DefinitionDocumentType = DocumentTypeEnum.kAssemblyDocumentObject Then
+
+                        ' === KEY FIX: Set Design View trên occurrence (Associative = True) ===
+                        ' Giải quyết trường hợp Top Level đang Master → view con bị ẩn
+                        Try
+                            oOcc.SetDesignViewRepresentation(viewName, , True)
+                        Catch
+                            ' Nếu viewName không tồn tại trong sub → thử Default / Master
+                            Try
+                                oOcc.SetDesignViewRepresentation("Default", , True)
+                            Catch
+                                Try
+                                    oOcc.SetDesignViewRepresentation("Master", , True)
+                                Catch
+                                End Try
+                            End Try
+                        End Try
+
+                        ' Đệ quy vào sub-assembly
+                        Dim subAsm As AssemblyDocument = CType(oOcc.Definition.Document, AssemblyDocument)
+                        ProcessAssemblyRecursive(subAsm, viewName, countSuccess, countFail)
                     End If
+
                 Catch
                     countFail += 1
                 End Try
             Next
 
-            MessageBox.Show("Đã xử lý xong (All Level)!" & vbCrLf & vbCrLf &
-                            "Thành công: " & countSuccess & vbCrLf &
-                            "Không tìm thấy / Lỗi: " & countFail, "Visual Studio")
-
+            Try
+                oAsmDoc.Update2(True)
+            Catch
+            End Try
         End Sub
 
         '=================================================
-        ' HÀM PHỤ: KÍCH HOẠT VIEW TRONG 1 ASSEMBLY
+        ' HÀM PHỤ: KÍCH HOẠT VIEW TRONG 1 ASSEMBLY DOCUMENT
         '=================================================
         Private Function ActivateViewInDoc(ByVal oAsmDoc As AssemblyDocument, ByVal viewName As String) As Boolean
-
             Try
                 Dim oRepMgr As RepresentationsManager = oAsmDoc.ComponentDefinition.RepresentationsManager
 
+                ' Tìm đúng tên (không phân biệt hoa thường)
                 For Each oView As DesignViewRepresentation In oRepMgr.DesignViewRepresentations
                     If String.Compare(oView.Name, viewName, True) = 0 Then
                         oView.Activate()
@@ -161,10 +158,10 @@ Namespace ToolInventor2020.Assembly.Buttons.ASS_View
                     End If
                 Next
 
-                ' Fallback: nếu tìm Default không có thì dùng Master
+                ' Fallback: Default → Master
                 If String.Compare(viewName, "Default", True) = 0 Then
                     For Each oView As DesignViewRepresentation In oRepMgr.DesignViewRepresentations
-                        If oView.Name = "Master" Then
+                        If String.Compare(oView.Name, "Master", True) = 0 Then
                             oView.Activate()
                             Return True
                         End If
@@ -173,18 +170,14 @@ Namespace ToolInventor2020.Assembly.Buttons.ASS_View
 
             Catch
             End Try
-
             Return False
-
         End Function
 
         '=================================================
         ' FORM CHỌN CHỨC NĂNG
         '=================================================
         Private Function ShowFunctionForm() As Integer
-
             Dim selected As Integer = 0
-
             Dim frm As New Form()
             frm.Text = "View Representation"
             frm.Size = New System.Drawing.Size(360, 230)
@@ -233,16 +226,13 @@ Namespace ToolInventor2020.Assembly.Buttons.ASS_View
 
             frm.ShowDialog()
             Return selected
-
         End Function
 
         '=================================================
         ' FORM CHỌN PHẠM VI
         '=================================================
         Private Function ShowScopeForm() As Integer
-
             Dim selected As Integer = 0
-
             Dim frm As New Form()
             frm.Text = "Chọn phạm vi áp dụng"
             frm.Size = New System.Drawing.Size(340, 180)
@@ -270,7 +260,7 @@ Namespace ToolInventor2020.Assembly.Buttons.ASS_View
             frm.Controls.Add(btn1)
 
             Dim btn2 As New Button()
-            btn2.Text = "2. All Level (đệ quy toàn bộ)"
+            btn2.Text = "2. All Level (đệ quy toàn bộ + Set Occurrence)"
             btn2.Location = New System.Drawing.Point(30, 95)
             btn2.Size = New System.Drawing.Size(260, 35)
             AddHandler btn2.Click, Sub()
@@ -281,7 +271,6 @@ Namespace ToolInventor2020.Assembly.Buttons.ASS_View
 
             frm.ShowDialog()
             Return selected
-
         End Function
 
     End Module
