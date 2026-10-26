@@ -34,7 +34,7 @@ Namespace ToolInventor2020.Assembly.Buttons.Lenhngoaicumlap
                 ' TÊN MAIN ASSEMBLY
                 '=====================================================
 
-                Dim newMainName As String = InputBoxEx("TÊN GỐC: " & oldMainName & vbCrLf & vbCrLf & "Nhập tên MỚI cho file lắp chính:", "ĐỔI TÊN FILE LẮP CHÍNH", oldMainName & "-2")
+                Dim newMainName As String = InputBoxEx("TÊN GỐC: " & oldMainName & vbCrLf & vbCrLf & "Nhập tên MỚI cho file lắp chính:", "ĐỔI TÊN FILE LẮP CHÍNH", oldMainName & " ")
 
                 If newMainName Is Nothing Then Exit Sub           ' ← Cancel
 
