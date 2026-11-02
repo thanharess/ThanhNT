@@ -176,6 +176,84 @@ Namespace ToolInventor2020
             Catch
             End Try
         End Sub
+
+        Private Sub AddToGetStartedTab(ribbonName As String, buttons As System.Collections.Generic.List(Of ButtonDefinition))
+            Try
+                Dim ribbonObj As Ribbon = g_inventorApplication.UserInterfaceManager.Ribbons.Item(ribbonName)
+
+                ' Tab Get Started
+                Dim getStartedTab As RibbonTab = Nothing
+                Try
+                    getStartedTab = ribbonObj.RibbonTabs.Item("id_GetStarted")
+                Catch
+                    ' Một số bản Inventor dùng tên khác
+                    Try
+                        getStartedTab = ribbonObj.RibbonTabs.Item("id_TabGetStarted")
+                    Catch
+                        getStartedTab = Nothing
+                    End Try
+                End Try
+
+                If getStartedTab Is Nothing Then Exit Sub
+
+                Dim panel As RibbonPanel = Nothing
+                Try
+                    panel = getStartedTab.RibbonPanels.Add("", "ToolInventor2020_GetStartedPanel_" & ribbonName, AddInClientID)
+                Catch
+                    Try
+                        panel = getStartedTab.RibbonPanels.Item("ToolInventor2020_GetStartedPanel_" & ribbonName)
+                    Catch
+                        panel = Nothing
+                    End Try
+                End Try
+
+                If panel IsNot Nothing AndAlso buttons IsNot Nothing Then
+                    For Each bd As ButtonDefinition In buttons
+                        panel.CommandControls.AddButton(bd)
+                    Next
+                End If
+            Catch
+            End Try
+        End Sub
+
+        Private Sub AddToCollaborateTab(ribbonName As String, buttons As System.Collections.Generic.List(Of ButtonDefinition))
+            Try
+                Dim ribbonObj As Ribbon = g_inventorApplication.UserInterfaceManager.Ribbons.Item(ribbonName)
+
+                ' Tab Collaborate
+                Dim collabTab As RibbonTab = Nothing
+                Try
+                    collabTab = ribbonObj.RibbonTabs.Item("id_OnlineTab")
+                Catch
+                    Try
+                        collabTab = ribbonObj.RibbonTabs.Item("id_OnlineTab")
+                    Catch
+                        collabTab = Nothing
+                    End Try
+                End Try
+
+                If collabTab Is Nothing Then Exit Sub
+
+                Dim panel As RibbonPanel = Nothing
+                Try
+                    panel = collabTab.RibbonPanels.Add(" ", "ToolInventor2020_CollabPanel_" & ribbonName, AddInClientID)
+                Catch
+                    Try
+                        panel = collabTab.RibbonPanels.Item("ToolInventor2020_CollabPanel_" & ribbonName)
+                    Catch
+                        panel = Nothing
+                    End Try
+                End Try
+
+                If panel IsNot Nothing AndAlso buttons IsNot Nothing Then
+                    For Each bd As ButtonDefinition In buttons
+                        panel.CommandControls.AddButton(bd)
+                    Next
+                End If
+            Catch
+            End Try
+        End Sub
+
         Private Sub AddTabPanelButtons(ribbonName As String, tabDisplayName As String, tabInternalName As String, panelDisplayName As String, panelInternalName As String, buttons As System.Collections.Generic.List(Of ButtonDefinition), Optional usePulldownOnly As Boolean = False)
             Try
                 Dim ribbonObj As Ribbon = g_inventorApplication.UserInterfaceManager.Ribbons.Item(ribbonName)
@@ -289,9 +367,19 @@ Namespace ToolInventor2020
             ' AddTabPanelButtons("Assembly", "Tool Bom", "ToolInventor2020_AssemblyTab3", "Tool Assembly 2", "ToolInventor2020_AssemblyPanel3", m_assembly3Buttons, False)
 
             ' Đưa Combo Tool vào tab Tools
-            AddToToolsTab("Part", m_toolButtons)
-            AddToToolsTab("Assembly", m_toolButtons)
-            AddToToolsTab("Drawing", m_toolButtons)
+            ''   AddToToolsTab("Part", m_toolButtons)
+            ''   AddToToolsTab("Assembly", m_toolButtons)
+            ''  AddToToolsTab("Drawing", m_toolButtons) ' chạy đc
+
+            ' Đưa Combo Tool vào tab Get Started
+            ''  AddToGetStartedTab("Part", m_toolButtons)
+            ''   AddToGetStartedTab("Assembly", m_toolButtons)
+            ''  AddToGetStartedTab("Drawing", m_toolButtons)
+
+            ' Đưa Combo Tool vào tab Collaborate
+            AddToCollaborateTab("Part", m_toolButtons)
+            AddToCollaborateTab("Assembly", m_toolButtons)
+            AddToCollaborateTab("Drawing", m_toolButtons)
 
             '' Get the part ribbon.
             ' Dim partRibbon As Ribbon = g_inventorApplication.UserInterfaceManager.Ribbons.Item("Part")
