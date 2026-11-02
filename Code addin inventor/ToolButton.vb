@@ -144,19 +144,19 @@ Namespace ToolInventor2020
 
 
             '===== 4 NÚT COMBO TRÊN TAB TOOLS =====
-            Dim toolBtnCombo1 As ButtonDefinition = controlDefs.AddButtonDefinition(" ", "ToolInventor2020_Tool_Part", CommandTypesEnum.kShapeEditCmdType, addInClientID, "Mở menu Part Tools", "", ToolDrawSmallIcon1, ToolDrawLargeIcon1)
+            Dim toolBtnCombo1 As ButtonDefinition = controlDefs.AddButtonDefinition(" ", "ToolInventor2020_Tool_Part", CommandTypesEnum.kShapeEditCmdType, addInClientID, "Mở menu Part Tools", , ToolDrawSmallIcon1, ToolDrawLargeIcon1)
             AddHandler toolBtnCombo1.OnExecute, AddressOf Toolngoai.Button_Part.OnExecute
             buttonsList.Add(toolBtnCombo1)
 
-            Dim toolBtnCombo2 As ButtonDefinition = controlDefs.AddButtonDefinition("  ", "ToolInventor2020_Tool_Assembly", CommandTypesEnum.kShapeEditCmdType, addInClientID, "Mở menu Assembly Tools", "", ToolDrawSmallIcon2, ToolDrawLargeIcon2)
+            Dim toolBtnCombo2 As ButtonDefinition = controlDefs.AddButtonDefinition("  ", "ToolInventor2020_Tool_Assembly", CommandTypesEnum.kShapeEditCmdType, addInClientID, "Mở menu Assembly Tools", , ToolDrawSmallIcon2, ToolDrawLargeIcon2)
             AddHandler toolBtnCombo2.OnExecute, AddressOf Toolngoai.Button_Assembly.OnExecute
             buttonsList.Add(toolBtnCombo2)
 
-            Dim toolBtnCombo3 As ButtonDefinition = controlDefs.AddButtonDefinition("   ", "ToolInventor2020_Tool_BOM", CommandTypesEnum.kShapeEditCmdType, addInClientID, "Mở menu BOM Tools", "", ToolDrawSmallIcon3, ToolDrawLargeIcon3)
+            Dim toolBtnCombo3 As ButtonDefinition = controlDefs.AddButtonDefinition("   ", "ToolInventor2020_Tool_BOM", CommandTypesEnum.kShapeEditCmdType, addInClientID, "Mở menu BOM Tools", , ToolDrawSmallIcon3, ToolDrawLargeIcon3)
             AddHandler toolBtnCombo3.OnExecute, AddressOf Toolngoai.Button_Assembly2.OnExecute
             buttonsList.Add(toolBtnCombo3)
 
-            Dim toolBtnCombo4 As ButtonDefinition = controlDefs.AddButtonDefinition("    ", "ToolInventor2020_Tool_Drawing", CommandTypesEnum.kShapeEditCmdType, addInClientID, "Mở menu Drawing Tools", "", ToolDrawSmallIcon4, ToolDrawLargeIcon4)
+            Dim toolBtnCombo4 As ButtonDefinition = controlDefs.AddButtonDefinition("    ", "ToolInventor2020_Tool_Drawing", CommandTypesEnum.kShapeEditCmdType, addInClientID, "Mở menu Drawing Tools",, ToolDrawSmallIcon4, ToolDrawLargeIcon4)
             AddHandler toolBtnCombo4.OnExecute, AddressOf Toolngoai.Button_Drawing.OnExecute
             buttonsList.Add(toolBtnCombo4)
 
