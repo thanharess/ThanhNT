@@ -114,6 +114,8 @@ Namespace ToolInventor2020
             ' Call AddToUserInterface unconditionally so the Assembly tab/panel is created
             ' even when firstTime is False (the ribbon can be reset at other times).
             AddToUserInterface()
+
+            Toolngoai.ShortcutKeys.Start()
         End Sub
 
         ' This method is called by Inventor when the AddIn is unloaded. The AddIn will be
@@ -128,6 +130,7 @@ Namespace ToolInventor2020
 
             System.GC.Collect()
             System.GC.WaitForPendingFinalizers()
+            Toolngoai.ShortcutKeys.Stop()
         End Sub
 
         ' This property is provided to allow the AddIn to expose an API of its own to other 
