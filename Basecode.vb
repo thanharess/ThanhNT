@@ -390,8 +390,6 @@ Namespace ToolInventor2020
             '' Add a button.
             ' customPanel.CommandControls.AddButton(m_ToolButton)
 
-
-
             '' Get the part ribbon.
             ' Dim assemblyRibbon As Ribbon = g_inventorApplication.UserInterfaceManager.Ribbons.Item("Assembly")
             '' Get the "Tools" tab.
@@ -400,8 +398,6 @@ Namespace ToolInventor2020
             'Dim customPanel1 As RibbonPanel = toolsTab1.RibbonPanels.Add("jjj", "MysSampleq", AddInClientID)
             '' Add a button.
             ' customPanel1.CommandControls.AddButton(m_ToolButton)
-
-
 
             '' Get the part ribbon.
             ' Dim DrawingRibbon As Ribbon = g_inventorApplication.UserInterfaceManager.Ribbons.Item("Drawing")
