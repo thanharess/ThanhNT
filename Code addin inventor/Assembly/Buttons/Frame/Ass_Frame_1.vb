@@ -16,6 +16,15 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
 
         Private Const SICK_DISPLAY_STATE As Integer = 46852
 
+        '============================================================
+        ' ⭐ DEBUG: bật/tắt collapse để xem kết quả
+        '   True  = KHÔNG collapse (giữ browser mở để xem)
+        '   False = collapse như bình thường
+        '
+        '   ★ Khi cần dùng collapse → đổi thành False
+        '============================================================
+        Private Const DISABLE_COLLAPSE As Boolean = True
+
         Private Enum FrameTreatmentType
             Unknown = 0
             TrimExtend = 1
@@ -37,10 +46,121 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
         Private _sickTreatments As New List(Of SickFrameInfo)
 
         '============================================================
+        ' BỎ QUA CÁC NHÁNH KHÔNG CHỨA FRAME TREATMENT
+        '
+        '   Assembly / Part:
+        '     • Origin
+        '     • Relationships
+        '     • Representations
+        '     • End of Features
+        '     • Welds
+        '     • Machining
+        '     • Frame Reference Model
+        '     • Substitutes
+        '     • Reference Skeleton
+        '
+        '   Khớp mềm:
+        '     • Model States: [Primary]  (mọi biến thể)
+        '     • Sketch / Sketch Rectangular Pattern...
+        '============================================================
+        Private Function ShouldSkipBranch(ByVal label As String) As Boolean
+            If String.IsNullOrEmpty(label) Then Return False
+
+            Dim l As String = label.Trim().ToLowerInvariant()
+
+            '--- Bỏ hậu tố ":N" ---
+            Dim idx As Integer = l.LastIndexOf(":"c)
+            If idx > 0 Then
+                Dim tail As String = l.Substring(idx + 1)
+                Dim n As Integer
+                If Integer.TryParse(tail, n) Then l = l.Substring(0, idx).Trim()
+            End If
+
+            '==========================================================
+            ' 1. KHỚP CHÍNH XÁC — node hệ thống Inventor
+            '==========================================================
+            Select Case l
+                Case "origin",
+                     "relationships",
+                     "representations",
+                     "end of features",
+                     "welds",
+                     "machining",
+                     "frame reference model",
+                     "substitutes",
+                     "reference skeleton",
+                     "folded model",
+                     "center point",
+                     "work plane",
+                     "work axis",
+                     "work point"
+                    Return True
+            End Select
+
+            '==========================================================
+            ' 2. STARTSWITH — nhóm tiền tố cố định
+            '==========================================================
+            Dim fixedPrefixes() As String = {
+                "model states",
+                "sketch",
+                "reference skeleton",
+                "work plane",
+                "work axis",
+                "work point",
+                "plane ",
+                "plane:",
+                "axis ",
+                "axis:",
+                "solid "
+            }
+
+            For Each p As String In fixedPrefixes
+                If l.StartsWith(p) Then Return True
+            Next
+
+            '==========================================================
+            ' 3. STARTSWITH — mã tiêu chuẩn (ISO/DIN/JIS/GB/ANSI...)
+            '    Khớp cả "iso 4762 m16 x 50" vì chỉ cần bắt đầu bằng "iso "
+            '==========================================================
+            Dim stdPrefixes() As String = {
+                "origin", "relationships", "representations", "end of features", "welds", "part", "iso 4762", "iso 7089",
+                     "machining", "frame reference model", "substitutes", "reference skeleton", "folded model", "bulong", "iso 4032", "iso 4033", "iso 4034", "iso 4035",
+                     "con", "cai", "nut", "bolt", "screw", "washer", "pin", "clip", "spring", "ring", "seal", "gasket", "bearing", "bushing", "spacer", "retainer", "fastener", "hardware",
+                        "screwdriver", "wrench", "tool", "fixture", "jig", "clamp", "bracket", "support", "mount", "adapter", "connector", "coupling", "joint", "hinge", "latch",
+                        "lock", "catch", "handle", "knob", "lever", "pedal", "button", "switch", "valve", "hose", "duct", "dây", "belt", "gia do", "skf", "nsk", "timken", "fag", "ina", "koyo", "ntn", "schaeffler", "thk", "igus", "misumi", "misumi",
+                  "tam", "motor", "gối", "vòng", "ecu", "tang", "ma", "luoi", "long den", "dem venh", "vit", "nut", "con lan", "thep tam", "work plane", "plane", "Center Point", "solid"
+                              }
+
+            For Each p As String In stdPrefixes
+                If l.StartsWith(p) Then Return True
+            Next
+
+            '==========================================================
+            ' 4. CONTAINS — từ khóa vật tư phụ (bolt, nut, screw...)
+            '==========================================================
+            Dim keywords() As String = {
+                "bolt", "screw", "nut", "washer", "pin", "clip",
+                "spring", "ring", "seal", "gasket", "bearing",
+                "bushing", "spacer", "retainer", "fastener", "hardware",
+                "screwdriver", "wrench", "fixture", "jig", "clamp",
+                "adapter", "connector", "coupling", "hinge", "latch",
+                "handle", "knob", "lever", "pedal", "switch", "valve",
+                "hose", "duct", "belt", "motor",
+                "bulong", "bulông", "long đền", "vòng bi", "gối đỡ",
+                "vít", "đai ốc", "tấm", "lưới"
+            }
+
+            For Each kw As String In keywords
+                If l.Contains(kw) Then Return True
+            Next
+
+            Return False
+        End Function
+
+        '============================================================
         ' GET INVENTOR APPLICATION
         '============================================================
         Private Function GetInventorApplication(ByVal Context As NameValueMap) As Inventor.Application
-
             Dim app As Inventor.Application = Nothing
 
             Try
@@ -65,189 +185,13 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
             End Try
 
             Return app
-
-        End Function
-
-        '============================================================
-        ' GỌI LỆNH CÓ SẴN CỦA INVENTOR
-        '============================================================
-        Private Function TryExecuteCommand(ParamArray names() As String) As Boolean
-
-            If _invApp Is Nothing Then Return False
-
-            For Each nm As String In names
-                Try
-                    Dim cmd As ControlDefinition =
-                        _invApp.CommandManager.ControlDefinitions.Item(nm)
-                    If cmd IsNot Nothing AndAlso cmd.Enabled Then
-                        cmd.Execute()
-                        Try : System.Windows.Forms.Application.DoEvents() : Catch : End Try
-                        Try : System.Threading.Thread.Sleep(250) : Catch : End Try
-                        Return True
-                    End If
-                Catch
-                End Try
-            Next
-
-            Return False
-
-        End Function
-
-        '============================================================
-        ' ⭐ BẢNG TICK CHỌN LOẠI XỬ LÝ
-        '============================================================
-        Private Function ShowTreatmentSelector(
-            ByVal trimCount As Integer,
-            ByVal miterCount As Integer,
-            ByVal notchCount As Integer,
-            ByVal lengthenCount As Integer,
-            ByVal cornersCount As Integer) As HashSet(Of FrameTreatmentType)
-
-            Dim result As HashSet(Of FrameTreatmentType) = Nothing
-
-            Dim f As New System.Windows.Forms.Form
-            f.Text = "FRAME GENERATOR - Chọn loại xử lý"
-            f.Width = 440
-            f.Height = 380
-            f.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
-            f.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-            f.MaximizeBox = False
-            f.MinimizeBox = False
-            f.ShowInTaskbar = False
-
-            Dim lblTitle As New System.Windows.Forms.Label
-            lblTitle.Text = "Chọn loại Frame Treatment muốn xóa:"
-            lblTitle.Location = New System.Drawing.Point(15, 15)
-            lblTitle.AutoSize = True
-            f.Controls.Add(lblTitle)
-
-            '----- 4 loại chính (mặc định TICK) -----
-            Dim cbTrim As New System.Windows.Forms.CheckBox
-            cbTrim.Text = "Trim / Extend                  (" & trimCount.ToString() & ")"
-            cbTrim.Location = New System.Drawing.Point(20, 45)
-            cbTrim.Width = 380
-            cbTrim.Checked = True
-            cbTrim.Enabled = (trimCount > 0)
-            f.Controls.Add(cbTrim)
-
-            Dim cbMiter As New System.Windows.Forms.CheckBox
-            cbMiter.Text = "Miter / Mitre                  (" & miterCount.ToString() & ")"
-            cbMiter.Location = New System.Drawing.Point(20, 70)
-            cbMiter.Width = 380
-            cbMiter.Checked = True
-            cbMiter.Enabled = (miterCount > 0)
-            f.Controls.Add(cbMiter)
-
-            Dim cbNotch As New System.Windows.Forms.CheckBox
-            cbNotch.Text = "Notch                          (" & notchCount.ToString() & ")"
-            cbNotch.Location = New System.Drawing.Point(20, 95)
-            cbNotch.Width = 380
-            cbNotch.Checked = True
-            cbNotch.Enabled = (notchCount > 0)
-            f.Controls.Add(cbNotch)
-
-            Dim cbLengthen As New System.Windows.Forms.CheckBox
-            cbLengthen.Text = "Lengthen / Shorten             (" & lengthenCount.ToString() & ")"
-            cbLengthen.Location = New System.Drawing.Point(20, 120)
-            cbLengthen.Width = 380
-            cbLengthen.Checked = True
-            cbLengthen.Enabled = (lengthenCount > 0)
-            f.Controls.Add(cbLengthen)
-
-            '----- Đường phân cách -----
-            Dim sep As New System.Windows.Forms.Label
-            sep.Text = ""
-            sep.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-            sep.Location = New System.Drawing.Point(20, 155)
-            sep.Width = 380
-            sep.Height = 2
-            f.Controls.Add(sep)
-
-            '----- Insert End Cap / Corners — MẶC ĐỊNH KHÔNG TICK -----
-            Dim cbCorners As New System.Windows.Forms.CheckBox
-            cbCorners.Text = "Insert End Cap / Corners  (" & cornersCount.ToString() & ")"
-            cbCorners.Location = New System.Drawing.Point(20, 170)
-            cbCorners.Width = 380
-            cbCorners.Checked = False
-            cbCorners.Enabled = (cornersCount > 0)
-            cbCorners.Font = New System.Drawing.Font(cbCorners.Font, System.Drawing.FontStyle.Bold)
-            f.Controls.Add(cbCorners)
-
-            Dim lblNote As New System.Windows.Forms.Label
-            lblNote.Text = "(Mặc định KHÔNG xóa — tick vào nếu muốn xóa)"
-            lblNote.Location = New System.Drawing.Point(38, 195)
-            lblNote.AutoSize = True
-            lblNote.ForeColor = System.Drawing.Color.Gray
-            f.Controls.Add(lblNote)
-
-            '----- Nút chọn tất cả / bỏ chọn -----
-            Dim btnAll As New System.Windows.Forms.Button
-            btnAll.Text = "Chọn tất cả"
-            btnAll.Location = New System.Drawing.Point(20, 230)
-            btnAll.Width = 100
-            AddHandler btnAll.Click, Sub()
-                                         If cbTrim.Enabled Then cbTrim.Checked = True
-                                         If cbMiter.Enabled Then cbMiter.Checked = True
-                                         If cbNotch.Enabled Then cbNotch.Checked = True
-                                         If cbLengthen.Enabled Then cbLengthen.Checked = True
-                                         If cbCorners.Enabled Then cbCorners.Checked = True
-                                     End Sub
-            f.Controls.Add(btnAll)
-
-            Dim btnNone As New System.Windows.Forms.Button
-            btnNone.Text = "Bỏ chọn"
-            btnNone.Location = New System.Drawing.Point(130, 230)
-            btnNone.Width = 100
-            AddHandler btnNone.Click, Sub()
-                                          cbTrim.Checked = False
-                                          cbMiter.Checked = False
-                                          cbNotch.Checked = False
-                                          cbLengthen.Checked = False
-                                          cbCorners.Checked = False
-                                      End Sub
-            f.Controls.Add(btnNone)
-
-            '----- Nút OK / Cancel -----
-            Dim btnOK As New System.Windows.Forms.Button
-            btnOK.Text = "OK"
-            btnOK.Location = New System.Drawing.Point(200, 285)
-            btnOK.Width = 90
-            btnOK.DialogResult = System.Windows.Forms.DialogResult.OK
-            f.Controls.Add(btnOK)
-
-            Dim btnCancel As New System.Windows.Forms.Button
-            btnCancel.Text = "Cancel"
-            btnCancel.Location = New System.Drawing.Point(300, 285)
-            btnCancel.Width = 90
-            btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel
-            f.Controls.Add(btnCancel)
-
-            f.AcceptButton = btnOK
-            f.CancelButton = btnCancel
-
-            If f.ShowDialog() = System.Windows.Forms.DialogResult.OK Then
-
-                result = New HashSet(Of FrameTreatmentType)
-
-                If cbTrim.Checked Then result.Add(FrameTreatmentType.TrimExtend)
-                If cbMiter.Checked Then result.Add(FrameTreatmentType.Miter)
-                If cbNotch.Checked Then result.Add(FrameTreatmentType.Notch)
-                If cbLengthen.Checked Then result.Add(FrameTreatmentType.LengthenShorten)
-                If cbCorners.Checked Then result.Add(FrameTreatmentType.Corners)
-
-            End If
-
-            Return result
-
         End Function
 
         '============================================================
         ' MAIN BUTTON
         '============================================================
         Public Sub OnExecute(ByVal Context As NameValueMap)
-
             Try
-
                 _invApp = GetInventorApplication(Context)
                 If _invApp Is Nothing Then Return
 
@@ -269,20 +213,21 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
 
                 ForceUpdate(asmDoc)
 
-                '--- EXPAND ALL ---
                 ForceExpandAllBrowser(doc)
 
-                '--- SCAN ---
+                Try : System.Windows.Forms.Application.DoEvents() : Catch : End Try
+                Try : System.Threading.Thread.Sleep(200) : Catch : End Try
+
                 _sickTreatments.Clear()
                 ScanFrameBrowser(doc)
 
                 If _sickTreatments.Count = 0 Then
                     MessageBox.Show("Không tìm thấy Frame Treatment bị lỗi.",
                                     "Frame Generator", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Try : ForceCollapseAll() : Catch : End Try
                     Return
                 End If
 
-                '--- ĐẾM ---
                 Dim trimCount As Integer = 0
                 Dim miterCount As Integer = 0
                 Dim notchCount As Integer = 0
@@ -300,53 +245,53 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
                     End Select
                 Next
 
-                '--- BẢNG TICK CHỌN LOẠI XỬ LÝ ---
-                Dim allowed As HashSet(Of FrameTreatmentType) =
-                    ShowTreatmentSelector(trimCount, miterCount, notchCount, lengthenCount, cornersCount)
+                Dim total As Integer = trimCount + miterCount + notchCount + lengthenCount + cornersCount
 
-                If allowed Is Nothing Then Return      ' user bấm Cancel
-                If allowed.Count = 0 Then Return        ' không tick cái nào
+                Dim scanInfo As New StringBuilder
+                scanInfo.AppendLine("Phát hiện " & total.ToString() & " Frame Treatment bị Sick.")
+                scanInfo.AppendLine()
+                If trimCount > 0 Then scanInfo.AppendLine("Trim / Extend     : " & trimCount.ToString())
+                If miterCount > 0 Then scanInfo.AppendLine("Miter             : " & miterCount.ToString())
+                If notchCount > 0 Then scanInfo.AppendLine("Notch             : " & notchCount.ToString())
+                If lengthenCount > 0 Then scanInfo.AppendLine("Lengthen / Shorten: " & lengthenCount.ToString())
+                If cornersCount > 0 Then scanInfo.AppendLine("Corners           : " & cornersCount.ToString())
+                scanInfo.AppendLine()
+                scanInfo.AppendLine("Đang tự động sửa...")
 
-                '--- XỬ LÝ theo danh sách đã chọn ---
-                ProcessSickTreatments(asmDoc, allowed)
+                MessageBox.Show(scanInfo.ToString(), "FRAME GENERATOR",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+                ProcessSickTreatments(asmDoc)
 
             Catch ex As Exception
                 MessageBox.Show("LỖI:" & vbCrLf & vbCrLf & ex.Message, "Frame Generator",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error)
-
             Finally
-                '  Try : ForceCollapseAll() : Catch : End Try
+                ' ⭐ Collapse All — chỉ chạy khi DISABLE_COLLAPSE = False
+                Try : ForceCollapseAll() : Catch : End Try
             End Try
-
         End Sub
 
         '============================================================
         ' FORCE UPDATE
         '============================================================
         Private Sub ForceUpdate(ByVal asmDoc As AssemblyDocument)
-
             If asmDoc Is Nothing Then Return
-
             Try : asmDoc.Update2(True) : Catch : End Try
             Try : asmDoc.Rebuild2() : Catch : End Try
             Try
                 If _invApp IsNot Nothing Then _invApp.ActiveView.Update()
             Catch
             End Try
-
         End Sub
 
         '============================================================
         ' SCAN FRAME BROWSER
         '============================================================
         Private Sub ScanFrameBrowser(ByVal doc As Inventor.Document)
-
             If doc Is Nothing Then Return
-
             Try
-
                 Dim pane As Inventor.BrowserPane = Nothing
-
                 Try
                     pane = doc.BrowserPanes.Item("Model")
                 Catch
@@ -361,21 +306,17 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
                 If pane.TopNode Is Nothing Then Return
 
                 ScanBrowserNode(pane.TopNode)
-
             Catch
             End Try
-
         End Sub
 
         '============================================================
         ' SCAN NODE
         '============================================================
         Private Sub ScanBrowserNode(ByVal node As Inventor.BrowserNode)
-
             If node Is Nothing Then Return
 
             Try
-
                 Dim label As String = ""
                 Dim fullPath As String = ""
                 Dim tooltip As String = ""
@@ -391,6 +332,8 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
                         label = ""
                     End Try
                 End Try
+
+                If ShouldSkipBranch(label) Then Return
 
                 Try
                     fullPath = node.FullPath
@@ -413,9 +356,7 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
                 Try
                     Dim ds As Object = node.BrowserNodeDefinition.DisplayState
                     Dim stateNumber As Integer = Convert.ToInt32(ds)
-
                     If stateNumber = SICK_DISPLAY_STATE Then isSick = True
-
                     If Not isSick Then
                         Select Case stateNumber
                             Case 46852, 46853, 46854, 46855
@@ -454,14 +395,11 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
                 End If
 
                 If isSick Then
-
                     Dim treatmentType As FrameTreatmentType =
                         DetectTreatmentType(label, fullPath, tooltip)
 
                     If treatmentType <> FrameTreatmentType.Unknown Then
-
                         If Not IsAlreadyAdded(node) Then
-
                             Dim info As New SickFrameInfo
                             info.Node = node
                             info.Label = label
@@ -469,13 +407,9 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
                             info.ToolTip = tooltip
                             info.NativeObject = nativeObj
                             info.TreatmentType = treatmentType
-
                             _sickTreatments.Add(info)
-
                         End If
-
                     End If
-
                 End If
 
                 Dim children As Object = Nothing
@@ -491,9 +425,7 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
                             Try
                                 Dim childNode As Inventor.BrowserNode =
                                     DirectCast(child, Inventor.BrowserNode)
-                                If childNode IsNot Nothing Then
-                                    ScanBrowserNode(childNode)
-                                End If
+                                If childNode IsNot Nothing Then ScanBrowserNode(childNode)
                             Catch
                             End Try
                         Next
@@ -503,7 +435,6 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
 
             Catch
             End Try
-
         End Sub
 
         '============================================================
@@ -545,16 +476,13 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
             End If
 
             Return FrameTreatmentType.Unknown
-
         End Function
 
         '============================================================
         ' DUPLICATE
         '============================================================
         Private Function IsAlreadyAdded(ByVal node As Inventor.BrowserNode) As Boolean
-
             If node Is Nothing Then Return False
-
             For Each item As SickFrameInfo In _sickTreatments
                 If item Is Nothing Then Continue For
                 Try
@@ -562,24 +490,17 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
                 Catch
                 End Try
             Next
-
             Return False
-
         End Function
 
         '============================================================
-        ' PROCESS — chỉ xử lý loại nằm trong allowed
+        ' PROCESS
         '============================================================
-        Private Sub ProcessSickTreatments(
-            ByVal asmDoc As AssemblyDocument,
-            ByVal allowed As HashSet(Of FrameTreatmentType))
-
+        Private Sub ProcessSickTreatments(ByVal asmDoc As AssemblyDocument)
             Dim deleteSuccess As Integer = 0
             Dim deleteFailed As Integer = 0
-            Dim skipped As Integer = 0
 
             Dim workList As New List(Of SickFrameInfo)
-
             For Each item As SickFrameInfo In _sickTreatments
                 If item IsNot Nothing Then workList.Add(item)
             Next
@@ -592,15 +513,10 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
             End Try
 
             For i As Integer = workList.Count - 1 To 0 Step -1
-
                 Dim item As SickFrameInfo = workList(i)
                 If item Is Nothing Then Continue For
 
-                '--- ⭐ Bỏ qua nếu loại này không được tick ---
-                If Not allowed.Contains(item.TreatmentType) Then
-                    skipped += 1
-                    Continue For
-                End If
+                If ShouldSkipBranch(item.Label) Then Continue For
 
                 If item.TreatmentType = FrameTreatmentType.TrimExtend OrElse
                    item.TreatmentType = FrameTreatmentType.Miter OrElse
@@ -661,14 +577,13 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
                     Try : _invApp.ActiveView.Update() : Catch : End Try
 
                     Dim stillExists As Boolean = BrowserNodeStillExists(asmDoc, item.FullPath)
+
                     If stillExists Then
                         deleteFailed += 1
                     Else
                         deleteSuccess += 1
                     End If
-
                 End If
-
             Next
 
             Try : asmDoc.Update2(True) : Catch : End Try
@@ -704,9 +619,6 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
             result.AppendLine("ĐÃ SỬA:")
             result.AppendLine("Delete thành công : " & deleteSuccess.ToString())
             result.AppendLine("Delete thất bại   : " & deleteFailed.ToString())
-            If skipped > 0 Then
-                result.AppendLine("Bỏ qua (không tick): " & skipped.ToString())
-            End If
             result.AppendLine()
             result.AppendLine("CÒN SICK:")
             result.AppendLine("Trim / Extend     : " & remainTrim.ToString())
@@ -728,7 +640,6 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
 
             MessageBox.Show(result.ToString(), "FRAME GENERATOR",
                             MessageBoxButtons.OK, MessageBoxIcon.Information)
-
         End Sub
 
         '============================================================
@@ -748,7 +659,6 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
             Catch
                 Return False
             End Try
-
         End Function
 
         Private Function SearchBrowserPath(
@@ -785,47 +695,121 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
             End Try
 
             Return False
-
         End Function
 
         '============================================================
-        ' FORCE EXPAND — CHỈ gọi lệnh ExpandAllCmd của Inventor
+        ' FORCE EXPAND — bỏ qua các nhánh không cần
         '============================================================
         Private Sub ForceExpandAllBrowser(ByVal doc As Inventor.Document)
-
             If doc Is Nothing Then Return
 
+            Dim pane As Inventor.BrowserPane = Nothing
             Try
-                Dim pane As Inventor.BrowserPane = Nothing
-                Try
-                    pane = doc.BrowserPanes.Item("Model")
-                Catch
-                    Try : pane = doc.BrowserPanes.ActivePane : Catch : End Try
-                End Try
+                pane = doc.BrowserPanes.Item("Model")
+            Catch
+                Try : pane = doc.BrowserPanes.ActivePane : Catch : End Try
+            End Try
 
-                If pane IsNot Nothing Then
-                    Try : pane.Activate() : Catch : End Try
-                End If
+            If pane Is Nothing Then Return
+            If pane.TopNode Is Nothing Then Return
+
+            Try : ExpandNodeRecursive(pane.TopNode, 0) : Catch : End Try
+
+            Try : System.Windows.Forms.Application.DoEvents() : Catch : End Try
+            Try : System.Threading.Thread.Sleep(150) : Catch : End Try
+        End Sub
+
+        Private Sub ExpandNodeRecursive(ByVal node As Inventor.BrowserNode, ByVal depth As Integer)
+            If node Is Nothing Then Return
+            If depth > 100 Then Return
+
+            Dim lbl As String = ""
+            Try : lbl = node.BrowserNodeDefinition.Label : Catch : End Try
+
+            If ShouldSkipBranch(lbl) Then Return
+
+            Try
+                If Not node.Expanded Then node.Expanded = True
             Catch
             End Try
 
             Try : System.Windows.Forms.Application.DoEvents() : Catch : End Try
-            Try : System.Threading.Thread.Sleep(100) : Catch : End Try
 
-            TryExecuteCommand("ExpandAllCmd", "BrowserExpandAllCmd", "ExpandAll")
+            Dim childCount As Integer = 0
+            Try : childCount = node.BrowserNodes.Count : Catch : Return : End Try
+
+            For i As Integer = 1 To childCount
+                Try
+                    Dim child As Inventor.BrowserNode = node.BrowserNodes.Item(i)
+                    ExpandNodeRecursive(child, depth + 1)
+                Catch
+                End Try
+            Next
+        End Sub
+
+        '============================================================
+        ' ⭐ FORCE COLLAPSE — ĐÓNG TOÀN BỘ CÂY THƯ MỤC
+        '
+        '   Code đã sẵn sàng. Muốn chạy → đổi:
+        '       Private Const DISABLE_COLLAPSE As Boolean = False
+        '
+        '   Cơ chế: đệ quy con TRƯỚC, collapse cha SAU.
+        '   Chạy 4 pass để đảm bảo COM async hoàn tất.
+        '============================================================
+        Private Sub ForceCollapseAll()
+            If DISABLE_COLLAPSE Then Return
+            If _invApp Is Nothing Then Return
+
+            Dim doc As Inventor.Document = Nothing
+            Try : doc = _invApp.ActiveDocument : Catch : End Try
+            If doc Is Nothing Then Return
+
+            Dim pane As Inventor.BrowserPane = Nothing
+            Try
+                pane = doc.BrowserPanes.Item("Model")
+            Catch
+                Try : pane = doc.BrowserPanes.ActivePane : Catch : End Try
+            End Try
+
+            If pane Is Nothing Then Return
+            If pane.TopNode Is Nothing Then Return
+
+            For attempt As Integer = 1 To 4
+                Try : CollapseRecursive(pane.TopNode) : Catch : End Try
+                Try : System.Windows.Forms.Application.DoEvents() : Catch : End Try
+                Try : System.Threading.Thread.Sleep(120) : Catch : End Try
+            Next
 
             Try : System.Windows.Forms.Application.DoEvents() : Catch : End Try
-            Try : System.Threading.Thread.Sleep(300) : Catch : End Try
+            Try : System.Threading.Thread.Sleep(150) : Catch : End Try
+        End Sub
 
+        Private Sub CollapseRecursive(ByVal node As Inventor.BrowserNode)
+            If node Is Nothing Then Return
+
+            Dim children As Object = Nothing
+            Try : children = node.BrowserNodes : Catch : End Try
+
+            If children IsNot Nothing Then
+                Dim count As Integer = 0
+                Try : count = children.Count : Catch : End Try
+
+                For i As Integer = 1 To count
+                    Try : CollapseRecursive(children.Item(i)) : Catch : End Try
+                Next
+            End If
+
+            Try
+                If node.Expanded Then node.Expanded = False
+            Catch
+            End Try
         End Sub
 
         '============================================================
         ' ON DEBUG
         '============================================================
         Public Sub OnDebug(ByVal Context As NameValueMap)
-
             Try
-
                 _invApp = GetInventorApplication(Context)
                 If _invApp Is Nothing Then Return
 
@@ -841,17 +825,15 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
                 sb.AppendLine()
 
                 DebugBrowser(doc, sb)
-                ShowDebugText(sb.ToString())
 
+                ShowDebugText(sb.ToString())
             Catch ex As Exception
                 MessageBox.Show(ex.Message, "Frame Debug",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
-
         End Sub
 
         Private Sub DebugBrowser(ByVal doc As Inventor.Document, ByVal sb As StringBuilder)
-
             Try
                 Dim pane As Inventor.BrowserPane = Nothing
                 Try
@@ -866,11 +848,9 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
                 End If
 
                 DebugBrowserNode(pane.TopNode, sb, 0)
-
             Catch ex As Exception
                 sb.AppendLine("BROWSER ERROR: " & ex.Message)
             End Try
-
         End Sub
 
         Private Sub DebugBrowserNode(
@@ -881,7 +861,6 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
             If node Is Nothing Then Return
 
             Try
-
                 Dim indent As String = New String(" "c, level * 2)
 
                 Dim label As String = ""
@@ -921,11 +900,9 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
                     sb.AppendLine(indent & "NAME: " & label)
                     sb.AppendLine(indent & "TYPE: " & GetTreatmentTypeName(treatmentType))
                     sb.AppendLine(indent & "STATE: " & state.ToString())
-
                     If state = SICK_DISPLAY_STATE Then
                         sb.AppendLine(indent & ">>> SICK NODE <<<")
                     End If
-
                     sb.AppendLine(indent & "TOOLTIP: " & tooltip)
                     sb.AppendLine(indent & "NATIVE: " & nativeType)
                     sb.AppendLine(indent & "PATH: " & path)
@@ -949,14 +926,11 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
                     Catch
                     End Try
                 End If
-
             Catch
             End Try
-
         End Sub
 
         Private Function GetTreatmentTypeName(ByVal treatmentType As FrameTreatmentType) As String
-
             Select Case treatmentType
                 Case FrameTreatmentType.TrimExtend : Return "TRIM / EXTEND"
                 Case FrameTreatmentType.Miter : Return "MITER / MITRE"
@@ -965,11 +939,9 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
                 Case FrameTreatmentType.Corners : Return "CORNERS"
                 Case Else : Return "UNKNOWN"
             End Select
-
         End Function
 
         Private Sub ShowDebugText(ByVal text As String)
-
             Dim f As New System.Windows.Forms.Form
             f.Text = "FRAME GENERATOR DEBUG"
             f.Width = 1200
@@ -987,7 +959,6 @@ Namespace ToolInventor2020.Assembly.Buttons.Frame
             f.Controls.Add(tb)
             f.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
             f.ShowDialog()
-
         End Sub
 
     End Module

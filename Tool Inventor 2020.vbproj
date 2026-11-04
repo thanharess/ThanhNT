@@ -119,6 +119,7 @@
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Ass_LG_4.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Cac lenh lap ghep\Lenh_Constrain\Ass_LG_C_1e.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\Frame\old\Ass_Frame_1.vb" />
+    <Compile Include="Code addin inventor\Assembly\Buttons\Frame\old\Ass_Frame_1old1.vb" />
     <Compile Include="Code addin inventor\Assembly\Buttons\View\View_Representation.vb" />
     <Compile Include="Code addin inventor\Code tự chạy\Auto key.vb" />
     <Compile Include="Code addin inventor\Tool ngoai\Button Part.vb" />
