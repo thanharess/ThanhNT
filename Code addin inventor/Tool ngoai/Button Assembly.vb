@@ -38,6 +38,8 @@ Namespace ToolInventor2020.Toolngoai
                     Assembly.Buttons.AutoCreateDrawing.ASS_Auto_Drawing.OnExecute(Context)
                 Case 13 ' Xem lỗi cắt Frame
                     Assembly.Buttons.Frame.Ass_Frame_1.OnExecute(Context)
+                Case 19 ' Xem lỗi cắt Frame
+                    Assembly.Buttons.Frame.Ass_Frame_1B.OnExecute(Context)
                 Case 14 ' Import, EX step & part
                     Assembly.Buttons.Lenhngoaicumlap.Im_EX_step_part.OnExecute(Context)
                 Case 15 ' Design Assistant
@@ -87,15 +89,16 @@ Namespace ToolInventor2020.Toolngoai
                 AddBtn(form, "10. Ẩn all plane part", 45, 400, 10)
                 AddBtn(form, "11. Lọc tấm, mua, Standard", 85, 400, 11)
                 AddBtn(form, "12. Auto Drawing", 125, 400, 12)
-                AddBtn(form, "13. Xem lỗi cắt Frame", 165, 400, 13)
+                AddBtn(form, "13. Xóa lỗi cắt Frame Auto", 165, 400, 13)
                 AddBtn(form, "14. Import / Export step & part", 205, 400, 14)
                 AddBtn(form, "15. Design Assistant", 245, 400, 15)
                 AddBtn(form, "16. Mở nơi lưu File", 285, 400, 16)
                 AddBtn(form, "17. Xóa link OLE", 325, 400, 17)
                 AddBtn(form, "18. Change View Representation", 365, 400, 18)
+                AddBtn(form, "19. Xóa lỗi cắt Frame Handler", 405, 400, 19)
 
                 Dim cancel As New Button() With {
-                    .Text = "HỦY", .Left = 20, .Top = 420, .Width = 720, .Height = 32
+                    .Text = "HỦY", .Left = 20, .Top = 460, .Width = 720, .Height = 32
                 }
                 AddHandler cancel.Click, Sub() form.Close()
                 form.Controls.Add(cancel)

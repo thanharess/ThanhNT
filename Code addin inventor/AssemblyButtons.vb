@@ -332,10 +332,7 @@ Namespace ToolInventor2020
             AddHandler assemblyBtn11.OnExecute, AddressOf Assembly.Buttons.Part.Ass_Part_7.OnExecute
             ''  buttonsList.Add(assemblyBtn11)
 
-            Dim assemblyBtn22 As ButtonDefinition = controlDefs.AddButtonDefinition("Thông số part", "ToolInventor2020_Assembly_Btn22", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                                   Nothing, "Hiển thị chi tiết thông số part", ass1SmallIcon22, ass1LargeIcon22)
-            '  AddHandler assemblyBtn22.OnExecute, AddressOf Assembly.Buttons.Part.Ass_Part_8.OnExecute
-            ' buttonsList.Add(assemblyBtn22)
+
 
 
 
@@ -386,11 +383,15 @@ Namespace ToolInventor2020
 
 #End Region
 #Region "Frame"
-            Dim assemblyBtn26 As ButtonDefinition = controlDefs.AddButtonDefinition("Xem lỗi cắt Frame", "ToolInventor2020_Assembly_Btn26", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                          Nothing, "Auto drawing cho Top lever chỉ áp dụng cho các Assembly.", ass1SmallIcon26, ass1LargeIcon26)
+            Dim assemblyBtn26 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa lỗi cắt Frame", "ToolInventor2020_Assembly_Btn26", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                          Nothing, "Xóa lỗi Frame liên quan tới cắt thanh dùng Explore tự động", ass1SmallIcon26, ass1LargeIcon26)
             AddHandler assemblyBtn26.OnExecute, AddressOf Assembly.Buttons.Frame.Ass_Frame_1.OnExecute
             ''  buttonsList.Add(assemblyBtn26)
 
+            Dim assemblyBtn22 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa lỗi cắt Frame Explore", "ToolInventor2020_Assembly_Btn22", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                                   Nothing, "Xóa lỗi Frame liên quan tới cắt thanh dùng Explore bằng tay", ass1SmallIcon22, ass1LargeIcon22)
+            '' AddHandler assemblyBtn22.OnExecute, AddressOf Assembly.Buttons.Frame.Ass_Frame_1B.OnExecute
+            '' buttonsList.Add(assemblyBtn22)
 
 
 
