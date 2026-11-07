@@ -22,7 +22,7 @@ Namespace ToolInventor2020.Assembly.Buttons.Part
             Dim asmDoc As AssemblyDocument = TryCast(invApp.ActiveDocument, AssemblyDocument)
 
             If asmDoc Is Nothing Then
-                MessageBox.Show("This is not an assembly!", "Visual Studio")
+                MessageBox.Show("This is not an assembly!", "ThanhN")
                 Return
             End If
 

@@ -11,13 +11,13 @@ Namespace ToolInventor2020.Toolngoai
             Dim oDoc As Document = invApp.ActiveDocument
 
             If oDoc Is Nothing Then
-                MessageBox.Show("Không có tài liệu đang mở!", "Visual Studio")
+                MessageBox.Show("Không có tài liệu đang mở!", "ThanhN")
                 Return
             End If
 
             If oDoc.DocumentType <> DocumentTypeEnum.kPartDocumentObject AndAlso
                oDoc.DocumentType <> DocumentTypeEnum.kAssemblyDocumentObject Then
-                MessageBox.Show("Chỉ hỗ trợ file Part (.ipt) hoặc Assembly (.iam)!", "Visual Studio")
+                MessageBox.Show("Chỉ hỗ trợ file Part (.ipt) hoặc Assembly (.iam)!", "ThanhN")
                 Return
             End If
 
@@ -46,9 +46,9 @@ Namespace ToolInventor2020.Toolngoai
                     MessageBox.Show("Đã xử lý xong Part!" & vbCrLf & vbCrLf &
                                     "Excel Tables đã xóa: " & countExcel & vbCrLf &
                                     "Derived Parameters đã xóa: " & countDerived & vbCrLf &
-                                    "OLE Links đã xóa: " & countOLE, "Visual Studio")
+                                    "OLE Links đã xóa: " & countOLE, "ThanhN")
                 Catch ex As Exception
-                    MessageBox.Show("Lỗi: " & ex.Message, "Visual Studio")
+                    MessageBox.Show("Lỗi: " & ex.Message, "ThanhN")
                 Finally
                     invApp.SilentOperation = False
                 End Try
@@ -157,10 +157,10 @@ Namespace ToolInventor2020.Toolngoai
                                 "Số file đã xử lý: " & countDocs & vbCrLf &
                                 "Excel Tables đã xóa: " & countExcel & vbCrLf &
                                 "Derived Parameters đã xóa: " & countDerived & vbCrLf &
-                                "OLE Links đã xóa: " & countOLE, "Visual Studio")
+                                "OLE Links đã xóa: " & countOLE, "ThanhN")
 
             Catch ex As Exception
-                MessageBox.Show("Lỗi: " & ex.Message, "Visual Studio")
+                MessageBox.Show("Lỗi: " & ex.Message, "ThanhN")
             Finally
                 invApp.SilentOperation = False
             End Try

@@ -9,7 +9,7 @@ Namespace ToolInventor2020.Assembly.Buttons.ASS_View
             Dim oDoc As Document = invApp.ActiveDocument
 
             If oDoc Is Nothing OrElse oDoc.DocumentType <> DocumentTypeEnum.kAssemblyDocumentObject Then
-                MessageBox.Show("Chỉ hỗ trợ file Assembly (.iam)!", "Visual Studio")
+                MessageBox.Show("Chỉ hỗ trợ file Assembly (.iam)!", "ThanhN")
                 Return
             End If
 
@@ -53,7 +53,7 @@ Namespace ToolInventor2020.Assembly.Buttons.ASS_View
                 End Select
 
             Catch ex As Exception
-                MessageBox.Show("Lỗi: " & ex.Message, "Visual Studio")
+                MessageBox.Show("Lỗi: " & ex.Message, "ThanhN")
             Finally
                 invApp.SilentOperation = False
             End Try
@@ -65,9 +65,9 @@ Namespace ToolInventor2020.Assembly.Buttons.ASS_View
         Private Sub ActivateView_TopLevel(ByVal oAsmDoc As AssemblyDocument, ByVal viewName As String)
             Dim success As Boolean = ActivateViewInDoc(oAsmDoc, viewName)
             If success Then
-                MessageBox.Show("Đã kích hoạt View """ & viewName & """ (Top Level)", "Visual Studio")
+                MessageBox.Show("Đã kích hoạt View """ & viewName & """ (Top Level)", "ThanhN")
             Else
-                MessageBox.Show("Không tìm thấy View: " & viewName & vbCrLf & "Đã thử fallback Master nếu là Default.", "Visual Studio")
+                MessageBox.Show("Không tìm thấy View: " & viewName & vbCrLf & "Đã thử fallback Master nếu là Default.", "ThanhN")
             End If
         End Sub
 
@@ -91,7 +91,7 @@ Namespace ToolInventor2020.Assembly.Buttons.ASS_View
                             If(needSetOccurrence,
                                "Đã SetDesignViewRepresentation (Associative) trên tất cả occurrence.",
                                "Chỉ kích hoạt View Master (không cần SetOccurrence)."),
-                            "Visual Studio")
+                            "ThanhN")
         End Sub
 
         '=================================================
