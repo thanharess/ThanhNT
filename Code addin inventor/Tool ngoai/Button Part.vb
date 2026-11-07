@@ -12,17 +12,17 @@ Namespace ToolInventor2020.Toolngoai
             Select Case ShowMenue()
 
                 Case 1
-                    Part.Buttons.solid.Part_Solid_1.OnExecute(Context)          ' Thêm dung sai vào dim sketch
+                    Part.Buttons.Tsketch.Part_Sketch_1.OnExecute(Context)          ' Thêm dung sai vào dim sketch
                 Case 2
-                    Part.Buttons.solid.Part_Solid_2.OnExecute(Context)          ' Xóa fix all sketch
+                    Part.Buttons.Tsketch.Part_Sketch_2.OnExecute(Context)          ' Xóa fix all sketch
                 Case 3
-                    Part.Buttons.solid.Part_Solid_3.OnExecute(Context)          ' Tạo coil line 3d
+                    Part.Buttons.Tsketch.Part_Sketch_3.OnExecute(Context)          ' Tạo coil line 3d
                 Case 4
-                    Part.Buttons.solid.Part_Solid_4.OnExecute(Context)          ' Thay tên body
+                    Part.Buttons.solid.Part_Solid_1.OnExecute(Context)          ' Thay tên body
                 Case 5
-                    Part.Buttons.solid.Part_Solid_5.OnExecute(Context)          ' Export từng body
+                    Part.Buttons.solid.Part_Solid_2.OnExecute(Context)          ' Export từng body
                 Case 6
-                    Part.Buttons.solid.Part_Solid_6.OnExecute(Context)          ' Thay tên body theo thứ tự
+                    Part.Buttons.solid.Part_Solid_3.OnExecute(Context)          ' Thay tên body theo thứ tự
                 Case 7
                     Assembly.Buttons.Lenhngoaicumlap.Im_EX_step_part.OnExecute(Context) ' Import step to part
                 Case 8
@@ -31,7 +31,8 @@ Namespace ToolInventor2020.Toolngoai
                     Toolngoai.Vitrifile.Vitrifile()                      ' Mở nơi lưu File
                 Case 10
                     Toolngoai.delete_link_OLE.OnExecute(Context)                ' Xóa link OLE
-
+                Case 11
+                    Part.Buttons.Tsketch.Part_Sketch_4.OnExecute(Context)               ' xóa ALL DIM SKETCH
             End Select
         End Sub
 
@@ -41,7 +42,7 @@ Namespace ToolInventor2020.Toolngoai
             Using form As New Form()
                 form.Text = "Part Tools"
                 form.Width = 520
-                form.Height = 520
+                form.Height = 690
                 form.StartPosition = FormStartPosition.CenterScreen
                 form.FormBorderStyle = FormBorderStyle.FixedDialog
                 form.MaximizeBox = False
@@ -49,7 +50,7 @@ Namespace ToolInventor2020.Toolngoai
                 form.Tag = 0
 
                 Dim title As New Label() With {
-                    .Text = "Chọn lệnh Part (10 lệnh)",
+                    .Text = "Chọn lệnh Part (11 lệnh)",
                     .Left = 20, .Top = 12, .Width = 460, .Height = 26,
                     .Font = New System.Drawing.Font("Segoe UI", 11.0!, System.Drawing.FontStyle.Bold)
                 }
@@ -65,14 +66,16 @@ Namespace ToolInventor2020.Toolngoai
                 AddBtn(form, "8.  Thay màu part", 365, 8)
                 AddBtn(form, "9.  Mở nơi lưu File", 410, 9)
                 AddBtn(form, "10. Xóa link OLE", 455, 10)
+                AddBtn(form, "11. Xóa all dim sketch", 500, 11)
+
 
                 Dim cancel As New Button() With {
-                    .Text = "HỦY", .Left = 20, .Top = 510, .Width = 460, .Height = 32
+                    .Text = "HỦY", .Left = 20, .Top = 600, .Width = 460, .Height = 32
                 }
                 AddHandler cancel.Click, Sub() form.Close()
                 form.Controls.Add(cancel)
 
-                form.Height = 590
+                form.Height = 690
                 form.ShowDialog()
                 result = CInt(form.Tag)
             End Using

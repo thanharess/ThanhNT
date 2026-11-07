@@ -4,31 +4,88 @@ Namespace ToolInventor2020.Part.Buttons.solid
     Public Module Part_Solid_1
         Public Sub OnExecute(ByVal Context As NameValueMap)
             Try
-                ' Action1: ask user for tolerance value, then select sketch dimensions and set symmetric tolerance
-                Dim input As String = Microsoft.VisualBasic.Interaction.InputBox("Enter symmetric tolerance value (e.g. 0.05)", "Tolerance value", "0.05")
-                If String.IsNullOrWhiteSpace(input) Then
-                    g_inventorApplication.UserInterfaceManager.UserInteractionManager.PostStatus("Part Action 1 cancelled by user")
+                g_inventorApplication.StatusBarText = "Thành Design"
+
+                Dim app As Inventor.Application = g_inventorApplication
+                Dim doc As Document = app.ActiveDocument
+
+                ' Pick a solid body
+                Dim picked As Object = app.CommandManager.Pick(SelectionFilterEnum.kPartBodyFilter, "chọn solid")
+                If picked Is Nothing Then
+                    MsgBox("Chưa chọn")
                     Exit Sub
                 End If
 
-                Dim tol As Double
-                If Not Double.TryParse(input, tol) Then
-                    g_inventorApplication.UserInterfaceManager.UserInteractionManager.PostStatus("Invalid tolerance value: " & input)
+                ' Clear and select the picked item
+                doc.SelectSet.Clear()
+                doc.SelectSet.Select(picked)
+
+                Dim sel As SelectSet = doc.SelectSet
+                If sel.Count = 0 Then
+                    MsgBox("Chưa chọn")
                     Exit Sub
                 End If
 
-                Dim oMsg As String = "Select sketch dimensions to apply default tolerance (Press Esc to continue)"
-                While True
-                    Dim oDimension As DimensionConstraint = TryCast(g_inventorApplication.CommandManager.Pick(SelectionFilterEnum.kSketchDimConstraintFilter, oMsg), DimensionConstraint)
-                    ' If nothing gets selected then exit
-                    If oDimension Is Nothing Then Exit While
-                    oDimension.Parameter.Tolerance.SetToSymmetric(tol / 10)
-                End While
+                ' Get new name from user
+                Dim prefix As String = Microsoft.VisualBasic.Interaction.InputBox("Đổi Tên solid Body", "Thành Design", "Prefix")
+                If String.IsNullOrWhiteSpace(prefix) Then
+                    MsgBox("No name entered")
+                    Exit Sub
+                End If
 
-                g_inventorApplication.UserInterfaceManager.UserInteractionManager.PostStatus("Part Action 1 completed")
+                ' Rename selected items (safe casts and per-item error handling)
+                For Each item As Object In sel
+                    Try
+                        Dim sBody As SurfaceBody = TryCast(item, SurfaceBody)
+                        If sBody IsNot Nothing Then
+                            sBody.Name = prefix
+                            Continue For
+                        End If
+
+                        Dim occ As ComponentOccurrence = TryCast(item, ComponentOccurrence)
+                        If occ IsNot Nothing Then
+                            occ.Name = prefix
+                            Continue For
+                        End If
+
+                        ' Fallback: try to set Name property via reflection for other body types
+                        Try
+                            Dim nameProp = item.GetType().GetProperty("Name")
+                            If nameProp IsNot Nothing AndAlso nameProp.CanWrite Then
+                                nameProp.SetValue(item, prefix, Nothing)
+                                Continue For
+                            End If
+                        Catch
+                            ' ignore
+                        End Try
+                    Catch
+                        ' ignore per-item errors
+                    End Try
+                Next
+
+                ' Try adding a user defined property (best-effort)
+                Try
+                    Dim partDoc As PartDocument = TryCast(doc, PartDocument)
+                    If partDoc IsNot Nothing Then
+                        Dim userSet As Inventor.PropertySet = Nothing
+                        For Each ps As Inventor.PropertySet In partDoc.PropertySets
+                            If ps.Name.IndexOf("User Defined", StringComparison.OrdinalIgnoreCase) >= 0 OrElse ps.Name.IndexOf("Inventor User", StringComparison.OrdinalIgnoreCase) >= 0 Then
+                                userSet = ps
+                                Exit For
+                            End If
+                        Next
+                        If userSet IsNot Nothing Then
+                            userSet.Add(prefix, "Prefix")
+                        End If
+                    End If
+                Catch
+                    ' ignore property addition errors
+                End Try
+
+                g_inventorApplication.StatusBarText = "Done"
             Catch ex As Exception
                 Try
-                    g_inventorApplication.UserInterfaceManager.UserInteractionManager.PostStatus("Error in Part Action 1: " & ex.Message)
+                    g_inventorApplication.UserInterfaceManager.UserInteractionManager.PostStatus("Error in Part Action 4: " & ex.Message)
                 Catch
                 End Try
             End Try
