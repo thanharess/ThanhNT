@@ -256,11 +256,7 @@ Namespace ToolInventor2020
             AddHandler assemblyBtn4.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.constraint.Ass_LG_C_1d.OnExecute
             ' buttonsList.Add(assemblyBtn4)
 
-            Dim assemblyBtn27 As ButtonDefinition = controlDefs.AddButtonDefinition("Xóa all Constrain lỗi", "ToolInventor2020_Assembly_Btn27", CommandTypesEnum.kShapeEditCmdType, addInClientID,
-                                                                          Nothing, "Xóa tất cả các constrain lỗi trong Assembly.", ass1SmallIcon27, ass1LargeIcon27)
-            AddHandler assemblyBtn27.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.constraint.Ass_LG_C_1e.OnExecute
-            ' buttonsList.Add(assemblyBtn27)
-            '==============================
+
 
             Dim assemblyBtn16 As ButtonDefinition = controlDefs.AddButtonDefinition("Hiện gốc tọa độ để Constrain", "ToolInventor2020_Assembly_Btn16", CommandTypesEnum.kShapeEditCmdType, addInClientID,
                                                                                     Nothing, "ấn chọn file part hoặc Assembly để hiện gốc tọa độ" & vbCrLf & " ti ếp theo dùng lệnh Constrain để lắp ghép với nhau." & vbCrLf &
@@ -285,6 +281,12 @@ Namespace ToolInventor2020
                                                                                     Nothing, "Tạo, ghép shetmetal to assembly all lever lấy tất cả các tấm kể cả trung tên partnumber. mục 5,6 chưa ok", ass1SmallIcon18, ass1LargeIcon18)
             AddHandler assemblyBtn18.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_LG_3.OnExecute
             ''   buttonsList.Add(assemblyBtn18)
+
+            Dim assemblyBtn27 As ButtonDefinition = controlDefs.AddButtonDefinition("Replace Component", "ToolInventor2020_Assembly_Btn27", CommandTypesEnum.kShapeEditCmdType, addInClientID,
+                                                                          Nothing, "Thay thế component trong Assembly.", ass1SmallIcon27, ass1LargeIcon27)
+            AddHandler assemblyBtn27.OnExecute, AddressOf Assembly.Buttons.caclenhlapghep.Ass_Part_Replace.OnExecute
+            '' buttonsList.Add(assemblyBtn27)
+            '==============================
 
 #End Region
             '==================================================

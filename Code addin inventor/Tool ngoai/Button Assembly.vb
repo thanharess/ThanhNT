@@ -50,6 +50,8 @@ Namespace ToolInventor2020.Toolngoai
                     Toolngoai.delete_link_OLE.OnExecute(Context)
                 Case 18 ' Change View Representation
                     ASS_View.View_Representation.OnExecute(Context)
+                Case 20 ' Replace Component
+                    Assembly.Buttons.caclenhlapghep.Ass_Part_Replace.OnExecute(Context)
 
             End Select
         End Sub
@@ -84,7 +86,7 @@ Namespace ToolInventor2020.Toolngoai
                 AddBtn(form, "7.  Combo part 1", 285, 20, 7)
                 AddBtn(form, "8.  Trải ALL Sheetmetal", 325, 20, 8)
                 AddBtn(form, "9.  Save copy to replace part", 365, 20, 9)
-
+                AddBtn(form, "19. Xóa lỗi cắt Frame Handler", 405, 20, 19)
                 ' Cột 2
                 AddBtn(form, "10. Ẩn all plane part", 45, 400, 10)
                 AddBtn(form, "11. Lọc tấm, mua, Standard", 85, 400, 11)
@@ -95,7 +97,7 @@ Namespace ToolInventor2020.Toolngoai
                 AddBtn(form, "16. Mở nơi lưu File", 285, 400, 16)
                 AddBtn(form, "17. Xóa link OLE", 325, 400, 17)
                 AddBtn(form, "18. Change View Representation", 365, 400, 18)
-                AddBtn(form, "19. Xóa lỗi cắt Frame Handler", 405, 400, 19)
+                AddBtn(form, "20. Replace Component", 405, 400, 20)
 
                 Dim cancel As New Button() With {
                     .Text = "HỦY", .Left = 20, .Top = 460, .Width = 720, .Height = 32
