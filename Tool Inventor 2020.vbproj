@@ -253,7 +253,7 @@
     <Compile Include="Code addin inventor\Part\Buttons\Solid\Part_Solid_1.vb" />
     <Compile Include="Code addin inventor\Part\Buttons\Solid\Part_Solid_2.vb" />
     <Compile Include="Code addin inventor\Part\Buttons\Solid\Part_Solid_3.vb" />
-    <Compile Include="Code addin inventor\Part\Buttons\Button7.vb" />
+    <Compile Include="Code addin inventor\Part\Buttons\Solid\Part_Solid_4.vb" />
     <Compile Include="Code addin inventor\Part\Buttons\Button1.vb" />
     <Compile Include="Code addin inventor\Part\Buttons\Button9.vb" />
     <Compile Include="Code addin inventor\Assembly2\Buttons\BOM code\Ass_Bom_1.vb" />

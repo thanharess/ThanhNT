@@ -8,7 +8,7 @@ Imports System.Windows.Forms
 
 Namespace ToolInventor2020.Part.Buttons
 
-    Public Module Part_Solid_7e
+    Public Module Part_Solid_4
 
         '=========================================================
         ' 24 MATERIAL

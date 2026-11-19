@@ -26,7 +26,7 @@ Namespace ToolInventor2020.Toolngoai
                 Case 7
                     Assembly.Buttons.Lenhngoaicumlap.Im_EX_step_part.OnExecute(Context) ' Import step to part
                 Case 8
-                    Part.Buttons.Part_Solid_7e.OnExecute(Context)               ' Thay màu part
+                    Part.Buttons.Part_Solid_4.OnExecute(Context)               ' Thay màu part
                 Case 9
                     Toolngoai.Vitrifile.Vitrifile()                      ' Mở nơi lưu File
                 Case 10
